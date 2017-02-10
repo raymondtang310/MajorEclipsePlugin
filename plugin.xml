@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="Mutant Set"
+            visible="true"
+            id="org.rayzor.mutant.actionSet">
+         <menu
+               label="Mutant &amp;"
+               id="mutantMenu">
+            <separator
+                  name="mutantGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Mutate"
+               icon="icons/sample.gif"
+               class="org.rayzor.mutant.actions.MutantAction"
+               tooltip="Mutate"
+               menubarPath="mutantMenu/mutantGroup"
+               toolbarPath="mutantGroup"
+               id="org.rayzor.mutant.actions.MutantAction">
+         </action>
+      </actionSet>
+   </extension>
+
+</plugin>

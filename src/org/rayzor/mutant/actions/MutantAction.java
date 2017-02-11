@@ -1,12 +1,6 @@
 package org.rayzor.mutant.actions;
 
-import java.io.File;
-
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
-
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
@@ -22,6 +16,7 @@ import triangle.Mutator;
  * @see IWorkbenchWindowActionDelegate
  */
 public class MutantAction implements IWorkbenchWindowActionDelegate {
+	@SuppressWarnings("unused")
 	private IWorkbenchWindow window;
 	/**
 	 * The constructor.
@@ -36,15 +31,7 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		/*
-		String[] args = new String[1];
-		//args[0] = System.getProperty("user.dir");
-		args[0] = "/home/raymond/workspace/org.rayzor.mutant";
-		MessageDialog.openInformation(
-				window.getShell(),
-				"Mutant",
-				args[0]);
-		*/
+		// Run the Mutator program to generate and compile mutants in Triangle.java
 		Mutator.main(null);
 	}
 

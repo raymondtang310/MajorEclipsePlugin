@@ -27,6 +27,9 @@ public class JavaCompilerMethod {
 		File file2 = new File(path2);
 		// Create JavaCompiler object
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		// Assuming that Major's javac is in the project directory, 
+		// major's compiler will be used and the commented line below will also work
+		// JavaCompiler compiler = JavacTool.create();
 		// Directory in which the .class files will be stored
 		String binPath = root + "/bin";
 		String[] args1 = {"-d", binPath, file1.getPath()};

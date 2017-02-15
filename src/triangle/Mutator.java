@@ -5,8 +5,6 @@ import java.io.File;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
-//import com.sun.tools.javac.api.JavacTool;
-
 /**
  * This program generates and compiles mutants in Triangle.java using JavaCompiler. 
  * 

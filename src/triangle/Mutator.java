@@ -32,8 +32,6 @@ public class Mutator {
 		// This currently does not work for some reason
 		System.setProperty("major.export.mutants", "true");
 		System.setProperty("major.export.directory", mutantsPath);
-		//System.out.println(System.getProperty("-J-Dmajor.export.mutants"));
-		//System.out.println(System.getProperty("-J-Dmajor.export.directory"));
 		String mutateFlag = "-XMutator:ALL";
 		String[] arguments = {"-d", binPath, mutateFlag, file.getPath()};
 		

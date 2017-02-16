@@ -30,8 +30,8 @@ public class Mutator {
 		// Generate mutated source files and store them into a directory named mutants
 		String mutantsPath = root + "/mutants";
 		// This currently does not work for some reason
-		System.setProperty("-J-Dmajor.export.mutants", "true");
-		System.setProperty("-J-Dmajor.export.directory", mutantsPath);
+		System.setProperty("major.export.mutants", "true");
+		System.setProperty("major.export.directory", mutantsPath);
 		//System.out.println(System.getProperty("-J-Dmajor.export.mutants"));
 		//System.out.println(System.getProperty("-J-Dmajor.export.directory"));
 		String mutateFlag = "-XMutator:ALL";

@@ -7,6 +7,10 @@ Bundle-Activator: org.rayzor.mutant.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="3.11.0",
- org.eclipse.ui.workbench
+ org.eclipse.ui.workbench,
+ org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/javac.jar,
+ .,
+ lib/org.eclipse.core.resources-3.7.101.v20120125-1505.jar

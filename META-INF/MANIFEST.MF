@@ -11,6 +11,5 @@ Require-Bundle: org.eclipse.ui,
  org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: lib/javac.jar,
- .,
- lib/org.eclipse.core.resources-3.7.101.v20120125-1505.jar
+Bundle-ClassPath: .,
+ lib/javac.jar

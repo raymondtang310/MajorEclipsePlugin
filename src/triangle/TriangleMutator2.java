@@ -8,7 +8,7 @@ import java.io.File;
  * @author Raymond Tang
  *
  */
-public class Mutator2 {
+public class TriangleMutator2 {
 
 	public static void main(String[] args) {
 		// The commented line below this does NOT work as I would like it to

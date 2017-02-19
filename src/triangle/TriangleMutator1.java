@@ -11,7 +11,7 @@ import javax.tools.ToolProvider;
  * @author Raymond Tang
  *
  */
-public class Mutator {
+public class TriangleMutator1 {
 
 	public static void main(String[] args) {		
 		// Get the project directory

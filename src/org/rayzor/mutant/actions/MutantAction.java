@@ -5,7 +5,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import triangle.Mutator;
+import triangle.TriangleMutator1;
 
 /**
  * Our sample action implements workbench action delegate.
@@ -32,7 +32,7 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void run(IAction action) {
 		// Run the Mutator program to generate and compile mutants in Triangle.java
-		Mutator.main(null);
+		TriangleMutator1.main(null);
 	}
 
 	/**

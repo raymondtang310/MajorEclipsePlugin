@@ -122,13 +122,13 @@ public class Major {
 	 * Throws a NullPointerException if mutants.log does not exist. 
 	 */
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
-		String mutantsLogPathStr = mutantsLogDirectory.getPath() + "/mutants.log";
+		String mutantsLogPathStr = "mutants.log";
 		File mutantsLog = new File(mutantsLogPathStr);
 		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
 		Scanner scanner = new Scanner(mutantsLog);
 		ArrayList<String> log = new ArrayList<String>();
-		while(scanner.hasNext()) {
-			String line = scanner.next();
+		while(scanner.hasNextLine()) {
+			String line = scanner.nextLine();
 			log.add(line);
 		}
 		scanner.close();

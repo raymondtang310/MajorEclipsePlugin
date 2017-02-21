@@ -29,11 +29,15 @@ public class Major {
 	// The directory to which the mutants.log file is exported
 	private File mutantsLogDirectory;
 	
-	/*
+	/**
 	 * By default, mutant source files are not generated. If the option to generate mutant source
-	 * files is set to true, then the default export directory is "./mutants". 
-	 * An IllegalArugmentException is thrown if the program does not exist or if the program is 
-	 * not a java file. 
+	 * files is set to true, then the default export directory is "./mutants".
+	 * 
+	 * A FileNotFoundException is thrown if the program does not exist.
+	 * An IllegalArgumentException is thrown if the program is not a java file.
+	 * 
+	 * @param program a java File
+	 * @throws IOException
 	 */
 	public Major(File program) throws IOException {
 		if(!program.exists()) throw new FileNotFoundException("File " + program.toString() + 
@@ -51,9 +55,11 @@ public class Major {
 		System.setProperty("major.export.directory", exportDirStr);
 	}
 	
-	/*
-	 * Compile and generate mutants. 
-	 * Returns true if successful. Returns false otherwise. 
+	/**
+	 * Compile and generate mutants.
+	 * Returns true if successful. Returns false otherwise.
+	 * 
+	 * @return true for success and false otherwise
 	 */
 	public boolean mutate() {
 		// Create directory in which compiled mutated files will be stored
@@ -73,40 +79,51 @@ public class Major {
 		return false;
 	}
 	
-	/*
-	 * Returns true if the option to generate mutant source files is set to true. 
-	 * Returns false otherwise. 
+	/**
+	 * Returns true if the option to generate mutant source files is set to true.
+	 * Returns false otherwise.
+	 * 
+	 * @return the value of the exportMutants property
 	 */
 	public boolean isExportMutants() {
 		return exportMutants;
 	}
 	
-	/*
-	 * Sets the exportMutants property to either true or false. 
+	/**
+	 * Sets the exportMutants property to either true or false.
+	 * 
+	 * @param exportMutants the value to which the exportMutants property will be set
 	 */
 	public void setExportMutants(boolean exportMutants) {
 		this.exportMutants = exportMutants;
 		System.setProperty("major.export.mutants", String.valueOf(this.exportMutants));
 	}
 	
-	/*
-	 * Returns the export directory. 
+	/**
+	 * Returns the export directory.
+	 * 
+	 * @return the export directory
 	 */
 	public File getExportDirectory() {
 		return exportDirectory;
 	}
 	
-	/*
-	 * Sets the export directory to the given directory. 
+	/**
+	 * Sets the exportDirectory property to the given directory.
+	 * 
+	 * @param directory the directory to which mutant source files will be exported
 	 */
 	public void setExportDirectory(File directory) {
 		exportDirectory = directory;
 		System.setProperty("major.export.directory", exportDirectory.getPath());
 	}
 	
-	/*
-	 * Returns the mutants.log file. 
-	 * Throws a NullPointerException if mutants.log does not exist. 
+	/**
+	 * Returns the mutants.log file.
+	 * Throws a FileNotFoundException if mutants.log does not exist.
+	 * 
+	 * @return the mutants.log file
+	 * @throws FileNotFoundException
 	 */
 	public File getMutantsLogFile() throws FileNotFoundException {
 		String mutantsLogPathStr = mutantsLogDirectory.getPath() + "/mutants.log";
@@ -115,11 +132,14 @@ public class Major {
 		return mutantsLog;
 	}
 	
-	/*
+	/**
 	 * Parses mutants.log into an ArrayList of strings. The i-th string in the ArrayList
-	 * is the i-th line in mutants.log. 
-	 * Returns the ArrayList. 
-	 * Throws a NullPointerException if mutants.log does not exist. 
+	 * is the i-th line in mutants.log.
+	 * Returns the ArrayList.
+	 * Throws a NullPointerException if mutants.log does not exist.
+	 * 
+	 * @return the mutants.log file parsed as an ArrayList<String>
+	 * @throws FileNotFoundException
 	 */
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
 		String mutantsLogPathStr = "mutants.log";
@@ -135,15 +155,19 @@ public class Major {
 		return log;
 	}
 	
-	/*
-	 * Returns the export directory of mutants.log. 
+	/**
+	 * Returns the export directory of mutants.log.
+	 * 
+	 * @return the directory to which the mutants.log file is exported
 	 */
 	public File getMutantsLogDirectory() {
 		return mutantsLogDirectory;
 	}
 	
-	/*
-	 * Sets the mutants.log directory to the given directory. 
+	/**
+	 * Sets the mutants.log directory to the given directory.
+	 * 
+	 * @param directory the directory to which the mutants.log file will be exported
 	 */
 	public void setMutantsLogDirectory(File directory) {
 		mutantsLogDirectory = directory;

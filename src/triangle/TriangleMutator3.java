@@ -11,7 +11,7 @@ import java.io.IOException;
  */
 public class TriangleMutator3 {
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		// Pathname of Triangle program
 		String pathStr = "/home/raymond/workspace/org.rayzor.mutant/src/triangle/Triangle.java";
 		File file = new File(pathStr);

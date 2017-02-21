@@ -39,7 +39,7 @@ public class Major {
 		if(!program.exists()) throw new FileNotFoundException("File " + program.toString() + 
 															  " does not exist");
 		String type = Files.probeContentType(program.toPath());
-		if(type != "text/x-java") throw new IllegalArgumentException(program.toString() + 
+		if(!type.equals("text/x-java")) throw new IllegalArgumentException(program.toString() + 
 															         " is not a java file");
 		this.program = program;
 		String mutantsLogDirStr = "";
@@ -56,8 +56,11 @@ public class Major {
 	 * Returns true if successful. Returns false otherwise. 
 	 */
 	public boolean mutate() {
-		// Directory in which the mutated .class files will be stored
+		// Create directory in which compiled mutated files will be stored
 		String binPathStr = "mutatedBin";
+		File binDirectory = new File(binPathStr);
+		binDirectory.mkdir();
+		// Flag for mutation
 		String mutateFlag = "-XMutator:ALL";
 		String[] arguments = {"-d", binPathStr, mutateFlag, program.getPath()};
 		// Create JavaCompiler object

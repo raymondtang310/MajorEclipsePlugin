@@ -14,26 +14,26 @@ public class ProcessMethod {
 		// Get the working directory
 		String root = System.getProperty("user.dir");
 		// src path
-		String path = root + "/src/triangle/";
+		String pathname = root + "/src/triangle/";
 		// Program names
 		String programName1 = "Triangle";
 		String programName2 = "Main";
 		String extension = ".java";
 		// bin path
-		String binPath = root + "/bin";
+		String binPathname = root + "/bin";
 		try {
 			// Compile programs
-			Process p1 = Runtime.getRuntime().exec("javac -d " + binPath + " " + 
-													path + programName1 + extension);
+			Process p1 = Runtime.getRuntime().exec("javac -d " + binPathname + " " + 
+													pathname + programName1 + extension);
 			p1.waitFor();
-			Process p2 = Runtime.getRuntime().exec("javac -d " + binPath + " " + 
-													path + programName2 + extension);
+			Process p2 = Runtime.getRuntime().exec("javac -d " + binPathname + " " + 
+													pathname + programName2 + extension);
 			p2.waitFor();
 			// Run programs
-			Process p3 = Runtime.getRuntime().exec("java -cp " + binPath + " " + 
+			Process p3 = Runtime.getRuntime().exec("java -cp " + binPathname + " " + 
 													programName1);
 			p3.waitFor();
-			Process p4 = Runtime.getRuntime().exec("java -cp " + binPath + " " + 
+			Process p4 = Runtime.getRuntime().exec("java -cp " + binPathname + " " + 
 													programName2);
 			p4.waitFor();
 		} catch (Exception e) {

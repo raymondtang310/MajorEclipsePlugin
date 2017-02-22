@@ -16,10 +16,10 @@ public class TriangleMutator2 {
 		// Project directory
 		String root = "/home/raymond/workspace/org.rayzor.mutant";
 		// Name of directory in which compiled mutated files will be stored
-		String majorOutputPath = root + "/mutatedBin";
+		String majorOutputPathname = root + "/mutatedBin";
 		// Path to major's compiler
 		String command = "/home/raymond/major/bin/major ";
-		String arg0 = "-d " + majorOutputPath + " ";
+		String arg0 = "-d " + majorOutputPathname + " ";
 		// Generate mutated source files and store them into a directory named mutants
 		String arg1 = "-J-Dmajor.export.mutants=true ";
 		String arg2 = "-J-Dmajor.export.directory=" + root + "/mutants ";
@@ -27,7 +27,7 @@ public class TriangleMutator2 {
 		// Path to Triangle.java
 		String path1 = root + "/src/triangle/Triangle.java";
 		// Create directory in which compiled mutated files will be stored
-		File majorDirectory = new File(majorOutputPath);
+		File majorDirectory = new File(majorOutputPathname);
 		majorDirectory.mkdir();
 		try {
 			// Generate and compile mutants

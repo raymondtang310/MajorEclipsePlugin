@@ -63,12 +63,12 @@ public class Major {
 	 */
 	public boolean mutate() {
 		// Create directory in which compiled mutated files will be stored
-		String binPathStr = "mutatedBin";
-		File binDirectory = new File(binPathStr);
+		String binPathname = "mutatedBin";
+		File binDirectory = new File(binPathname);
 		binDirectory.mkdir();
 		// Flag for mutation
 		String mutateFlag = "-XMutator:ALL";
-		String[] arguments = {"-d", binPathStr, mutateFlag, program.getPath()};
+		String[] arguments = {"-d", binPathname, mutateFlag, program.getPath()};
 		// Create JavaCompiler object
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -126,8 +126,8 @@ public class Major {
 	 * @throws FileNotFoundException
 	 */
 	public File getMutantsLogFile() throws FileNotFoundException {
-		String mutantsLogPathStr = mutantsLogDirectory.getPath() + "/mutants.log";
-		File mutantsLog = new File(mutantsLogPathStr);
+		String mutantsLogPathname = mutantsLogDirectory.getPath() + "/mutants.log";
+		File mutantsLog = new File(mutantsLogPathname);
 		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
 		return mutantsLog;
 	}
@@ -142,8 +142,8 @@ public class Major {
 	 * @throws FileNotFoundException
 	 */
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
-		String mutantsLogPathStr = "mutants.log";
-		File mutantsLog = new File(mutantsLogPathStr);
+		String mutantsLogPathname = "mutants.log";
+		File mutantsLog = new File(mutantsLogPathname);
 		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
 		Scanner scanner = new Scanner(mutantsLog);
 		ArrayList<String> log = new ArrayList<String>();

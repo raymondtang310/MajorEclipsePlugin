@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
+
+import com.sun.tools.javac.api.JavacTool;
 
 /**
  * Given a java program, a Major object provides functionality such as compiling
@@ -71,7 +72,8 @@ public class Major {
 		String[] arguments = {"-d", binPathname, mutateFlag, program.getPath()};
 		// Create JavaCompiler object
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		//JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		JavaCompiler compiler = JavacTool.create();
 		// Compile and run the program
 		int flag = compiler.run(null, null, null, arguments);
 		// The run method returns 0 for success and nonzero for errors

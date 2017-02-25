@@ -17,7 +17,7 @@
          </menu>
          <action
                label="&amp;Mutate"
-               icon="icons/sample.gif"
+               icon="icons/ladybug.jpg"
                class="org.rayzor.mutant.actions.MutantAction"
                tooltip="Mutate"
                menubarPath="mutantMenu/mutantGroup"

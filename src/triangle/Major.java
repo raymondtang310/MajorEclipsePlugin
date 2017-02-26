@@ -56,13 +56,19 @@ public class Major {
 		if(!type.equals("text/x-java")) throw new IllegalArgumentException(program.toString() + 
 															         " is not a java file");
 		this.program = program;
-		String currentProjectPathname = this.getCurrentProjectPath();
+		String currentProjectPathname = this.getCurrentProjectLocation();
 		mutantsLogDirectory = new File(currentProjectPathname);
 		mutatedBinDirectory = new File(currentProjectPathname + "/mutatedBin");
 		exportMutants = false;
 		exportDirectory = new File(currentProjectPathname + "/mutants");
 		System.setProperty("major.export.mutants", "false");
 		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
+		//if(!exportDirectory.getAbsolutePath().equals("/home/raymond/workspace/org.rayzor.mutant/mutants")) {
+		//	throw new NullPointerException("You know what time it is");
+		//}
+		//System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
+		//this.setExportDirectory(new File("/home/raymond/workspace/org.rayzor.mutant/mutants"));
+		//this.setExportDirectory(new File(currentProjectPathname + "/mutants"));
 	}
 	
 	/**
@@ -81,7 +87,12 @@ public class Major {
 		// Create JavaCompiler object
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
 		JavaCompiler compiler = JavacTool.create();
-		this.setExportDirectory(exportDirectory);
+		//if(isExportMutants()) exportDirectory.mkdir();
+		String mutantsPathname = mutatedBinDirectory.getParent() + "/mutants";
+		//String mutantsPathname = "/home/raymond/workspace/org.rayzor.mutant/mutants";
+		//this.setExportMutants(true);
+		//System.setProperty("major.export.directory", mutantsPathname);
+		//System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 		// Compile and run the program
 		int flag = compiler.run(null, null, null, arguments);
 		// The run method returns 0 for success and nonzero for errors
@@ -125,7 +136,7 @@ public class Major {
 	 */
 	public void setExportDirectory(File directory) {
 		exportDirectory = directory;
-		System.setProperty("major.export.directory", exportDirectory.getPath());
+		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 	}
 	
 	/**
@@ -184,13 +195,13 @@ public class Major {
 	}
 	
 	/**
-	 * If a project is selected, this method returns the project's pathname as a string. 
+	 * If a project is selected, this method returns the project's location as a string. 
 	 * If a project is not selected, the current working directory is returned as a string instead
 	 * 
-	 * @return the path of the selected project as a string, if a project is selected, or the
+	 * @return the location of the selected project as a string, if a project is selected, or the
 	 * 		   current working directory as a string otherwise
 	 */
-	private String getCurrentProjectPath() {
+	private String getCurrentProjectLocation() {
 		try {
 			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (window != null) {

@@ -9,6 +9,13 @@ import java.util.Scanner;
 
 import javax.tools.JavaCompiler;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+
 import com.sun.tools.javac.api.JavacTool;
 
 /**
@@ -47,10 +54,10 @@ public class Major {
 		if(!type.equals("text/x-java")) throw new IllegalArgumentException(program.toString() + 
 															         " is not a java file");
 		this.program = program;
-		String mutantsLogDirStr = "";
-		mutantsLogDirectory = new File(mutantsLogDirStr);
+		String currentProjectPathname = this.getCurrentProjectPath();
+		mutantsLogDirectory = new File(currentProjectPathname);
 		exportMutants = false;
-		String exportDirStr = "mutants";
+		String exportDirStr = currentProjectPathname + "/mutants";
 		exportDirectory = new File(exportDirStr);
 		System.setProperty("major.export.mutants", "false");
 		System.setProperty("major.export.directory", exportDirStr);
@@ -64,7 +71,7 @@ public class Major {
 	 */
 	public boolean mutate() {
 		// Create directory in which compiled mutated files will be stored
-		String binPathname = "mutatedBin";
+		String binPathname = this.getCurrentProjectPath() + "/mutatedBin";
 		File binDirectory = new File(binPathname);
 		binDirectory.mkdir();
 		// Flag for mutation
@@ -144,7 +151,7 @@ public class Major {
 	 * @throws FileNotFoundException
 	 */
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
-		String mutantsLogPathname = "mutants.log";
+		String mutantsLogPathname = mutantsLogDirectory.getPath() + "/mutants.log";
 		File mutantsLog = new File(mutantsLogPathname);
 		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
 		Scanner scanner = new Scanner(mutantsLog);
@@ -173,6 +180,27 @@ public class Major {
 	 */
 	public void setMutantsLogDirectory(File directory) {
 		mutantsLogDirectory = directory;
+	}
+	
+	/**
+	 * If a project is selected, this method returns the project's pathname as a string. 
+	 * If a project is not selected, the current working directory is returned as a string instead
+	 * 
+	 * @return the path of the selected project as a string, if a project is selected, or the
+	 * 		   current working directory as a string otherwise
+	 */
+	private String getCurrentProjectPath() {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+	    if (window != null) {
+	        IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection();
+	        Object firstElement = selection.getFirstElement();
+	        if (firstElement instanceof IAdaptable) {
+	            IProject project = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
+	            IPath path = project.getLocation();
+	            return path.toString();
+	        }
+	    }
+	    return System.getProperty("user.dir");
 	}
 	
 }

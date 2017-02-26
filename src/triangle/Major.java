@@ -36,6 +36,8 @@ public class Major {
 	private File exportDirectory;
 	// The directory to which the mutants.log file is exported
 	private File mutantsLogDirectory;
+	// The directory to which the mutated .class files is exported
+	private File mutatedBinDirectory;
 	
 	/**
 	 * By default, mutant source files are not generated. If the option to generate mutant source
@@ -56,11 +58,11 @@ public class Major {
 		this.program = program;
 		String currentProjectPathname = this.getCurrentProjectPath();
 		mutantsLogDirectory = new File(currentProjectPathname);
+		mutatedBinDirectory = new File(currentProjectPathname + "/mutatedBin");
 		exportMutants = false;
-		String exportDirStr = currentProjectPathname + "/mutants";
-		exportDirectory = new File(exportDirStr);
+		exportDirectory = new File(currentProjectPathname + "/mutants");
 		System.setProperty("major.export.mutants", "false");
-		System.setProperty("major.export.directory", exportDirStr);
+		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 	}
 	
 	/**
@@ -71,16 +73,15 @@ public class Major {
 	 */
 	public boolean mutate() {
 		// Create directory in which compiled mutated files will be stored
-		String binPathname = this.getCurrentProjectPath() + "/mutatedBin";
-		File binDirectory = new File(binPathname);
-		binDirectory.mkdir();
+		String binPathname = mutatedBinDirectory.getAbsolutePath();
+		mutatedBinDirectory.mkdir();
 		// Flag for mutation
 		String mutateFlag = "-XMutator:ALL";
 		String[] arguments = {"-d", binPathname, mutateFlag, program.getPath()};
 		// Create JavaCompiler object
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
-		//JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		JavaCompiler compiler = JavacTool.create();
+		this.setExportDirectory(exportDirectory);
 		// Compile and run the program
 		int flag = compiler.run(null, null, null, arguments);
 		// The run method returns 0 for success and nonzero for errors
@@ -135,7 +136,7 @@ public class Major {
 	 * @throws FileNotFoundException
 	 */
 	public File getMutantsLogFile() throws FileNotFoundException {
-		String mutantsLogPathname = mutantsLogDirectory.getPath() + "/mutants.log";
+		String mutantsLogPathname = mutantsLogDirectory.getAbsolutePath() + "/mutants.log";
 		File mutantsLog = new File(mutantsLogPathname);
 		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
 		return mutantsLog;
@@ -151,7 +152,7 @@ public class Major {
 	 * @throws FileNotFoundException
 	 */
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
-		String mutantsLogPathname = mutantsLogDirectory.getPath() + "/mutants.log";
+		String mutantsLogPathname = mutantsLogDirectory.getAbsolutePath() + "/mutants.log";
 		File mutantsLog = new File(mutantsLogPathname);
 		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
 		Scanner scanner = new Scanner(mutantsLog);
@@ -190,17 +191,21 @@ public class Major {
 	 * 		   current working directory as a string otherwise
 	 */
 	private String getCurrentProjectPath() {
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-	    if (window != null) {
-	        IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection();
-	        Object firstElement = selection.getFirstElement();
-	        if (firstElement instanceof IAdaptable) {
-	            IProject project = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
-	            IPath path = project.getLocation();
-	            return path.toString();
-	        }
-	    }
-	    return System.getProperty("user.dir");
+		try {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (window != null) {
+				IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection();
+				Object firstElement = selection.getFirstElement();
+				if (firstElement instanceof IAdaptable) {
+					IProject project = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
+					IPath path = project.getLocation();
+					return path.toString();
+				}
+			}
+			return System.getProperty("user.dir");
+		} catch (Exception e) {
+			return System.getProperty("user.dir");
+		}
 	}
 	
 }

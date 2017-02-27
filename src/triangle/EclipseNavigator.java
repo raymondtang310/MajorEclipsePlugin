@@ -63,6 +63,7 @@ public class EclipseNavigator {
 	 * @return true for success, false otherwise
 	 */
 	public static boolean highlightLine(File file, int lineNumber) {
+		if(!file.exists()) return false;
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		ITextEditor editor = null;
@@ -71,8 +72,7 @@ public class EclipseNavigator {
 		} catch (PartInitException e1) {
 			return false;
 		}
-		IDocument document = editor.getDocumentProvider().getDocument(
-		editor.getEditorInput());
+		IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		if (document != null) {
 			IRegion lineInfo = null;
 			try {

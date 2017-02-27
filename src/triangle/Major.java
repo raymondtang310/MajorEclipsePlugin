@@ -222,13 +222,15 @@ public class Major {
 		} catch (FileNotFoundException e) {
 			return false;
 		}
+		if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
 		String logLine = log.get(mutantNumber - 1);
 		String path = this.fullyQualifiedName.replace('.', '/');
 		String mutatedFileLocation = exportDirectory.getAbsolutePath() + "/" +
 									 String.valueOf(mutantNumber) + "/" + path + ".java";
 		File mutatedFile = new File(mutatedFileLocation);
 		int mutantLineNumber = this.getMutantLineNumber(logLine);
-		EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
+		boolean success = EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
+		if(!success) return false;
 		return true;
 	}
 	

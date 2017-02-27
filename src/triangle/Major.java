@@ -9,13 +9,6 @@ import java.util.Scanner;
 
 import javax.tools.JavaCompiler;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-
 import com.sun.tools.javac.api.JavacTool;
 
 /**
@@ -56,7 +49,7 @@ public class Major {
 		if(!type.equals("text/x-java")) throw new IllegalArgumentException(program.toString() + 
 															         " is not a java file");
 		this.program = program;
-		String currentProjectPathname = this.getCurrentProjectLocation();
+		String currentProjectPathname = EclipseNavigator.getCurrentProjectLocation();
 		mutantsLogDirectory = new File(currentProjectPathname);
 		mutatedBinDirectory = new File(currentProjectPathname + "/mutatedBin");
 		exportMutants = false;
@@ -88,7 +81,7 @@ public class Major {
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
 		JavaCompiler compiler = JavacTool.create();
 		//if(isExportMutants()) exportDirectory.mkdir();
-		String mutantsPathname = mutatedBinDirectory.getParent() + "/mutants";
+		//String mutantsPathname = mutatedBinDirectory.getParent() + "/mutants";
 		//String mutantsPathname = "/home/raymond/workspace/org.rayzor.mutant/mutants";
 		//this.setExportMutants(true);
 		//System.setProperty("major.export.directory", mutantsPathname);
@@ -192,31 +185,6 @@ public class Major {
 	 */
 	public void setMutantsLogDirectory(File directory) {
 		mutantsLogDirectory = directory;
-	}
-	
-	/**
-	 * If a project is selected, this method returns the project's location as a string. 
-	 * If a project is not selected, the current working directory is returned as a string instead
-	 * 
-	 * @return the location of the selected project as a string, if a project is selected, or the
-	 * 		   current working directory as a string otherwise
-	 */
-	private String getCurrentProjectLocation() {
-		try {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			if (window != null) {
-				IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection();
-				Object firstElement = selection.getFirstElement();
-				if (firstElement instanceof IAdaptable) {
-					IProject project = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
-					IPath path = project.getLocation();
-					return path.toString();
-				}
-			}
-			return System.getProperty("user.dir");
-		} catch (Exception e) {
-			return System.getProperty("user.dir");
-		}
 	}
 	
 }

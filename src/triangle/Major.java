@@ -229,9 +229,7 @@ public class Major {
 									 String.valueOf(mutantNumber) + "/" + path + ".java";
 		File mutatedFile = new File(mutatedFileLocation);
 		int mutantLineNumber = this.getMutantLineNumber(logLine);
-		boolean success = EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
-		if(!success) return false;
-		return true;
+		return EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
 	}
 	
 	/**

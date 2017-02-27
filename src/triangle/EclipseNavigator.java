@@ -17,6 +17,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+/**
+ * This class provides functionality such as retrieving project locations and highlighting lines
+ * in a file. 
+ * 
+ * @author Raymond Tang
+ *
+ */
 public class EclipseNavigator {
 	
 	public EclipseNavigator() {
@@ -47,14 +54,22 @@ public class EclipseNavigator {
 		}
 	}
 	
-	public static void highlightLine(File file, int lineNumber) {
+	/**
+	 * Highlights the line corresponding to the given line number in the given file. 
+	 * Returns true for success. Returns false otherwise. 
+	 * 
+	 * @param file the file containing the line to highlight
+	 * @param lineNumber the number of the line to highlight
+	 * @return true for success, false otherwise
+	 */
+	public static boolean highlightLine(File file, int lineNumber) {
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		ITextEditor editor = null;
 		try {
 			editor = (ITextEditor) IDE.openEditorOnFileStore(page, fileStore);
 		} catch (PartInitException e1) {
-			return;
+			return false;
 		}
 		IDocument document = editor.getDocumentProvider().getDocument(
 		editor.getEditorInput());
@@ -63,11 +78,13 @@ public class EclipseNavigator {
 			try {
 				lineInfo = document.getLineInformation(lineNumber - 1);
 		    } catch (Exception e) {
-		    	return;
+		    	return false;
 		    }
 		    if (lineInfo != null) {
 		    	editor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
 		    }
+		    else return false;
 		}
+		return true;
 	}
 }

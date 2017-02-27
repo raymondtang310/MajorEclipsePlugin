@@ -6,13 +6,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 import javax.tools.JavaCompiler;
 
 import com.sun.tools.javac.api.JavacTool;
 
 /**
- * Given a java program, a Major object provides functionality such as compiling
+ * Given a java file, a Major object provides functionality such as compiling
  * and generating mutants. 
  * 
  * @author Raymond Tang
@@ -21,8 +22,10 @@ import com.sun.tools.javac.api.JavacTool;
 
 public class Major {
 	
-	// The given java program
-	private File program;
+	// The given java file
+	private File javaFile;
+	// The fully qualified name of the java file
+	private String fullyQualifiedName;
 	// The value of the exportMutants property (either true or false)
 	private boolean exportMutants;
 	// The directory to which mutant source files are exported
@@ -36,19 +39,19 @@ public class Major {
 	 * By default, mutant source files are not generated. If the option to generate mutant source
 	 * files is set to true, then the default export directory is "./mutants".
 	 * 
-	 * A FileNotFoundException is thrown if the program does not exist.
-	 * An IllegalArgumentException is thrown if the program is not a java file.
+	 * A FileNotFoundException is thrown if the file does not exist.
+	 * An IllegalArgumentException is thrown if the file is not a java file.
 	 * 
-	 * @param program a java File
+	 * @param javaFile a java File
 	 * @throws IOException
 	 */
-	public Major(File program) throws IOException {
-		if(!program.exists()) throw new FileNotFoundException("File " + program.toString() + 
+	public Major(File javaFile) throws IOException {
+		if(!javaFile.exists()) throw new FileNotFoundException("File " + javaFile.toString() + 
 															  " does not exist");
-		String type = Files.probeContentType(program.toPath());
-		if(!type.equals("text/x-java")) throw new IllegalArgumentException(program.toString() + 
+		String type = Files.probeContentType(javaFile.toPath());
+		if(!type.equals("text/x-java")) throw new IllegalArgumentException(javaFile.toString() + 
 															         " is not a java file");
-		this.program = program;
+		this.javaFile = javaFile;
 		String currentProjectPathname = EclipseNavigator.getCurrentProjectLocation();
 		mutantsLogDirectory = new File(currentProjectPathname);
 		mutatedBinDirectory = new File(currentProjectPathname + "/mutatedBin");
@@ -65,6 +68,22 @@ public class Major {
 	}
 	
 	/**
+	 * By default, mutant source files are not generated. If the option to generate mutant source
+	 * files is set to true, then the default export directory is "./mutants".
+	 * 
+	 * A FileNotFoundException is thrown if the file does not exist.
+	 * An IllegalArgumentException is thrown if the file is not a java file.
+	 * 
+	 * @param javaFile a java File
+	 * @param fullyQualifiedName the fully qualified name of the java file
+	 * @throws IOException
+	 */
+	public Major(File javaFile, String fullyQualifiedName) throws IOException {
+		this(javaFile);
+		this.fullyQualifiedName = fullyQualifiedName;
+	}
+	
+	/**
 	 * Compile and generate mutants.
 	 * Returns true if successful. Returns false otherwise.
 	 * 
@@ -76,7 +95,7 @@ public class Major {
 		mutatedBinDirectory.mkdir();
 		// Flag for mutation
 		String mutateFlag = "-XMutator:ALL";
-		String[] arguments = {"-d", binPathname, mutateFlag, program.getPath()};
+		String[] arguments = {"-d", binPathname, mutateFlag, javaFile.getPath()};
 		// Create JavaCompiler object
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
 		JavaCompiler compiler = JavacTool.create();
@@ -150,7 +169,7 @@ public class Major {
 	 * Parses mutants.log into an ArrayList of strings. The i-th string in the ArrayList
 	 * is the i-th line in mutants.log.
 	 * Returns the ArrayList.
-	 * Throws a NullPointerException if mutants.log does not exist.
+	 * Throws a FileNotFoundException if mutants.log does not exist.
 	 * 
 	 * @return the mutants.log file parsed as an ArrayList<String>
 	 * @throws FileNotFoundException
@@ -187,4 +206,46 @@ public class Major {
 		mutantsLogDirectory = directory;
 	}
 	
+	/**
+	 * Highlights the line in the mutated source file in which the mutant corresponding 
+	 * with the given number is located. The given number (mutantNumber) is the number of the line
+	 * in mutants.log detailing the desired mutant
+	 * 
+	 * @param mutantNumber the number of the mutant to highlight
+	 * @return true for success, false otherwise
+	 */
+	public boolean highlightMutant(int mutantNumber) {
+		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
+		ArrayList<String> log = null;
+		try {
+			log = this.getMutantsLog();
+		} catch (FileNotFoundException e) {
+			return false;
+		}
+		String logLine = log.get(mutantNumber - 1);
+		String path = this.fullyQualifiedName.replace('.', '/');
+		String mutatedFileLocation = exportDirectory.getAbsolutePath() + "/" +
+									 String.valueOf(mutantNumber) + "/" + path + ".java";
+		File mutatedFile = new File(mutatedFileLocation);
+		int mutantLineNumber = this.getMutantLineNumber(logLine);
+		EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
+		return true;
+	}
+	
+	/**
+	 * Returns the number of the source file line on which the mutant corresponding
+	 * with the given mutants.log line occurs
+	 * 
+	 * @param logLine a line in mutants.log
+	 * @return the number of the source file line on which the mutant corresponding
+	 * 		   with the given mutants.log line occurs
+	 */
+	private int getMutantLineNumber(String logLine) {
+		String reverseLine = new StringBuilder(logLine).reverse().toString();
+		StringTokenizer tokenizer = new StringTokenizer(reverseLine);
+		tokenizer.nextToken(":");
+		String reversedLineNoStr = tokenizer.nextToken(":");
+		String lineNoStr = new StringBuilder(reversedLineNoStr).reverse().toString();
+		return Integer.parseInt(lineNoStr);
+	}
 }

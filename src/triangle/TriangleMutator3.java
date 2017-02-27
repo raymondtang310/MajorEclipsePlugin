@@ -12,13 +12,18 @@ import java.io.IOException;
 public class TriangleMutator3 {
 	
 	public static void main(String[] args) {
-		// Pathname of Triangle program
+		// Pathname of Triangle.java
 		String pathName = "/home/raymond/workspace/org.rayzor.mutant/src/triangle/Triangle.java";
 		File file = new File(pathName);
+		Class<Triangle> c = Triangle.class;
+		// Fully qualified name of Triangle.java
+		String fullyQualifiedName = c.getName();
 		try {
-			Major m = new Major(file);
+			Major m = new Major(file, fullyQualifiedName);
 			m.setExportMutants(true);
 			m.mutate();
+			// Highlight mutant 1
+			m.highlightMutant(1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -108,7 +111,17 @@ public class Major {
 		// Compile and run the program
 		int flag = compiler.run(null, null, null, arguments);
 		// The run method returns 0 for success and nonzero for errors
-		if(flag == 0) return true;
+		if(flag == 0) {
+			String sourceDirectory = System.getProperty("user.dir");
+			Path source = Paths.get(sourceDirectory + "/mutants.log");
+			Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + "/mutants.log");
+			try {
+				Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				return false;
+			}
+			return true;
+		}
 		return false;
 	}
 	
@@ -175,9 +188,7 @@ public class Major {
 	 * @throws FileNotFoundException
 	 */
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
-		String mutantsLogPathname = mutantsLogDirectory.getAbsolutePath() + "/mutants.log";
-		File mutantsLog = new File(mutantsLogPathname);
-		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
+		File mutantsLog = this.getMutantsLogFile();
 		Scanner scanner = new Scanner(mutantsLog);
 		ArrayList<String> log = new ArrayList<String>();
 		while(scanner.hasNextLine()) {

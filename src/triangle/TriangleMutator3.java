@@ -23,7 +23,7 @@ public class TriangleMutator3 {
 			m.setExportMutants(true);
 			m.mutate();
 			// Highlight mutant 1
-			m.highlightMutant(1);
+			m.highlightMutant(2);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -22,7 +22,7 @@ public class TriangleMutator3 {
 			Major m = new Major(file, fullyQualifiedName);
 			m.setExportMutants(true);
 			m.mutate();
-			// Highlight mutant 1
+			// Highlight mutant 2
 			m.highlightMutant(2);
 		} catch (IOException e) {
 			e.printStackTrace();

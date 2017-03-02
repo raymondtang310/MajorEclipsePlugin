@@ -25,6 +25,8 @@ import com.sun.tools.javac.api.JavacTool;
 
 public class Major {
 	
+	// File separator. Differs depending on operating system
+	private final char fileSeparator = File.separatorChar;	
 	// The given java file
 	private File javaFile;
 	// The fully qualified name of the java file
@@ -37,8 +39,10 @@ public class Major {
 	private File mutantsLogDirectory;
 	// The directory to which the mutated .class files is exported
 	private File mutatedBinDirectory;
-	// File separator. Differs depending on operating system
-	private final char fileSeparator = File.separatorChar;
+	// Mutation analysis enabled/disabled (true or false)
+	private boolean analysisEnabled;
+	// Base timeout factor (seconds) for test runtime
+	private int timeoutFactor;
 	
 	/**
 	 * By default, mutant source files are not generated. If the option to generate mutant source
@@ -64,6 +68,8 @@ public class Major {
 		exportDirectory = new File(currentProjectPathname + fileSeparator + "mutants");
 		System.setProperty("major.export.mutants", "false");
 		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
+		analysisEnabled = false;
+		setTimeoutFactor(8);
 		//if(!exportDirectory.getAbsolutePath().equals("/home/raymond/workspace/org.rayzor.mutant/mutants")) {
 		//	throw new NullPointerException("You know what time it is");
 		//}
@@ -262,5 +268,44 @@ public class Major {
 		String reversedLineNoStr = tokenizer.nextToken(":");
 		String lineNoStr = new StringBuilder(reversedLineNoStr).reverse().toString();
 		return Integer.parseInt(lineNoStr);
+	}
+	
+	/**
+	 * Returns true if mutation analysis is enabled. Returns false otherwise. 
+	 * 
+	 * @return true if mutation analysis is enabled, false otherwise
+	 */
+	public boolean isMutationAnalysEnabled() {
+		return analysisEnabled;
+	}
+	
+	/**
+	 * Enables mutation analysis if the given boolean parameter equals true. 
+	 * Disables mutation analysis if the given boolean parameter equals false. 
+	 * 
+	 * @param enable a boolean value, which equals true to enable mutation analysis,
+	 * 				 or false to disable mutation analysis
+	 */
+	public void enableMutationAnalysis(boolean enable) {
+		analysisEnabled = enable;
+	}
+
+	/**
+	 * Returns the timeout factor in seconds for test runtime. 
+	 * 
+	 * @return the timeout factor in seconds for test runtime
+	 */
+	public int getTimeoutFactor() {
+		return timeoutFactor;
+	}
+
+	/**
+	 * Sets the timeout factor for test runtime. 
+	 * 
+	 * @param timeoutFactor the amount of time in seconds to which the timeout factor will be set
+	 */
+	public void setTimeoutFactor(int timeoutFactor) {
+		this.timeoutFactor = timeoutFactor;
+		System.setProperty("timeoutFactor", String.valueOf(this.timeoutFactor));
 	}
 }

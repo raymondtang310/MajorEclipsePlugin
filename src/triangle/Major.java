@@ -410,6 +410,24 @@ public class Major {
 	}
 	
 	/**
+	 * Generates and prints out a kill map. 
+	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
+	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
+	 * 
+	 * @param testClass a class containing tests to run against the given java program
+	 */
+	public void printKillMap(Class<?> testClass) {
+		Map<WorkOrder, Outcome> killMap = this.getKillMap(testClass);
+		for(Map.Entry<WorkOrder, Outcome> entry : killMap.entrySet()) {
+			WorkOrder workOrder = entry.getKey();
+			int mutantID = workOrder.getMutantID();
+			String testName = workOrder.getTestMethod().getName();
+			Outcome outcome = entry.getValue();
+			System.out.println("Mutant# " + mutantID + ", Test: " + testName + ", Outcome: " + outcome);
+		}
+	}
+	
+	/**
 	 * Generates and returns a kill matrix, represented as an array of integer arrays. 
 	 * The rows of the matrix represent mutants, and the columns represent tests. 
 	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j did not kill mutant i. 
@@ -441,24 +459,22 @@ public class Major {
 		return killMatrix;
 	}
 	
-	/*
-	int[][] killMatrix = m.getKillMatrix(testClass);
-	for(int i = 0; i < killMatrix.length; i++) {
-		for(int j = 0; j < killMatrix[i].length; j++) {
-			System.out.print(killMatrix[i][j] + " ");
+	/**
+	 * Generates and prints out a kill matrix, represented as an array of integer arrays. 
+	 * The rows of the matrix represent mutants, and the columns represent tests. 
+	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j did not kill mutant i. 
+	 * The rows (mutants) are sorted (ascending) by mutantIDs. The columns (tests) are sorted by name. 
+	 * 
+	 * @param testClass a class containing tests to run against the given java program
+	 */
+	public void printKillMatrix(Class<?> testClass) {
+		int[][] killMatrix = this.getKillMatrix(testClass);
+		for(int i = 0; i < killMatrix.length; i++) {
+			for(int j = 0; j < killMatrix[i].length; j++) {
+				System.out.print(killMatrix[i][j] + " ");
+			}
+			System.out.println();
 		}
-		System.out.println();
 	}
-	*/
 	
-	/*
-	Map<WorkOrder, Outcome> killMap = m.getKillMap(testClass);
-	for(Map.Entry<WorkOrder, Outcome> entry : killMap.entrySet()) {
-		WorkOrder workOrder = entry.getKey();
-		int mutantID = workOrder.getMutantID();
-		String testName = workOrder.getTestMethod().getName();
-		System.out.println("Mutant# " + mutantID + ", Test: " + testName + ", Outcome: " + entry.getValue());
-	}
-	*/
-
 }

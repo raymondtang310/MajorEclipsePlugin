@@ -22,6 +22,17 @@ public class TriangleMutator3 {
 			Major m = new Major(file, fullyQualifiedName);
 			m.setExportMutants(true);
 			m.mutate();
+			
+			/*
+			 * Uncomment the lines below to print out the kill map and kill matrix given the tests 
+			 * from TriangleTest.java. Do not forget to import test.TriangleTest if you uncomment
+			 * the lines below. 
+			 */
+			
+			//Class<TriangleTest> testClass = TriangleTest.class;
+			//m.printKillMap(testClass);
+			//m.printKillMatrix(testClass);
+			
 			// Highlight mutant 2
 			m.highlightMutant(2);
 		} catch (IOException e) {

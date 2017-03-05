@@ -8,12 +8,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import javax.tools.JavaCompiler;
 
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Request;
+import org.junit.runner.Result;
+
 import com.sun.tools.javac.api.JavacTool;
+
+import killmap.ExtendedTestFinder;
+import killmap.TestMethod;
+import major.mutation.Config;
 
 /**
  * Given a java file, a Major object provides functionality such as compiling
@@ -43,6 +53,8 @@ public class Major {
 	private boolean analysisEnabled;
 	// Base timeout factor (seconds) for test runtime
 	private int timeoutFactor;
+	// Number of generated mutants
+	private int numMutants;
 	
 	/**
 	 * By default, mutant source files are not generated. If the option to generate mutant source
@@ -70,6 +82,7 @@ public class Major {
 		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 		analysisEnabled = false;
 		setTimeoutFactor(8);
+		numMutants = 0;
 		//if(!exportDirectory.getAbsolutePath().equals("/home/raymond/workspace/org.rayzor.mutant/mutants")) {
 		//	throw new NullPointerException("You know what time it is");
 		//}
@@ -124,6 +137,7 @@ public class Major {
 			Path source = Paths.get(sourceDirectory + fileSeparator + "mutants.log");
 			Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + fileSeparator + 
 									"mutants.log");
+			numMutants = this.getNumberOfMutantsAfterCompile();
 			try {
 				Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
@@ -132,6 +146,27 @@ public class Major {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns the number of generated mutants. This method is only run directly after compiling. 
+	 * 
+	 * @return the number of generated mutants
+	 */
+	private int getNumberOfMutantsAfterCompile() {
+		try {
+			File mutantsLog = this.getMutantsLogFile();
+			Scanner sc = new Scanner(mutantsLog);
+			int numMutants = 0;
+			while(sc.hasNext()) {
+				sc.nextLine();
+				numMutants++;
+			}
+			sc.close();
+			return numMutants;
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 	
 	/**
@@ -325,6 +360,41 @@ public class Major {
 	 */
 	public void setBinDirectory(File binDirectory) {
 		this.binDirectory = binDirectory;
+	}
+	
+	/**
+	 * Returns the number of generated mutants. 
+	 * 
+	 * @return the number of generated mutants
+	 */
+	public int getNumberOfMutants() {
+		return this.numMutants;
+	}
+	
+	public int[][] getKillMatrix(Class<?> testClass) {
+		Collection<TestMethod> testMethodsCollection = ExtendedTestFinder.getTestMethods(testClass);
+		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
+		int numTests = testMethods.size();
+		Config.__M_NO = 0;
+		JUnitCore core = new JUnitCore();
+		core.run(testClass);
+		List<Integer> coveredMutants = Config.getCoverageList();
+		Config.reset();
+		int[][] killMatrix = new int[numMutants][numTests];
+		for(Integer coveredMutant : coveredMutants) {
+			int mutantNumber = coveredMutant.intValue();
+			Config.__M_NO = mutantNumber;
+			for(int i = 0; i < numTests; i++) {
+				TestMethod test = testMethods.get(i);
+				Result result = core.run(Request.method(test.getTestClass(), test.getName()));
+				if(!result.wasSuccessful()) killMatrix[mutantNumber - 1][i] = 1;
+			}
+		}
+		return killMatrix;
+	}
+	
+	public int[][] getKillMatrix(Collection<Class<?>> testClasses) {
+		return null;
 	}
 
 }

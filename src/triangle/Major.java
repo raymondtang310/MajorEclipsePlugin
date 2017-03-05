@@ -10,8 +10,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import javax.tools.JavaCompiler;
 
@@ -22,7 +24,9 @@ import org.junit.runner.Result;
 import com.sun.tools.javac.api.JavacTool;
 
 import killmap.ExtendedTestFinder;
+import killmap.Outcome;
 import killmap.TestMethod;
+import killmap.WorkOrder;
 import major.mutation.Config;
 
 /**
@@ -371,21 +375,65 @@ public class Major {
 		return this.numMutants;
 	}
 	
+	/**
+	 * Generates and returns a kill map. 
+	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
+	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
+	 * 
+	 * @param testClass a class containing tests to run against the given java program
+	 * @return a map between WorkOrders and Outcomes, detailing the Outcome (KILLED or ALIVE) 
+	 * 		   of a WorkOrder (a mutant and a test)
+	 */
+	public Map<WorkOrder, Outcome> getKillMap(Class<?> testClass) {
+		Collection<TestMethod> testMethods = ExtendedTestFinder.getTestMethods(testClass);
+		Map<WorkOrder, Outcome> killMap = new TreeMap<WorkOrder, Outcome>();
+		for(TestMethod test : testMethods) {
+			Config.__M_NO = 0;
+			JUnitCore core = new JUnitCore();
+			core.run(Request.method(test.getTestClass(), test.getName()));
+			List<Integer> coveredMutants = Config.getCoverageList();
+			Config.reset();
+			for(int mutantID = 1; mutantID <= this.numMutants; mutantID++) {
+				WorkOrder workOrder = new WorkOrder(mutantID, test);
+				Outcome outcome;
+				if(coveredMutants.contains(mutantID)) {
+					Config.__M_NO = mutantID;
+					Result result = core.run(Request.method(test.getTestClass(), test.getName()));
+					if(result.wasSuccessful()) outcome = Outcome.ALIVE;
+					else outcome = Outcome.KILLED;
+				}
+				else outcome = Outcome.ALIVE;
+				killMap.put(workOrder, outcome);
+			}
+		}
+		return killMap;
+	}
+	
+	/**
+	 * Generates and returns a kill matrix, represented as an array of integer arrays. 
+	 * The rows of the matrix represent mutants, and the columns represent tests. 
+	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j did not kill mutant i. 
+	 * The rows (mutants) are sorted (ascending) by mutantIDs. The columns (tests) are sorted by name. 
+	 * 
+	 * @param testClass a class containing tests to run against the given java program
+	 * @return a kill matrix, represented as an array of integer arrays, 
+	 * 		   where the rows represent mutants and the columns represent tests
+	 */
 	public int[][] getKillMatrix(Class<?> testClass) {
 		Collection<TestMethod> testMethodsCollection = ExtendedTestFinder.getTestMethods(testClass);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
 		int numTests = testMethods.size();
-		Config.__M_NO = 0;
-		JUnitCore core = new JUnitCore();
-		core.run(testClass);
-		List<Integer> coveredMutants = Config.getCoverageList();
-		Config.reset();
 		int[][] killMatrix = new int[numMutants][numTests];
-		for(Integer coveredMutant : coveredMutants) {
-			int mutantNumber = coveredMutant.intValue();
-			Config.__M_NO = mutantNumber;
-			for(int i = 0; i < numTests; i++) {
-				TestMethod test = testMethods.get(i);
+		for(int i = 0; i < numTests; i++) {
+			TestMethod test = testMethods.get(i);
+			Config.__M_NO = 0;
+			JUnitCore core = new JUnitCore();
+			core.run(Request.method(test.getTestClass(), test.getName()));
+			List<Integer> coveredMutants = Config.getCoverageList();
+			Config.reset();
+			for(Integer coveredMutant : coveredMutants) {
+				int mutantNumber = coveredMutant.intValue();
+				Config.__M_NO = mutantNumber;
 				Result result = core.run(Request.method(test.getTestClass(), test.getName()));
 				if(!result.wasSuccessful()) killMatrix[mutantNumber - 1][i] = 1;
 			}
@@ -393,8 +441,24 @@ public class Major {
 		return killMatrix;
 	}
 	
-	public int[][] getKillMatrix(Collection<Class<?>> testClasses) {
-		return null;
+	/*
+	int[][] killMatrix = m.getKillMatrix(testClass);
+	for(int i = 0; i < killMatrix.length; i++) {
+		for(int j = 0; j < killMatrix[i].length; j++) {
+			System.out.print(killMatrix[i][j] + " ");
+		}
+		System.out.println();
 	}
+	*/
+	
+	/*
+	Map<WorkOrder, Outcome> killMap = m.getKillMap(testClass);
+	for(Map.Entry<WorkOrder, Outcome> entry : killMap.entrySet()) {
+		WorkOrder workOrder = entry.getKey();
+		int mutantID = workOrder.getMutantID();
+		String testName = workOrder.getTestMethod().getName();
+		System.out.println("Mutant# " + mutantID + ", Test: " + testName + ", Outcome: " + entry.getValue());
+	}
+	*/
 
 }

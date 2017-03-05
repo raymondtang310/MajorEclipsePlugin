@@ -38,7 +38,7 @@ public class Major {
 	// The directory to which the mutants.log file is exported
 	private File mutantsLogDirectory;
 	// The directory to which the mutated .class files is exported
-	private File mutatedBinDirectory;
+	private File binDirectory;
 	// Mutation analysis enabled/disabled (true or false)
 	private boolean analysisEnabled;
 	// Base timeout factor (seconds) for test runtime
@@ -63,7 +63,7 @@ public class Major {
 		this.javaFile = javaFile;
 		String currentProjectPathname = EclipseNavigator.getCurrentProjectLocation();
 		mutantsLogDirectory = new File(currentProjectPathname);
-		mutatedBinDirectory = new File(currentProjectPathname + fileSeparator + "mutatedBin");
+		binDirectory = new File(currentProjectPathname + fileSeparator + "bin");
 		exportMutants = false;
 		exportDirectory = new File(currentProjectPathname + fileSeparator + "mutants");
 		System.setProperty("major.export.mutants", "false");
@@ -102,8 +102,8 @@ public class Major {
 	 */
 	public boolean mutate() {
 		// Create directory in which compiled mutated files will be stored
-		String binPathname = mutatedBinDirectory.getAbsolutePath();
-		mutatedBinDirectory.mkdir();
+		String binPathname = binDirectory.getAbsolutePath();
+		binDirectory.mkdir();
 		// Flag for mutation
 		String mutateFlag = "-XMutator:ALL";
 		String[] arguments = {"-d", binPathname, mutateFlag, javaFile.getPath()};
@@ -111,7 +111,7 @@ public class Major {
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
 		JavaCompiler compiler = JavacTool.create();
 		//if(isExportMutants()) exportDirectory.mkdir();
-		//String mutantsPathname = mutatedBinDirectory.getParent() + "/mutants";
+		//String mutantsPathname = binDirectory.getParent() + "/mutants";
 		//String mutantsPathname = "/home/raymond/workspace/org.rayzor.mutant/mutants";
 		//this.setExportMutants(true);
 		//System.setProperty("major.export.directory", mutantsPathname);
@@ -308,4 +308,23 @@ public class Major {
 		this.timeoutFactor = timeoutFactor;
 		System.setProperty("timeoutFactor", String.valueOf(this.timeoutFactor));
 	}
+
+	/**
+	 * Returns the directory in which the compiled mutated .class files get stored. 
+	 * 
+	 * @return the bin directory
+	 */
+	public File getBinDirectory() {
+		return binDirectory;
+	}
+
+	/**
+	 * Sets the bin directory to the given directory. Compiled mutated .class files will be stored here. 
+	 * 
+	 * @param binDirectory the directory to be used as the bin directory
+	 */
+	public void setBinDirectory(File binDirectory) {
+		this.binDirectory = binDirectory;
+	}
+
 }

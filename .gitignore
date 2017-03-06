@@ -3,3 +3,5 @@ mutatedBin/
 bin/
 mutants/
 test/
+*.csv
+

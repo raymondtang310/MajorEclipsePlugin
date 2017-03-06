@@ -41,7 +41,7 @@ import major.mutation.Config;
 public class Major {
 	
 	// File separator. Differs depending on operating system
-	private final char fileSeparator = File.separatorChar;	
+	private static final char FILE_SEPARATOR = File.separatorChar;	
 	// The given java file
 	private File javaFile;
 	// The fully qualified name of the java file
@@ -69,21 +69,23 @@ public class Major {
 	 * An IllegalArgumentException is thrown if the file is not a java file.
 	 * 
 	 * @param javaFile a java File
+	 * @param fullyQualifiedName the fully qualified name of the java file
 	 * @throws IOException
 	 */
-	public Major(File javaFile) throws IOException {
-		if(javaFile == null) throw new NullPointerException();
+	public Major(File javaFile, String fullyQualifiedName) throws IOException {
+		if(javaFile == null || fullyQualifiedName == null) throw new NullPointerException();
 		if(!javaFile.exists()) throw new FileNotFoundException("File " + javaFile.toString() + 
 															  " does not exist");
 		String type = Files.probeContentType(javaFile.toPath());
 		if(!type.equals("text/x-java")) throw new IllegalArgumentException(javaFile.toString() + 
 															         " is not a java file");
 		this.javaFile = javaFile;
+		this.fullyQualifiedName = fullyQualifiedName;
 		String currentProjectPathname = EclipseNavigator.getCurrentProjectLocation();
 		mutantsLogDirectory = new File(currentProjectPathname);
-		binDirectory = new File(currentProjectPathname + fileSeparator + "bin");
+		binDirectory = new File(currentProjectPathname + FILE_SEPARATOR + "bin");
 		exportMutants = false;
-		exportDirectory = new File(currentProjectPathname + fileSeparator + "mutants");
+		exportDirectory = new File(currentProjectPathname + FILE_SEPARATOR + "mutants");
 		System.setProperty("major.export.mutants", "false");
 		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 		analysisEnabled = false;
@@ -95,23 +97,6 @@ public class Major {
 		//System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 		//this.setExportDirectory(new File("/home/raymond/workspace/org.rayzor.mutant/mutants"));
 		//this.setExportDirectory(new File(currentProjectPathname + "/mutants"));
-	}
-	
-	/**
-	 * By default, mutant source files are not generated. If the option to generate mutant source
-	 * files is set to true, then the default export directory is "./mutants".
-	 * 
-	 * A FileNotFoundException is thrown if the file does not exist.
-	 * An IllegalArgumentException is thrown if the file is not a java file.
-	 * 
-	 * @param javaFile a java File
-	 * @param fullyQualifiedName the fully qualified name of the java file
-	 * @throws IOException
-	 */
-	public Major(File javaFile, String fullyQualifiedName) throws IOException {
-		this(javaFile);
-		if(fullyQualifiedName == null) throw new NullPointerException();
-		this.fullyQualifiedName = fullyQualifiedName;
 	}
 	
 	/**
@@ -141,8 +126,8 @@ public class Major {
 		// The run method returns 0 for success and nonzero for errors
 		if(flag == 0) {
 			String sourceDirectory = System.getProperty("user.dir");
-			Path source = Paths.get(sourceDirectory + fileSeparator + "mutants.log");
-			Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + fileSeparator + 
+			Path source = Paths.get(sourceDirectory + FILE_SEPARATOR + "mutants.log");
+			Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + FILE_SEPARATOR + 
 									"mutants.log");
 			numMutants = this.getNumberOfMutantsAfterCompile();
 			try {
@@ -224,7 +209,7 @@ public class Major {
 	 * @throws FileNotFoundException
 	 */
 	public File getMutantsLogFile() throws FileNotFoundException {
-		String mutantsLogPathname = mutantsLogDirectory.getAbsolutePath() + fileSeparator + 
+		String mutantsLogPathname = mutantsLogDirectory.getAbsolutePath() + FILE_SEPARATOR + 
 									"mutants.log";
 		File mutantsLog = new File(mutantsLogPathname);
 		if(!mutantsLog.exists()) throw new FileNotFoundException("mutants.log does not exist");
@@ -289,9 +274,9 @@ public class Major {
 		}
 		if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
 		String logLine = log.get(mutantNumber - 1);
-		String path = this.fullyQualifiedName.replace('.', fileSeparator);
-		String mutatedFileLocation = exportDirectory.getAbsolutePath() + fileSeparator +
-									 String.valueOf(mutantNumber) + fileSeparator + path + ".java";
+		String path = this.fullyQualifiedName.replace('.', FILE_SEPARATOR);
+		String mutatedFileLocation = exportDirectory.getAbsolutePath() + FILE_SEPARATOR +
+									 String.valueOf(mutantNumber) + FILE_SEPARATOR + path + ".java";
 		File mutatedFile = new File(mutatedFileLocation);
 		int mutantLineNumber = this.getMutantLineNumber(logLine);
 		return EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
@@ -486,7 +471,7 @@ public class Major {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
 		if(killMatrix == null) return false;
-		String fileName = EclipseNavigator.getCurrentProjectLocation() + fileSeparator + 
+		String fileName = EclipseNavigator.getCurrentProjectLocation() + FILE_SEPARATOR + 
 						  "killMatrix.csv";
 		char csvSeparator = ',';
 		Collection<TestMethod> tests = ExtendedTestFinder.getTestMethods(testClass);

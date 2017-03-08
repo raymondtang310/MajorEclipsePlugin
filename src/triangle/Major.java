@@ -467,7 +467,7 @@ public class Major {
 	 * @param testClass a class containing tests to run against the given java program
 	 * @return true for success, false otherwise
 	 */
-	public boolean generateKillMatrixCSV(Class<?> testClass) {
+	public boolean createKillMatrixCSV(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
 		if(killMatrix == null) return false;
@@ -512,6 +512,20 @@ public class Major {
 			}
 			System.out.println();
 		}
+	}
+	
+	
+	
+	public void createKilledCSV() {
+		
+	}
+	
+	public void createResultsCSV() {
+		
+	}
+	
+	public void createSummaryCSV() {
+		
 	}
 	
 }

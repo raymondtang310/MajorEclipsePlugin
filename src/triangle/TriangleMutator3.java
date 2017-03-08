@@ -25,7 +25,7 @@ public class TriangleMutator3 {
 			Major m = new Major(file, fullyQualifiedName);
 			m.setExportMutants(true);
 			m.mutate();
-			m.generateKillMatrixCSV(testClass);
+			m.createKillMatrixCSV(testClass);
 			
 			/*
 			 * Uncomment the lines below to print out the kill map and kill matrix given the tests 

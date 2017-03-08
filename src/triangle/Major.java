@@ -29,6 +29,7 @@ import killmap.Outcome;
 import killmap.TestMethod;
 import killmap.WorkOrder;
 import major.mutation.Config;
+import util.EclipseNavigator;
 
 /**
  * Given a java file, a Major object provides functionality such as compiling

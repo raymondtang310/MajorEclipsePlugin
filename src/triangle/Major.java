@@ -375,13 +375,12 @@ public class Major {
 	 * 
 	 * @param testClass a class containing tests to run against the given java program
 	 * @return a map between WorkOrders and Outcomes, detailing the Outcome (KILLED or ALIVE) 
-	 * 		   of a WorkOrder (a mutant and a test). Returns null if there are no mutants generated 
-	 * 		   or if there are no test methods in the given test class. 
+	 * 		   of a WorkOrder (a mutant and a test). Returns an empty map object if there are 
+	 * 		   no mutants generated or if there are no test methods in the given test class. 
 	 */
 	public Map<WorkOrder, Outcome> getKillMap(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		Collection<TestMethod> testMethods = ExtendedTestFinder.getTestMethods(testClass);
-		if(numMutants == 0 || testMethods.size() == 0) return null;
 		Map<WorkOrder, Outcome> killMap = new TreeMap<WorkOrder, Outcome>();
 		for(TestMethod test : testMethods) {
 			Config.__M_NO = 0;
@@ -415,7 +414,7 @@ public class Major {
 	public void printKillMap(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		Map<WorkOrder, Outcome> killMap = this.getKillMap(testClass);
-		if(killMap == null) return;
+		if(killMap.isEmpty()) return;
 		for(Map.Entry<WorkOrder, Outcome> entry : killMap.entrySet()) {
 			WorkOrder workOrder = entry.getKey();
 			int mutantID = workOrder.getMutantID();
@@ -432,18 +431,26 @@ public class Major {
 	 * The rows (mutants) are sorted (ascending) by mutantIDs. The columns (tests) are sorted by name. 
 	 * 
 	 * @param testClass a class containing tests to run against the given java program
-	 * @return a kill matrix, represented as an array of integer arrays, 
+	 * @return a kill matrix, represented as a two dimensional integer array, 
 	 * 		   where the rows represent mutants and the columns represent tests. 
-	 * 		   Returns null if there are no mutants generated or if there are no test methods 
-	 * 		   in the given test class. 
+	 * 		   Returns an empty int[][] if there are no mutants generated or if there are no test 
+	 *		   methods in the given test class. 
 	 */
 	public int[][] getKillMatrix(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		Collection<TestMethod> testMethodsCollection = ExtendedTestFinder.getTestMethods(testClass);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
 		int numTests = testMethods.size();
-		if(numMutants == 0 || numTests == 0) return null;
+		if(numMutants == 0 || numTests == 0) return new int[0][0];
 		int[][] killMatrix = new int[numMutants][numTests];
+		try {
+			ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		System.out.println(Config.__M_NO);
+		System.out.println(Config.class.getClassLoader());
+		
 		for(int i = 0; i < numTests; i++) {
 			TestMethod test = testMethods.get(i);
 			Config.__M_NO = 0;
@@ -471,7 +478,7 @@ public class Major {
 	public boolean createKillMatrixCSV(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
-		if(killMatrix == null) return false;
+		if(killMatrix.length == 0) return false;
 		String fileName = EclipseNavigator.getCurrentProjectLocation() + FILE_SEPARATOR + 
 						  "killMatrix.csv";
 		char csvSeparator = ',';
@@ -506,7 +513,6 @@ public class Major {
 	public void printKillMatrix(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
-		if(killMatrix == null) return;
 		for(int i = 0; i < killMatrix.length; i++) {
 			for(int j = 0; j < killMatrix[i].length; j++) {
 				System.out.print(killMatrix[i][j] + " ");
@@ -514,8 +520,6 @@ public class Major {
 			System.out.println();
 		}
 	}
-	
-	
 	
 	public void createKilledCSV() {
 		

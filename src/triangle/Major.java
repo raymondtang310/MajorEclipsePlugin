@@ -2,6 +2,7 @@ package triangle;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -443,6 +444,7 @@ public class Major {
 		int numTests = testMethods.size();
 		if(numMutants == 0 || numTests == 0) return new int[0][0];
 		int[][] killMatrix = new int[numMutants][numTests];
+		/*
 		try {
 			ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
 		} catch (ClassNotFoundException e) {
@@ -450,17 +452,62 @@ public class Major {
 		}
 		System.out.println(Config.__M_NO);
 		System.out.println(Config.class.getClassLoader());
-		
+		*/
+
+		/*
+		try {
+		    URL url = binDirectory.toURI().toURL();
+		    URL[] urls = new URL[]{url};
+		    URLClassLoader cl = new URLClassLoader(urls);
+		    cl.loadClass(fullyQualifiedName);
+		    try {
+				cl.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (MalformedURLException e) {
+		} catch (ClassNotFoundException e) {
+		}
+		*/
 		for(int i = 0; i < numTests; i++) {
 			TestMethod test = testMethods.get(i);
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
-			core.run(Request.method(test.getTestClass(), test.getName()));
+			Result r = core.run(Request.method(test.getTestClass(), test.getName()));
+			String fileName = "/home/raymond/Desktop/hey.txt";
+			PrintWriter writer;
+	        try {
+	        	//ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
+				writer = new PrintWriter(new FileWriter(fileName, true));
+				if(r.wasSuccessful()) writer.println("pass");
+				else writer.println("fail");
+				writer.println(Config.__M_NO);
+				writer.println(Config.class.getClassLoader());
+				writer.println();
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			List<Integer> coveredMutants = Config.getCoverageList();
 			Config.reset();
 			for(Integer coveredMutant : coveredMutants) {
 				int mutantNumber = coveredMutant.intValue();
 				Config.__M_NO = mutantNumber;
+				
+		        try {
+		        	//ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
+					writer = new PrintWriter(new FileWriter(fileName, true));
+					writer.println(Config.__M_NO);
+					writer.println(Config.class.getClassLoader());
+					writer.println();
+					writer.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		        
 				Result result = core.run(Request.method(test.getTestClass(), test.getName()));
 				if(!result.wasSuccessful()) killMatrix[mutantNumber - 1][i] = 1;
 			}

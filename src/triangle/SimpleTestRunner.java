@@ -21,7 +21,13 @@ import major.mutation.Config;
 public class SimpleTestRunner {
 
 	public static void main(String[] args) {
-		Class<test.TriangleTest> c = test.TriangleTest.class;
+		Class<?> c = null;
+		try {
+			c = Class.forName("test.TriangleTest");
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+			return;
+		}
 		Collection<TestMethod> testMethods = null;
 		try {
 			testMethods = ExtendedTestFinder.getTestMethods(c);

@@ -3,8 +3,6 @@ package triangle;
 import java.io.File;
 import java.io.IOException;
 
-import test.TriangleTest;
-
 /**
  * This program generates and compiles mutants in Triangle.java using Major.java. 
  * 
@@ -15,16 +13,19 @@ public class TriangleMutator3 {
 	
 	public static void main(String[] args) {
 		// Pathname of Triangle.java
-		String pathName = "/home/raymond/workspace/org.rayzor.mutant/src/triangle/Triangle.java";
+		String pathName = "/home/raymond/workspace/Triangle/src/triangle/Triangle.java";
 		File file = new File(pathName);
-		Class<Triangle> triangleClass = Triangle.class;
-		Class<TriangleTest> testClass = TriangleTest.class;
+		//Class<Triangle> triangleClass = Triangle.class;
+		//Class<TriangleTest> testClass = TriangleTest.class;
+		
 		// Fully qualified name of Triangle.java
-		String fullyQualifiedName = triangleClass.getName();
+		String fullyQualifiedName = "triangle.Triangle";
+		String testFullyQualifiedName = "test.TriangleTest";
 		try {
 			Major m = new Major(file, fullyQualifiedName);
 			m.setExportMutants(true);
 			m.mutate();
+			Class<?> testClass = Class.forName(testFullyQualifiedName);
 			m.createKillMatrixCSV(testClass);
 			
 			/*
@@ -36,9 +37,9 @@ public class TriangleMutator3 {
 			//m.printKillMatrix(testClass);
 			
 			// Highlight mutant 2
-			m.highlightMutant(2);
-		} catch (IOException e) {
-			e.printStackTrace();
+			//m.highlightMutant(2);
+		} catch (IOException | ClassNotFoundException e) {
+			//e.printStackTrace();
 		}
 	}
 }

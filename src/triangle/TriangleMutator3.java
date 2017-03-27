@@ -2,6 +2,9 @@ package triangle;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * This program generates and compiles mutants in Triangle.java using Major.java. 
@@ -15,8 +18,6 @@ public class TriangleMutator3 {
 		// Pathname of Triangle.java
 		String pathName = "/home/raymond/workspace/Triangle/src/triangle/Triangle.java";
 		File file = new File(pathName);
-		//Class<Triangle> triangleClass = Triangle.class;
-		//Class<TriangleTest> testClass = TriangleTest.class;
 		
 		// Fully qualified name of Triangle.java
 		String fullyQualifiedName = "triangle.Triangle";
@@ -25,8 +26,26 @@ public class TriangleMutator3 {
 			Major m = new Major(file, fullyQualifiedName);
 			m.setExportMutants(true);
 			m.mutate();
-			Class<?> testClass = Class.forName(testFullyQualifiedName);
-			m.createKillMatrixCSV(testClass);
+			
+			String binPathname = "/home/raymond/workspace/Triangle/bin/";
+			//URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binPathname).toURI().toURL()});
+			
+			ClassLoader currentThreadClassLoader = Thread.currentThread().getContextClassLoader();
+			URLClassLoader urlClassLoader
+			 = new URLClassLoader(new URL[]{new File(binPathname).toURI().toURL()},
+			                      currentThreadClassLoader);
+			Thread.currentThread().setContextClassLoader(urlClassLoader);
+			
+			String fileName = "/home/raymond/Desktop/hey.txt";
+			PrintWriter writer = new PrintWriter(fileName);
+			
+			Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
+			
+			writer.println("Class.forName worked");
+			boolean success = m.createKillMatrixCSV(testClass);
+			System.out.println(success);
+			if(success) writer.println("Created killMatrix.csv");
+			else writer.println("Could not create killMatrix.csv");
 			
 			/*
 			 * Uncomment the lines below to print out the kill map and kill matrix given the tests 
@@ -38,8 +57,12 @@ public class TriangleMutator3 {
 			
 			// Highlight mutant 2
 			//m.highlightMutant(2);
-		} catch (IOException | ClassNotFoundException e) {
-			//e.printStackTrace();
+
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 }

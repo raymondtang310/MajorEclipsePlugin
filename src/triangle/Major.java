@@ -442,76 +442,43 @@ public class Major {
 		Collection<TestMethod> testMethodsCollection = ExtendedTestFinder.getTestMethods(testClass);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
 		int numTests = testMethods.size();
-		if(numMutants == 0 || numTests == 0) return new int[0][0];
-		int[][] killMatrix = new int[numMutants][numTests];
-		/*
-		try {
-			ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
-		} catch (ClassNotFoundException e) {
+		String fileName = "/home/raymond/Desktop/hey.txt";
+		PrintWriter writer = null;
+        try {
+			writer = new PrintWriter(new FileWriter(fileName, true));
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(Config.__M_NO);
-		System.out.println(Config.class.getClassLoader());
-		*/
-
-		/*
-		try {
-		    URL url = binDirectory.toURI().toURL();
-		    URL[] urls = new URL[]{url};
-		    URLClassLoader cl = new URLClassLoader(urls);
-		    cl.loadClass(fullyQualifiedName);
-		    try {
-				cl.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (MalformedURLException e) {
-		} catch (ClassNotFoundException e) {
-		}
-		*/
+        writer.println("#mutants: " + numMutants + ", #tests: " + numTests);
+		if(numMutants == 0 || numTests == 0) return new int[0][0];
+		int[][] killMatrix = new int[numMutants][numTests];
 		for(int i = 0; i < numTests; i++) {
 			TestMethod test = testMethods.get(i);
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
 			Result r = core.run(Request.method(test.getTestClass(), test.getName()));
-			String fileName = "/home/raymond/Desktop/hey.txt";
-			PrintWriter writer;
-	        try {
-	        	//ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
-				writer = new PrintWriter(new FileWriter(fileName, true));
-				if(r.wasSuccessful()) writer.println("pass");
-				else writer.println("fail");
-				writer.println(Config.__M_NO);
-				writer.println(Config.class.getClassLoader());
-				writer.println();
-				writer.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+			if(r.wasSuccessful()) writer.println("pass");
+			else writer.println("fail");
+			writer.println(Config.__M_NO);
+			writer.println(Config.class.getClassLoader());
+			writer.println();
+			
 			List<Integer> coveredMutants = Config.getCoverageList();
 			Config.reset();
 			for(Integer coveredMutant : coveredMutants) {
 				int mutantNumber = coveredMutant.intValue();
 				Config.__M_NO = mutantNumber;
 				
-		        try {
-		        	//ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
-					writer = new PrintWriter(new FileWriter(fileName, true));
-					writer.println(Config.__M_NO);
-					writer.println(Config.class.getClassLoader());
-					writer.println();
-					writer.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		        
+				writer.println(Config.__M_NO);
+				writer.println(Config.class.getClassLoader());
+				writer.println();
+				
 				Result result = core.run(Request.method(test.getTestClass(), test.getName()));
 				if(!result.wasSuccessful()) killMatrix[mutantNumber - 1][i] = 1;
 			}
 		}
+		writer.close();
 		return killMatrix;
 	}
 	
@@ -525,6 +492,15 @@ public class Major {
 	public boolean createKillMatrixCSV(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
+		String fileName1 = "/home/raymond/Desktop/hey.txt";
+		PrintWriter writer1 = null;
+        try {
+			writer1 = new PrintWriter(new FileWriter(fileName1, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        writer1.println("#mutants: " + killMatrix.length);
+        writer1.close();
 		if(killMatrix.length == 0) return false;
 		String fileName = EclipseNavigator.getCurrentProjectLocation() + FILE_SEPARATOR + 
 						  "killMatrix.csv";

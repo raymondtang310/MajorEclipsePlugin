@@ -36,7 +36,7 @@ public class TriangleMutator3 {
 			                      currentThreadClassLoader);
 			Thread.currentThread().setContextClassLoader(urlClassLoader);
 			
-			String fileName = "/home/raymond/Desktop/hey.txt";
+			String fileName = "/home/raymond/Desktop/TriangleMutator3.txt";
 			PrintWriter writer = new PrintWriter(fileName);
 			
 			Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);

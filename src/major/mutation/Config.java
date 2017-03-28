@@ -24,15 +24,15 @@ public class Config {
      *
      * __M_NO >  0 -> Execute mutant with the corresponding id
      */
-    public static int __M_NO = 0;
+    public static int __M_NO = -1;
 
     // Set to store IDs of covered mutants
     public static Set<Integer> covSet = new TreeSet<Integer>();
     
     static {
-    	String fileName = "/home/raymond/Desktop/hey.txt";
+    	String fileName = "/home/raymond/Desktop/Config.txt";
         try {
-			PrintWriter writer = new PrintWriter(new FileWriter(fileName, true));
+			PrintWriter writer = new PrintWriter(fileName);
 			writer.println(Config.__M_NO);
 			writer.println("Class config loaded, using classloader " + Config.class.getClassLoader());
 			writer.println();
@@ -46,7 +46,7 @@ public class Config {
     // The coverage method is called if and only if the
     // mutant identifier is set to 0!
     public static boolean COVERED(int from, int to) {
-        String fileName = "/home/raymond/Desktop/hey.txt";
+        String fileName = "/home/raymond/Desktop/Config.txt";
         try {
         	//ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
 			PrintWriter writer = new PrintWriter(new FileWriter(fileName, true));
@@ -75,7 +75,7 @@ public class Config {
      */
     // Reset the coverage information
     public static void reset() {
-    	String fileName = "/home/raymond/Desktop/hey.txt";
+    	String fileName = "/home/raymond/Desktop/Config.txt";
         try {
         	//ClassLoader.getSystemClassLoader().loadClass("major.mutation.Config");
 			PrintWriter writer = new PrintWriter(new FileWriter(fileName, true));

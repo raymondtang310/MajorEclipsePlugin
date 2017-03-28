@@ -2,7 +2,6 @@ package triangle;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -442,10 +441,10 @@ public class Major {
 		Collection<TestMethod> testMethodsCollection = ExtendedTestFinder.getTestMethods(testClass);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
 		int numTests = testMethods.size();
-		String fileName = "/home/raymond/Desktop/hey.txt";
+		String fileName = "/home/raymond/Desktop/getKM.txt";
 		PrintWriter writer = null;
         try {
-			writer = new PrintWriter(new FileWriter(fileName, true));
+			writer = new PrintWriter(fileName);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -492,10 +491,10 @@ public class Major {
 	public boolean createKillMatrixCSV(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
-		String fileName1 = "/home/raymond/Desktop/hey.txt";
+		String fileName1 = "/home/raymond/Desktop/createKM.txt";
 		PrintWriter writer1 = null;
         try {
-			writer1 = new PrintWriter(new FileWriter(fileName1, true));
+			writer1 = new PrintWriter(fileName1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import major.mutation.Config;
+
 /**
  * This program generates and compiles mutants in Triangle.java using Major.java. 
  * 
@@ -33,7 +35,8 @@ public class TriangleMutator3 {
 			ClassLoader currentThreadClassLoader = Thread.currentThread().getContextClassLoader();
 			URLClassLoader urlClassLoader
 			 = new URLClassLoader(new URL[]{new File(binPathname).toURI().toURL()},
-			                      currentThreadClassLoader);
+					 Config.class.getClassLoader());
+			
 			Thread.currentThread().setContextClassLoader(urlClassLoader);
 			
 			String fileName = "/home/raymond/Desktop/TriangleMutator3.txt";

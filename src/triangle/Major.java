@@ -21,6 +21,7 @@ import javax.tools.JavaCompiler;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
 import com.sun.tools.javac.api.JavacTool;
 
@@ -456,9 +457,16 @@ public class Major {
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
 			Result r = core.run(Request.method(test.getTestClass(), test.getName()));
-			
+			List<Failure> failures = r.getFailures();
 			if(r.wasSuccessful()) writer.println("pass");
-			else writer.println("fail");
+			else {
+				writer.println("fail");
+				for(Failure f : failures) {
+					writer.println(f);
+					writer.println(f.getDescription());
+					writer.println(f.getMessage());
+				}
+			}
 			writer.println(Config.__M_NO);
 			writer.println(Config.class.getClassLoader());
 			writer.println();

@@ -26,5 +26,38 @@
          </action>
       </actionSet>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="MutantView"
+            id="org.rayzor.mutantView">
+      </category>
+      <view
+            name="Mutants"
+            icon="icons/sample.gif"
+            category="org.rayzor.mutantView"
+            class="org.rayzor.mutantview.views.MutantView"
+            id="org.rayzor.mutantview.views.MutantView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               ratio="0.5"
+               relative="org.eclipse.ui.views.ProblemView"
+               relationship="right"
+               id="org.rayzor.mutantview.views.MutantView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
 
 </plugin>

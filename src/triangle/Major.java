@@ -21,7 +21,6 @@ import javax.tools.JavaCompiler;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
 import com.sun.tools.javac.api.JavacTool;
 
@@ -442,50 +441,25 @@ public class Major {
 		Collection<TestMethod> testMethodsCollection = ExtendedTestFinder.getTestMethods(testClass);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
 		int numTests = testMethods.size();
-		String fileName = "/home/raymond/Desktop/getKM.txt";
-		PrintWriter writer = null;
-        try {
-			writer = new PrintWriter(fileName);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        writer.println("#mutants: " + numMutants + ", #tests: " + numTests);
 		if(numMutants == 0 || numTests == 0) return new int[0][0];
 		int[][] killMatrix = new int[numMutants][numTests];
 		for(int i = 0; i < numTests; i++) {
 			TestMethod test = testMethods.get(i);
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
-			Result r = core.run(Request.method(test.getTestClass(), test.getName()));
-			List<Failure> failures = r.getFailures();
-			if(r.wasSuccessful()) writer.println("pass");
-			else {
-				writer.println("fail");
-				for(Failure f : failures) {
-					writer.println(f);
-					writer.println(f.getDescription());
-					writer.println(f.getMessage());
-				}
-			}
-			writer.println(Config.__M_NO);
-			writer.println(Config.class.getClassLoader());
-			writer.println();
-			
+			core.run(Request.method(test.getTestClass(), test.getName()));
+			//Result r = core.run(Request.method(test.getTestClass(), test.getName()));
+			//List<Failure> failures = r.getFailures();
+			//if(!r.wasSuccessful()) 
 			List<Integer> coveredMutants = Config.getCoverageList();
 			Config.reset();
 			for(Integer coveredMutant : coveredMutants) {
 				int mutantNumber = coveredMutant.intValue();
 				Config.__M_NO = mutantNumber;
-				
-				writer.println(Config.__M_NO);
-				writer.println(Config.class.getClassLoader());
-				writer.println();
-				
 				Result result = core.run(Request.method(test.getTestClass(), test.getName()));
 				if(!result.wasSuccessful()) killMatrix[mutantNumber - 1][i] = 1;
 			}
 		}
-		writer.close();
 		return killMatrix;
 	}
 	
@@ -499,15 +473,6 @@ public class Major {
 	public boolean createKillMatrixCSV(Class<?> testClass) {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
-		String fileName1 = "/home/raymond/Desktop/createKM.txt";
-		PrintWriter writer1 = null;
-        try {
-			writer1 = new PrintWriter(fileName1);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        writer1.println("#mutants: " + killMatrix.length);
-        writer1.close();
 		if(killMatrix.length == 0) return false;
 		String fileName = EclipseNavigator.getCurrentProjectLocation() + FILE_SEPARATOR + 
 						  "killMatrix.csv";

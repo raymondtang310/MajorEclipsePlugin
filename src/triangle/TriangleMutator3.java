@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+
 import major.mutation.Config;
 
 /**
@@ -28,6 +31,13 @@ public class TriangleMutator3 {
 			Major m = new Major(file, fullyQualifiedName);
 			m.setExportMutants(true);
 			m.mutate();
+			
+			String viewId = "org.rayzor.mutantview.views.MutantView";
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
 			
 			// Add bin directory of Triangle project to classpath
 			String binPathname = "/home/raymond/workspace/Triangle/bin/";

@@ -32,13 +32,6 @@ public class TriangleMutator3 {
 			m.setExportMutants(true);
 			m.mutate();
 			
-			String viewId = "org.rayzor.mutantview.views.MutantView";
-			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
-			} catch (PartInitException e) {
-				e.printStackTrace();
-			}
-			
 			// Add bin directory of Triangle project to classpath
 			String binPathname = "/home/raymond/workspace/Triangle/bin/";
 			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binPathname).toURI().toURL()}, Config.class.getClassLoader());
@@ -48,6 +41,14 @@ public class TriangleMutator3 {
 			Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
 			boolean success = m.createKillMatrixCSV(testClass);
 			System.out.println(success);
+			
+			// Open view
+			String viewId = "org.rayzor.mutantview.views.MutantView";
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
 
 			/*
 			 * Uncomment the lines below to print out the kill map and kill matrix given the tests 

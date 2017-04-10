@@ -258,6 +258,28 @@ public class Major {
 	}
 	
 	/**
+	 * Highlights the line in the source file in which the mutant corresponding 
+	 * with the given number occurs. The given number (mutantNumber) is the number of the line
+	 * in mutants.log detailing the desired mutant
+	 * 
+	 * @param mutantNumber the number of the mutant to highlight
+	 * @return true for success, false otherwise
+	 */
+	public boolean highlightMutantInSource(int mutantNumber) {
+		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
+		ArrayList<String> log = null;
+		try {
+			log = this.getMutantsLog();
+		} catch (FileNotFoundException e) {
+			return false;
+		}
+		if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
+		String logLine = log.get(mutantNumber - 1);
+		int mutantLineNumber = this.getMutantLineNumber(logLine);
+		return EclipseNavigator.highlightLine(javaFile, mutantLineNumber);
+	}
+	
+	/**
 	 * Highlights the line in the mutated source file in which the mutant corresponding 
 	 * with the given number is located. The given number (mutantNumber) is the number of the line
 	 * in mutants.log detailing the desired mutant
@@ -265,7 +287,7 @@ public class Major {
 	 * @param mutantNumber the number of the mutant to highlight
 	 * @return true for success, false otherwise
 	 */
-	public boolean highlightMutant(int mutantNumber) {
+	public boolean highlightMutantInMutatedSource(int mutantNumber) {
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
 		ArrayList<String> log = null;
 		try {

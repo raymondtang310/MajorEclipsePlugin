@@ -60,8 +60,11 @@ public class TriangleMutator3 {
 			//m.printKillMap(testClass);
 			//m.printKillMatrix(testClass);
 			
-			// Highlight mutant 2
-			//m.highlightMutant(2);
+			// Highlight mutant 1 location in original source file
+			//m.highlightMutantInSource(1);
+			
+			// Highlight mutant 2 in mutated source file
+			//m.highlightMutantInMutatedSource(2);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {

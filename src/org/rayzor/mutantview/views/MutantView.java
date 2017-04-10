@@ -174,7 +174,7 @@ public class MutantView extends ViewPart {
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				//showMessage("Double-click detected on "+obj.toString());
 				int mutantNumber = ((Integer)obj).intValue();
-				m.highlightMutant(mutantNumber);
+				m.highlightMutantInSource(mutantNumber);
 			}
 		};
 	}

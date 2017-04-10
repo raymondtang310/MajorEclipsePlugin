@@ -7,6 +7,7 @@ import java.net.URLClassLoader;
 
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.rayzor.mutantview.views.MutantView;
 
 import major.mutation.Config;
 
@@ -45,7 +46,8 @@ public class TriangleMutator3 {
 			// Open view
 			String viewId = "org.rayzor.mutantview.views.MutantView";
 			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
+				MutantView view = (MutantView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
+				view.setMajorObject(m);
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}

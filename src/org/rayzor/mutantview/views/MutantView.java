@@ -3,6 +3,9 @@ package org.rayzor.mutantview.views;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
+
+import triangle.Major;
+
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.jface.action.*;
@@ -41,6 +44,7 @@ public class MutantView extends ViewPart {
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
+	private Major m = null;
 
 	/*
 	 * The content provider class is responsible for
@@ -58,8 +62,13 @@ public class MutantView extends ViewPart {
 		public void dispose() {
 		}
 		public Object[] getElements(Object parent) {
-			
-			return new String[] { "One", "Two", "Three" };
+			if(m == null) return new Object[0];
+			int numMutants = m.getNumberOfMutants();
+			Integer[] mutantNumbers = new Integer[numMutants];
+			for(int i = 1; i <= mutantNumbers.length; i++) {
+				mutantNumbers[i-1] = i;
+			}
+			return mutantNumbers;
 		}
 	}
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
@@ -163,7 +172,9 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				showMessage("Double-click detected on "+obj.toString());
+				//showMessage("Double-click detected on "+obj.toString());
+				int mutantNumber = ((Integer)obj).intValue();
+				m.highlightMutant(mutantNumber);
 			}
 		};
 	}
@@ -187,5 +198,15 @@ public class MutantView extends ViewPart {
 	 */
 	public void setFocus() {
 		viewer.getControl().setFocus();
+	}
+	
+	/**
+	 * Provides Major object to this view
+	 * 
+	 * @param m Major object
+	 */
+	public void setMajorObject(Major m) {
+		this.m = m;
+		viewer.setContentProvider(new ViewContentProvider());
 	}
 }

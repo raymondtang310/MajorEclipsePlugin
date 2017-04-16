@@ -1,7 +1,9 @@
 package triangle;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -21,15 +23,29 @@ public class TriangleMutator3 {
 	
 	public static void main(String[] args) {
 		// Pathname of Triangle.java
-		String pathName = "/home/raymond/workspace/Triangle/src/triangle/Triangle.java";
-		File file = new File(pathName);
+		//String fileToMutateLocation = "/home/raymond/workspace/Triangle/src/triangle/Triangle.java";
+		String fileToMutateLocation = args[0];
+		String projectLocation = args[1];
+		File file = new File(fileToMutateLocation);
 		
 		// Fully qualified name of Triangle.java
-		String fullyQualifiedName = "triangle.Triangle";
+		//String fullyQualifiedName = "triangle.Triangle";
+		String fullyQualifiedName = getFullyQualifiedName(fileToMutateLocation, projectLocation);
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter("/home/raymond/Desktop/hey.txt");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return;
+		}
+		if(!fullyQualifiedName.equals("triangle.Triangle")) writer.println(fullyQualifiedName);
+		else writer.println("SUCCESS!");
+		writer.close(); 
 		String testFullyQualifiedName = "test.TriangleTest";
 		try {
 			// Mutate Triangle program
-			Major m = new Major(file, fullyQualifiedName);
+			Major m = new Major(file, fullyQualifiedName, projectLocation);
 			m.setExportMutants(true);
 			m.mutate();
 			
@@ -70,5 +86,11 @@ public class TriangleMutator3 {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static String getFullyQualifiedName(String fileLocation, String projectLocation) {
+		int projectPathLength = projectLocation.length();
+		int filePathLength = fileLocation.length();
+		return fileLocation.substring(projectPathLength + 5, filePathLength - 5);
 	}
 }

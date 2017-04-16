@@ -1,11 +1,15 @@
 package org.rayzor.mutant.actions;
 
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
+import triangle.JavaFileNotSelectedException;
 import triangle.TriangleMutator3;
+import util.EclipseNavigator;
 
 /**
  * Our sample action implements workbench action delegate.
@@ -16,7 +20,6 @@ import triangle.TriangleMutator3;
  * @see IWorkbenchWindowActionDelegate
  */
 public class MutantAction implements IWorkbenchWindowActionDelegate {
-	@SuppressWarnings("unused")
 	private IWorkbenchWindow window;
 	/**
 	 * The constructor.
@@ -31,8 +34,20 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
+		ICompilationUnit fileToMutate = null;
+		try {
+			fileToMutate = EclipseNavigator.getSelectedJavaFile();
+		} catch (JavaFileNotSelectedException e) {
+			MessageDialog.openInformation(
+				window.getShell(),
+				"Normo",
+				"Error: a java file is not selected");
+			return;
+		}
+		String fileLocation = fileToMutate.getResource().getLocation().toOSString();
+		String projectLocation = fileToMutate.getJavaProject().getResource().getLocation().toOSString();
 		// Run the Mutator program to generate and compile mutants in Triangle.java
-		TriangleMutator3.main(null);
+		TriangleMutator3.main(new String[]{fileLocation, projectLocation});
 	}
 
 	/**

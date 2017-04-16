@@ -47,6 +47,8 @@ public class Major {
 	private File javaFile;
 	// The fully qualified name of the java file
 	private String fullyQualifiedName;
+	// The location of the java file's project
+	private String projectLocation;
 	// The value of the exportMutants property (either true or false)
 	private boolean exportMutants;
 	// The directory to which mutant source files are exported
@@ -71,9 +73,10 @@ public class Major {
 	 * 
 	 * @param javaFile a java File
 	 * @param fullyQualifiedName the fully qualified name of the java file
+	 * @param projectLocation the location of the java file's project
 	 * @throws IOException
 	 */
-	public Major(File javaFile, String fullyQualifiedName) throws IOException {
+	public Major(File javaFile, String fullyQualifiedName, String projectLocation) throws IOException {
 		if(javaFile == null || fullyQualifiedName == null) throw new NullPointerException();
 		if(!javaFile.exists()) throw new FileNotFoundException("File " + javaFile.toString() + 
 															  " does not exist");
@@ -82,11 +85,11 @@ public class Major {
 															         " is not a java file");
 		this.javaFile = javaFile;
 		this.fullyQualifiedName = fullyQualifiedName;
-		String currentProjectPathname = EclipseNavigator.getCurrentProjectLocation();
-		mutantsLogDirectory = new File(currentProjectPathname);
-		binDirectory = new File(currentProjectPathname + FILE_SEPARATOR + "bin");
+		this.projectLocation = projectLocation;
+		mutantsLogDirectory = new File(this.projectLocation);
+		binDirectory = new File(this.projectLocation + FILE_SEPARATOR + "bin");
 		exportMutants = false;
-		exportDirectory = new File(currentProjectPathname + FILE_SEPARATOR + "mutants");
+		exportDirectory = new File(this.projectLocation + FILE_SEPARATOR + "mutants");
 		System.setProperty("major.export.mutants", "false");
 		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 		analysisEnabled = false;
@@ -496,8 +499,7 @@ public class Major {
 		if(testClass == null) throw new NullPointerException();
 		int[][] killMatrix = this.getKillMatrix(testClass);
 		if(killMatrix.length == 0) return false;
-		String fileName = EclipseNavigator.getCurrentProjectLocation() + FILE_SEPARATOR + 
-						  "killMatrix.csv";
+		String fileName = projectLocation + FILE_SEPARATOR + "killMatrix.csv";
 		char csvSeparator = ',';
 		Collection<TestMethod> tests = ExtendedTestFinder.getTestMethods(testClass);
 		int numTests = tests.size();

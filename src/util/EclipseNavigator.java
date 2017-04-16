@@ -5,10 +5,15 @@ import java.io.File;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -16,6 +21,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
+
+import triangle.JavaFileNotSelectedException;
+import triangle.SelectionNotAdaptableException;
 
 /**
  * This class provides functionality such as retrieving project locations and highlighting lines
@@ -31,10 +39,10 @@ public class EclipseNavigator {
 	
 	/**
 	 * If a project is selected, this method returns the project's location as a string. 
-	 * If a project is not selected, the current working directory is returned as a string instead
+	 * Otherwise, the empty string is returned instead. 
 	 * 
 	 * @return the location of the selected project as a string, if a project is selected, or the
-	 * 		   current working directory as a string otherwise
+	 * 		   empty string otherwise
 	 */
 	public static String getCurrentProjectLocation() {
 		try {
@@ -48,10 +56,84 @@ public class EclipseNavigator {
 					return path.toString();
 				}
 			}
-			return System.getProperty("user.dir");
+			return "";
 		} catch (Exception e) {
-			return System.getProperty("user.dir");
+			return "";
 		}
+	}
+	
+	/**
+	 * If an object of type IAdaptable is selected, this method returns the selection. Otherwise, a
+	 * SelectionNotAdaptableException is thrown. 
+	 * 
+	 * @return the IAdaptable selection
+	 * @throws SelectionNotAdaptableException 
+	 */
+	public static IAdaptable getAdaptableSelection() throws SelectionNotAdaptableException {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+	    if (page != null) {
+	    	ISelection selection = page.getSelection();
+	    	if(selection != null && selection instanceof IStructuredSelection) {
+		    	IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+	        	Object firstElement = structuredSelection.getFirstElement();
+	        	if(firstElement instanceof IAdaptable) {
+	        		return (IAdaptable)firstElement;
+	        	}
+	    	}
+	    }
+	    // Fix this later
+	    throw new SelectionNotAdaptableException("Selection is not IAdaptable");
+	}
+	
+	/**
+	 * This method returns the location of the given IAdaptable element as a pathname string. 
+	 * Otherwise, a SelectionNotAdaptableException is thrown. 
+	 * 
+	 * @param adaptableElement the IAdaptable element
+	 * @return the location of the given IAdaptable element as a pathname string
+	 * @throws SelectionNotAdaptableException 
+	 */
+	public static String getAdaptableSelectionLocation(IAdaptable adaptableElement) throws SelectionNotAdaptableException {
+		if(adaptableElement == null) throw new NullPointerException();
+		if(adaptableElement instanceof IResource) return ((IResource)adaptableElement).getLocation().toOSString();
+		else if(adaptableElement instanceof IProject) return ((IProject)adaptableElement).getLocation().toOSString();
+		else if(adaptableElement instanceof IJavaProject) return ((IJavaProject)adaptableElement).getResource().getLocation().toOSString();
+		else if(adaptableElement instanceof IJavaElement) return ((IJavaElement)adaptableElement).getResource().getLocation().toOSString();
+	    throw new SelectionNotAdaptableException("Selection is not IAdaptable");
+	}
+	
+	/**
+	 * If an object of type IAdaptable is selected, this method returns the location of the selection. 
+	 * Otherwise, a SelectionNotAdaptableException is thrown. 
+	 * 
+	 * @return the IAdaptable selection
+	 * @throws SelectionNotAdaptableException 
+	 */
+	public static String getAdaptableSelectionLocation() throws SelectionNotAdaptableException {
+		IAdaptable adaptableElement = getAdaptableSelection();
+		if(adaptableElement instanceof IResource) return ((IResource)adaptableElement).getLocation().toOSString();
+		else if(adaptableElement instanceof IProject) return ((IProject)adaptableElement).getLocation().toOSString();
+		else if(adaptableElement instanceof IJavaProject) return ((IJavaProject)adaptableElement).getResource().getLocation().toOSString();
+		else if(adaptableElement instanceof IJavaElement) return ((IJavaElement)adaptableElement).getResource().getLocation().toOSString();
+	    throw new SelectionNotAdaptableException("Selection is not IAdaptable");
+	}
+	
+	/**
+	 * If a java file is selected, then it is returned as an object of type ICompilationUnit. 
+	 * Otherwise, a JavaFileNotSelectedException is thrown. 
+	 * 
+	 * @return the selected java file
+	 * @throws JavaFileNotSelectedException
+	 */
+	public static ICompilationUnit getSelectedJavaFile() throws JavaFileNotSelectedException {
+		IAdaptable adaptableElement = null;
+		try {
+			adaptableElement = getAdaptableSelection();
+		} catch (SelectionNotAdaptableException e) {
+			throw new JavaFileNotSelectedException("Selection is not a java file");
+		}
+		if(adaptableElement instanceof ICompilationUnit) return (ICompilationUnit) adaptableElement;
+	    throw new JavaFileNotSelectedException("Selection is not a java file");
 	}
 	
 	/**

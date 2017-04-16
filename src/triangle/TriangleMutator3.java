@@ -88,9 +88,19 @@ public class TriangleMutator3 {
 		}
 	}
 	
+	/**
+	 * This method returns the fully qualified name of the file to mutate. 
+	 * 
+	 * @param fileLocation the location of the file to mutate
+	 * @param projectLocation the location of the java file's project
+	 * @return the fully qualified name of the file to mutate
+	 */
 	private static String getFullyQualifiedName(String fileLocation, String projectLocation) {
+		char FILE_SEPARATOR = File.separatorChar;
 		int projectPathLength = projectLocation.length();
 		int filePathLength = fileLocation.length();
-		return fileLocation.substring(projectPathLength + 5, filePathLength - 5);
+		// The (projectPathLength + 5) gets rid of project's path + "/src/" from the pathname and 
+		// the (filePathLength - 5) gets rid of the ".java" file extension
+		return fileLocation.substring(projectPathLength + 5, filePathLength - 5).replace(FILE_SEPARATOR, '.');
 	}
 }

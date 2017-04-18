@@ -47,8 +47,10 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 		}
 		String fileLocation = fileToMutate.getResource().getLocation().toOSString();
 		String projectLocation = fileToMutate.getJavaProject().getResource().getLocation().toOSString();
+		String binLocation = projectLocation + "/bin/";
+		String testLocation = projectLocation + "/src/test/";
 		// Run the Mutator program to generate and compile mutants in Triangle.java
-		Mutator.main(new String[]{fileLocation, projectLocation});
+		Mutator.main(new String[]{fileLocation, projectLocation, binLocation, testLocation});
 	}
 
 	/**

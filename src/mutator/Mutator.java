@@ -28,6 +28,10 @@ public class Mutator {
 		String fileToMutateLocation = args[0];
 		// Pathname of the file's project
 		String projectLocation = args[1];
+		// Pathname of the project's bin directory
+		String binLocation = args[2];
+		// Pathname of the project's test directory
+		String testLocation = args[3];
 		File file = new File(fileToMutateLocation);
 		// Fully qualified name of the file
 		String fullyQualifiedName = getFullyQualifiedName(fileToMutateLocation, projectLocation);
@@ -36,10 +40,6 @@ public class Mutator {
 			Major m = new Major(file, fullyQualifiedName, projectLocation);
 			m.setExportMutants(true);
 			m.mutate();
-			
-			// File paths of the project's bin and test directories
-			String binLocation = projectLocation + "/bin/";
-			String testLocation = projectLocation + "/src/test/";
 			
 			// Add bin and test directories of Triangle project to classpath
 			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binLocation).toURI().toURL(), new File(testLocation).toURI().toURL()}, Config.class.getClassLoader());

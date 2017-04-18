@@ -1,5 +1,11 @@
 package killmap;
 
+/**
+ * A WorkOrder is a wrapper for a mutant and a test. 
+ * 
+ * @author Raymond Tang
+ *
+ */
 public class WorkOrder implements Comparable<WorkOrder> {
 	
 	private int mutantID;

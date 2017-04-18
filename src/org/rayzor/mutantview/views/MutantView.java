@@ -16,13 +16,14 @@ import org.eclipse.swt.SWT;
 
 
 /**
- * This sample class demonstrates how to plug-in a new
- * workbench view. The view shows data obtained from the
- * model. The sample creates a dummy model on the fly,
- * but a real implementation would connect to the model
- * available either in this or another plug-in (e.g. the workspace).
- * The view is connected to the model using a content provider.
- * <p>
+ * This class is the workbench view for this plugin.
+ * It displays a menu of each mutant by its number and
+ * displays whether the mutant was killed or not after running tests against it.
+ * Double-clicking on a mutant will open up the source file that was mutated
+ * and highlight the line on which the mutant occurs.
+ * <p><p>
+ * Auto generated comment by Eclipse:
+ * <p><p>
  * The view uses a label provider to define how model
  * objects should be presented in the view. Each
  * view can present the same model objects using
@@ -62,6 +63,9 @@ public class MutantView extends ViewPart {
 		}
 		public void dispose() {
 		}
+		/**
+		 * This method provides an array of all mutant numbers to the view.
+		 */
 		public Object[] getElements(Object parent) {
 			if(m == null) return new Object[0];
 			int numMutants = m.getNumberOfMutants();

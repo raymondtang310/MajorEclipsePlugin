@@ -44,6 +44,7 @@ public class MutantView extends ViewPart {
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
+	// Major object which contains information about mutants and tests for some java file
 	private Major m = null;
 
 	/*

@@ -1,20 +1,22 @@
 package triangle;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
+import java.util.LinkedList;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rayzor.mutantview.views.MutantView;
 
+import killmap.ExtendedTestFinder;
 import major.mutation.Config;
 
 /**
- * This program generates and compiles mutants in Triangle.java using Major.java. 
+ * This program generates and compiles mutants in the selected java file using Major.java. 
  * 
  * @author Raymond Tang
  *
@@ -22,68 +24,49 @@ import major.mutation.Config;
 public class TriangleMutator3 {
 	
 	public static void main(String[] args) {
-		// Pathname of Triangle.java
-		//String fileToMutateLocation = "/home/raymond/workspace/Triangle/src/triangle/Triangle.java";
+		// Pathname of the file to mutate
 		String fileToMutateLocation = args[0];
+		// Pathname of the file's project
 		String projectLocation = args[1];
 		File file = new File(fileToMutateLocation);
-		
-		// Fully qualified name of Triangle.java
-		//String fullyQualifiedName = "triangle.Triangle";
+		// Fully qualified name of the file
 		String fullyQualifiedName = getFullyQualifiedName(fileToMutateLocation, projectLocation);
-		PrintWriter writer = null;
 		try {
-			writer = new PrintWriter("/home/raymond/Desktop/hey.txt");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return;
-		}
-		if(!fullyQualifiedName.equals("triangle.Triangle")) writer.println(fullyQualifiedName);
-		else writer.println("SUCCESS!");
-		writer.close(); 
-		String testFullyQualifiedName = "test.TriangleTest";
-		try {
-			// Mutate Triangle program
+			// Mutate the java file
 			Major m = new Major(file, fullyQualifiedName, projectLocation);
 			m.setExportMutants(true);
 			m.mutate();
 			
-			// Add bin directory of Triangle project to classpath
-			String binPathname = "/home/raymond/workspace/Triangle/bin/";
-			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binPathname).toURI().toURL()}, Config.class.getClassLoader());
+			// File paths of the project's bin and test directories
+			String binLocation = projectLocation + "/bin/";
+			String testLocation = projectLocation + "/src/test/";
+			
+			// Add bin and test directories of Triangle project to classpath
+			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binLocation).toURI().toURL(), new File(testLocation).toURI().toURL()}, Config.class.getClassLoader());
 			Thread.currentThread().setContextClassLoader(urlClassLoader);
 			
+			// Get test classes
+			String[] testClassFilenames = ExtendedTestFinder.getTestClassesFromDirectory(testLocation);
+			Collection<Class<?>> testClasses = new LinkedList<Class<?>>();
+			for(String testClassFilename : testClassFilenames) {
+				String testClassName = FilenameUtils.getBaseName(testClassFilename);
+				String testFullyQualifiedName = "test." + testClassName;
+				Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
+				testClasses.add(testClass);
+			}
+			
 			// Create kill matrix CSV file
-			Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
-			boolean success = m.createKillMatrixCSV(testClass);
-			System.out.println(success);
+			m.createKillMatrixCSV(testClasses);
 			
 			// Open view
 			String viewId = "org.rayzor.mutantview.views.MutantView";
-			try {
-				MutantView view = (MutantView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
-				view.setMajorObject(m);
-			} catch (PartInitException e) {
-				e.printStackTrace();
-			}
-
-			/*
-			 * Uncomment the lines below to print out the kill map and kill matrix given the tests 
-			 * from TriangleTest.java. 
-			 */
-			
-			//m.printKillMap(testClass);
-			//m.printKillMatrix(testClass);
-			
-			// Highlight mutant 1 location in original source file
-			//m.highlightMutantInSource(1);
-			
-			// Highlight mutant 2 in mutated source file
-			//m.highlightMutantInMutatedSource(2);
+			MutantView view = (MutantView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
+			view.setMajorObject(m);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (PartInitException e) {
 			e.printStackTrace();
 		}
 	}

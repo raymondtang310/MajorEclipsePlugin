@@ -36,11 +36,12 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 	public void run(IAction action) {
 		ICompilationUnit fileToMutate = null;
 		try {
+			// Get selected java file (the highlighted java file in the package explorer)
 			fileToMutate = EclipseNavigator.getSelectedJavaFile();
 		} catch (JavaFileNotSelectedException e) {
 			MessageDialog.openInformation(
 				window.getShell(),
-				"Normo",
+				"org.rayzor.mutant",
 				"Error: a java file is not selected");
 			return;
 		}

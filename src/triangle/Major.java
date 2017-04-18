@@ -24,8 +24,8 @@ import org.junit.runner.Result;
 
 import com.sun.tools.javac.api.JavacTool;
 
-import killmap.ExtendedTestFinder;
 import killmap.Outcome;
+import killmap.TestFinder;
 import killmap.TestMethod;
 import killmap.WorkOrder;
 import major.mutation.Config;
@@ -40,7 +40,6 @@ import util.EclipseNavigator;
  */
 
 public class Major {
-	
 	// File separator. Differs depending on operating system
 	private static final char FILE_SEPARATOR = File.separatorChar;	
 	// The given java file
@@ -68,6 +67,7 @@ public class Major {
 	 * By default, mutant source files are not generated. If the option to generate mutant source
 	 * files is set to true, then the default export directory is "./mutants".
 	 * 
+	 * A NullPointer exception is thrown if any of the given parameters are null.
 	 * A FileNotFoundException is thrown if the file does not exist.
 	 * An IllegalArgumentException is thrown if the file is not a java file.
 	 * 
@@ -77,7 +77,7 @@ public class Major {
 	 * @throws IOException
 	 */
 	public Major(File javaFile, String fullyQualifiedName, String projectLocation) throws IOException {
-		if(javaFile == null || fullyQualifiedName == null) throw new NullPointerException();
+		if(javaFile == null || fullyQualifiedName == null || projectLocation == null) throw new NullPointerException();
 		if(!javaFile.exists()) throw new FileNotFoundException("File " + javaFile.toString() + 
 															  " does not exist");
 		String type = Files.probeContentType(javaFile.toPath());
@@ -95,12 +95,6 @@ public class Major {
 		analysisEnabled = false;
 		setTimeoutFactor(8);
 		numMutants = 0;
-		//if(!exportDirectory.getAbsolutePath().equals("/home/raymond/workspace/org.rayzor.mutant/mutants")) {
-		//	throw new NullPointerException("You know what time it is");
-		//}
-		//System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
-		//this.setExportDirectory(new File("/home/raymond/workspace/org.rayzor.mutant/mutants"));
-		//this.setExportDirectory(new File(currentProjectPathname + "/mutants"));
 	}
 	
 	/**
@@ -119,12 +113,6 @@ public class Major {
 		// Create JavaCompiler object
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
 		JavaCompiler compiler = JavacTool.create();
-		//if(isExportMutants()) exportDirectory.mkdir();
-		//String mutantsPathname = binDirectory.getParent() + "/mutants";
-		//String mutantsPathname = "/home/raymond/workspace/org.rayzor.mutant/mutants";
-		//this.setExportMutants(true);
-		//System.setProperty("major.export.directory", mutantsPathname);
-		//System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 		// Compile and run the program
 		int flag = compiler.run(null, null, null, arguments);
 		// The run method returns 0 for success and nonzero for errors
@@ -196,6 +184,7 @@ public class Major {
 	
 	/**
 	 * Sets the exportDirectory property to the given directory.
+	 * A NullPointer exception is thrown if the given directory is null.
 	 * 
 	 * @param directory the directory to which mutant source files will be exported
 	 */
@@ -252,6 +241,7 @@ public class Major {
 	
 	/**
 	 * Sets the mutants.log directory to the given directory.
+	 * A NullPointer exception is thrown if the given directory is null.
 	 * 
 	 * @param directory the directory to which the mutants.log file will be exported
 	 */
@@ -310,7 +300,8 @@ public class Major {
 	
 	/**
 	 * Returns the number of the source file line on which the mutant corresponding
-	 * with the given mutants.log line occurs
+	 * with the given mutants.log line occurs. 
+	 * A NullPointer exception is thrown if the given log line is null.
 	 * 
 	 * @param logLine a line in mutants.log
 	 * @return the number of the source file line on which the mutant corresponding
@@ -376,6 +367,7 @@ public class Major {
 
 	/**
 	 * Sets the bin directory to the given directory. Compiled mutated .class files will be stored here. 
+	 * A NullPointer exception is thrown if the given directory is null.
 	 * 
 	 * @param binDirectory the directory to be used as the bin directory
 	 */
@@ -397,15 +389,16 @@ public class Major {
 	 * Generates and returns a kill map. 
 	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
 	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
+	 * A NullPointer exception is thrown if the given collection of test classes is null.
 	 * 
 	 * @param testClass a class containing tests to run against the given java program
 	 * @return a map between WorkOrders and Outcomes, detailing the Outcome (KILLED or ALIVE) 
 	 * 		   of a WorkOrder (a mutant and a test). Returns an empty map object if there are 
 	 * 		   no mutants generated or if there are no test methods in the given test class. 
 	 */
-	public Map<WorkOrder, Outcome> getKillMap(Class<?> testClass) {
-		if(testClass == null) throw new NullPointerException();
-		Collection<TestMethod> testMethods = ExtendedTestFinder.getTestMethods(testClass);
+	public Map<WorkOrder, Outcome> getKillMap(Collection<Class<?>> testClasses) {
+		if(testClasses == null) throw new NullPointerException();
+		Collection<TestMethod> testMethods = TestFinder.getTestMethods(testClasses);
 		Map<WorkOrder, Outcome> killMap = new TreeMap<WorkOrder, Outcome>();
 		for(TestMethod test : testMethods) {
 			Config.__M_NO = 0;
@@ -433,12 +426,13 @@ public class Major {
 	 * Generates and prints out a kill map. 
 	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
 	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
+	 * A NullPointer exception is thrown if the given collection of test classes is null.
 	 * 
 	 * @param testClass a class containing tests to run against the given java program
 	 */
-	public void printKillMap(Class<?> testClass) {
-		if(testClass == null) throw new NullPointerException();
-		Map<WorkOrder, Outcome> killMap = this.getKillMap(testClass);
+	public void printKillMap(Collection<Class<?>> testClasses) {
+		if(testClasses == null) throw new NullPointerException();
+		Map<WorkOrder, Outcome> killMap = this.getKillMap(testClasses);
 		if(killMap.isEmpty()) return;
 		for(Map.Entry<WorkOrder, Outcome> entry : killMap.entrySet()) {
 			WorkOrder workOrder = entry.getKey();
@@ -454,6 +448,7 @@ public class Major {
 	 * The rows of the matrix represent mutants, and the columns represent tests. 
 	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j did not kill mutant i. 
 	 * The rows (mutants) are sorted (ascending) by mutantIDs. The columns (tests) are sorted by name. 
+	 * A NullPointer exception is thrown if the given collection of test classes is null.
 	 * 
 	 * @param testClass a class containing tests to run against the given java program
 	 * @return a kill matrix, represented as a two dimensional integer array, 
@@ -461,9 +456,9 @@ public class Major {
 	 * 		   Returns an empty int[][] if there are no mutants generated or if there are no test 
 	 *		   methods in the given test class. 
 	 */
-	public int[][] getKillMatrix(Class<?> testClass) {
-		if(testClass == null) throw new NullPointerException();
-		Collection<TestMethod> testMethodsCollection = ExtendedTestFinder.getTestMethods(testClass);
+	public int[][] getKillMatrix(Collection<Class<?>> testClasses) {
+		if(testClasses == null) throw new NullPointerException();
+		Collection<TestMethod> testMethodsCollection = TestFinder.getTestMethods(testClasses);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
 		int numTests = testMethods.size();
 		if(numMutants == 0 || numTests == 0) return new int[0][0];
@@ -473,9 +468,6 @@ public class Major {
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
 			core.run(Request.method(test.getTestClass(), test.getName()));
-			//Result r = core.run(Request.method(test.getTestClass(), test.getName()));
-			//List<Failure> failures = r.getFailures();
-			//if(!r.wasSuccessful()) 
 			List<Integer> coveredMutants = Config.getCoverageList();
 			Config.reset();
 			for(Integer coveredMutant : coveredMutants) {
@@ -491,17 +483,18 @@ public class Major {
 	/**
 	 * Generates a CSV file, providing details on whether or not the provided tests killed the mutants. 
 	 * The CSV file is named killMatrix.csv and is stored in the current project directory. 
+	 * A NullPointer exception is thrown if the given collection of test classes is null.
 	 * 
 	 * @param testClass a class containing tests to run against the given java program
 	 * @return true for success, false otherwise
 	 */
-	public boolean createKillMatrixCSV(Class<?> testClass) {
-		if(testClass == null) throw new NullPointerException();
-		int[][] killMatrix = this.getKillMatrix(testClass);
+	public boolean createKillMatrixCSV(Collection<Class<?>> testClasses) {
+		if(testClasses == null) throw new NullPointerException();
+		int[][] killMatrix = this.getKillMatrix(testClasses);
 		if(killMatrix.length == 0) return false;
 		String fileName = projectLocation + FILE_SEPARATOR + "killMatrix.csv";
 		char csvSeparator = ',';
-		Collection<TestMethod> tests = ExtendedTestFinder.getTestMethods(testClass);
+		Collection<TestMethod> tests = TestFinder.getTestMethods(testClasses);
 		int numTests = tests.size();
 		try {
 			PrintWriter writer = new PrintWriter(fileName);
@@ -526,30 +519,19 @@ public class Major {
 	 * The rows of the matrix represent mutants, and the columns represent tests. 
 	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j did not kill mutant i. 
 	 * The rows (mutants) are sorted (ascending) by mutantIDs. The columns (tests) are sorted by name. 
+	 * A NullPointer exception is thrown if the given collection of test classes is null.
 	 * 
 	 * @param testClass a class containing tests to run against the given java program
 	 */
-	public void printKillMatrix(Class<?> testClass) {
-		if(testClass == null) throw new NullPointerException();
-		int[][] killMatrix = this.getKillMatrix(testClass);
+	public void printKillMatrix(Collection<Class<?>> testClasses) {
+		if(testClasses == null) throw new NullPointerException();
+		int[][] killMatrix = this.getKillMatrix(testClasses);
 		for(int i = 0; i < killMatrix.length; i++) {
 			for(int j = 0; j < killMatrix[i].length; j++) {
 				System.out.print(killMatrix[i][j] + " ");
 			}
 			System.out.println();
 		}
-	}
-	
-	public void createKilledCSV() {
-		
-	}
-	
-	public void createResultsCSV() {
-		
-	}
-	
-	public void createSummaryCSV() {
-		
 	}
 	
 }

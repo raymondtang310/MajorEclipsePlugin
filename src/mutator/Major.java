@@ -1,4 +1,4 @@
-package triangle;
+package mutator;
 
 import java.io.File;
 import java.io.FileNotFoundException;

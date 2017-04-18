@@ -22,8 +22,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import triangle.JavaFileNotSelectedException;
-import triangle.SelectionNotAdaptableException;
+import mutator.JavaFileNotSelectedException;
+import mutator.SelectionNotAdaptableException;
 
 /**
  * This class provides functionality such as retrieving project locations and highlighting lines

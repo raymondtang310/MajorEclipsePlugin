@@ -4,7 +4,7 @@ package org.rayzor.mutantview.views;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 
-import triangle.Major;
+import mutator.Major;
 
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;

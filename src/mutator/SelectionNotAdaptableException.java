@@ -1,4 +1,4 @@
-package triangle;
+package mutator;
 
 public class SelectionNotAdaptableException extends Exception {
 

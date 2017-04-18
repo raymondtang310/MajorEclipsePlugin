@@ -1,4 +1,4 @@
-package triangle;
+package mutator;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import major.mutation.Config;
  * @author Raymond Tang
  *
  */
-public class TriangleMutator3 {
+public class Mutator {
 	
 	public static void main(String[] args) {
 		// Pathname of the file to mutate

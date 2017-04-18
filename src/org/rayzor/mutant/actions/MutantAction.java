@@ -7,8 +7,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import triangle.JavaFileNotSelectedException;
-import triangle.TriangleMutator3;
+import mutator.JavaFileNotSelectedException;
+import mutator.Mutator;
 import util.EclipseNavigator;
 
 /**
@@ -48,7 +48,7 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 		String fileLocation = fileToMutate.getResource().getLocation().toOSString();
 		String projectLocation = fileToMutate.getJavaProject().getResource().getLocation().toOSString();
 		// Run the Mutator program to generate and compile mutants in Triangle.java
-		TriangleMutator3.main(new String[]{fileLocation, projectLocation});
+		Mutator.main(new String[]{fileLocation, projectLocation});
 	}
 
 	/**

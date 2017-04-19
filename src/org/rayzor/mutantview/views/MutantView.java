@@ -84,8 +84,13 @@ public class MutantView extends ViewPart {
 			return getImage(obj);
 		}
 		public Image getImage(Object obj) {
-			return PlatformUI.getWorkbench().
-					getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
+			if(m == null) return PlatformUI.getWorkbench().getSharedImages().
+									getImage(ISharedImages.IMG_OBJ_ELEMENT);
+			int mutantNumber = ((Integer)obj).intValue();
+			if(m.isMutantKilled(mutantNumber)) return PlatformUI.getWorkbench().getSharedImages().
+														getImage(ISharedImages.IMG_OBJ_ADD);
+			return PlatformUI.getWorkbench().getSharedImages().
+					getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
 		}
 	}
 	class NameSorter extends ViewerComparator {

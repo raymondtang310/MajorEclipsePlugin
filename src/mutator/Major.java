@@ -62,6 +62,8 @@ public class Major {
 	private int timeoutFactor;
 	// Number of generated mutants
 	private int numMutants;
+	// The most recently computed kill matrix
+	private int[][] killMatrix;
 	
 	/**
 	 * By default, mutant source files are not generated. If the option to generate mutant source
@@ -95,6 +97,7 @@ public class Major {
 		analysisEnabled = false;
 		setTimeoutFactor(8);
 		numMutants = 0;
+		killMatrix = null;
 	}
 	
 	/**
@@ -477,6 +480,7 @@ public class Major {
 				if(!result.wasSuccessful()) killMatrix[mutantNumber - 1][i] = 1;
 			}
 		}
+		this.killMatrix = killMatrix;
 		return killMatrix;
 	}
 	
@@ -525,13 +529,20 @@ public class Major {
 	 */
 	public void printKillMatrix(Collection<Class<?>> testClasses) {
 		if(testClasses == null) throw new NullPointerException();
-		int[][] killMatrix = this.getKillMatrix(testClasses);
 		for(int i = 0; i < killMatrix.length; i++) {
 			for(int j = 0; j < killMatrix[i].length; j++) {
 				System.out.print(killMatrix[i][j] + " ");
 			}
 			System.out.println();
 		}
+	}
+	
+	public boolean isMutantKilled(int mutantNumber) {
+		int[] tests = killMatrix[mutantNumber - 1];
+		for(int j = 0; j < tests.length; j++) {
+			if(tests[j] == 1) return true;
+		}
+		return false;
 	}
 	
 }

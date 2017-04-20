@@ -289,7 +289,7 @@ public class MutantView extends ViewPart {
 		sortKilledFirst.setText("Show Killed Mutants First");
 		sortKilledFirst.setToolTipText("Show Killed Mutants First");
 		sortKilledFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 		
 		sortAliveAndCoveredFirst = new Action() {
 			public void run() {
@@ -299,7 +299,7 @@ public class MutantView extends ViewPart {
 		sortAliveAndCoveredFirst.setText("Show Alive and Covered Mutants First");
 		sortAliveAndCoveredFirst.setToolTipText("Show Alive and Covered Mutants First");
 		sortAliveAndCoveredFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_OBJ_ELEMENT));
 		
 		sortUncoveredFirst = new Action() {
 			public void run() {
@@ -309,7 +309,7 @@ public class MutantView extends ViewPart {
 		sortUncoveredFirst.setText("Show Uncovered Mutants First");
 		sortUncoveredFirst.setToolTipText("Show Uncovered Mutants First");
 		sortUncoveredFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)); 
 		
 		sortNumberAsc = new Action() {
 			public void run() {
@@ -319,7 +319,7 @@ public class MutantView extends ViewPart {
 		sortNumberAsc.setText("Sort by Number");
 		sortNumberAsc.setToolTipText("Sort by Number");
 		sortNumberAsc.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 		
 		doubleClickAction = new Action() {
 			public void run() {

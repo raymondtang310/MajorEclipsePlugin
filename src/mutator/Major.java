@@ -13,8 +13,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.tools.JavaCompiler;
 
@@ -64,6 +66,8 @@ public class Major {
 	private int numMutants;
 	// The most recently computed kill matrix
 	private int[][] killMatrix;
+	// Set of covered mutants
+	private Set<Integer> coveredMutants;
 	
 	/**
 	 * By default, mutant source files are not generated. If the option to generate mutant source
@@ -98,6 +102,7 @@ public class Major {
 		setTimeoutFactor(8);
 		numMutants = 0;
 		killMatrix = null;
+		coveredMutants = new TreeSet<Integer>();
 	}
 	
 	/**
@@ -460,6 +465,7 @@ public class Major {
 	 *		   methods in the given test class. 
 	 */
 	public int[][] getKillMatrix(Collection<Class<?>> testClasses) {
+		this.coveredMutants.clear();
 		if(testClasses == null) throw new NullPointerException();
 		Collection<TestMethod> testMethodsCollection = TestFinder.getTestMethods(testClasses);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
@@ -472,6 +478,7 @@ public class Major {
 			JUnitCore core = new JUnitCore();
 			core.run(Request.method(test.getTestClass(), test.getName()));
 			List<Integer> coveredMutants = Config.getCoverageList();
+			this.coveredMutants.addAll(coveredMutants);
 			Config.reset();
 			for(Integer coveredMutant : coveredMutants) {
 				int mutantNumber = coveredMutant.intValue();
@@ -529,6 +536,7 @@ public class Major {
 	 */
 	public void printKillMatrix(Collection<Class<?>> testClasses) {
 		if(testClasses == null) throw new NullPointerException();
+		int[][] killMatrix = this.getKillMatrix(testClasses);
 		for(int i = 0; i < killMatrix.length; i++) {
 			for(int j = 0; j < killMatrix[i].length; j++) {
 				System.out.print(killMatrix[i][j] + " ");
@@ -537,12 +545,29 @@ public class Major {
 		}
 	}
 	
+	/**
+	 * Returns true if the given mutant is killed by some test. Returns false otherwise. 
+	 * 
+	 * @param mutantNumber the number of the mutant
+	 * @return true if the mutant is killed, false otherwise
+	 */
 	public boolean isMutantKilled(int mutantNumber) {
+		if(killMatrix == null) return false;
 		int[] tests = killMatrix[mutantNumber - 1];
 		for(int j = 0; j < tests.length; j++) {
 			if(tests[j] == 1) return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns true if the given mutant is covered by some test. Returns false otherwise. 
+	 * 
+	 * @param mutantNumber the number of the mutant
+	 * @return true if the mutant is covered, false otherwise
+	 */
+	public boolean isMutantCovered(int mutantNumber) {
+		return coveredMutants.contains(mutantNumber);
 	}
 	
 }

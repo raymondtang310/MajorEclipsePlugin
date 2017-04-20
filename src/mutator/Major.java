@@ -129,12 +129,12 @@ public class Major {
 			Path source = Paths.get(sourceDirectory + FILE_SEPARATOR + "mutants.log");
 			Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + FILE_SEPARATOR + 
 									"mutants.log");
-			numMutants = this.getNumberOfMutantsAfterCompile();
 			try {
 				Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				return false;
 			}
+			numMutants = this.getNumberOfMutantsAfterCompile();
 			return true;
 		}
 		return false;

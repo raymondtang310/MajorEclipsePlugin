@@ -25,6 +25,9 @@ import org.eclipse.swt.SWT;
  * displays whether the mutant was killed or not after running tests against it.
  * Double-clicking on a mutant will open up the source file that was mutated
  * and highlight the line on which the mutant occurs.
+ * 
+ * @author Raymond Tang
+ * 
  * <p><p>
  * Auto generated comment by Eclipse:
  * <p><p>
@@ -99,7 +102,7 @@ public class MutantView extends ViewPart {
 			// Display green plus sign next to mutant number if it is killed
 			if(m.isMutantKilled(mutantNumber)) return PlatformUI.getWorkbench().getSharedImages().
 														getImage(ISharedImages.IMG_OBJ_ADD);
-			// Display blue circle next to mutant number if it is covered but alive
+			// Display blue circles next to mutant number if it is covered but alive
 			if(m.isMutantCovered(mutantNumber)) return PlatformUI.getWorkbench().getSharedImages().
 														getImage(ISharedImages.IMG_OBJ_ELEMENT);
 			// Display red X next to mutant number if it is uncovered
@@ -107,6 +110,13 @@ public class MutantView extends ViewPart {
 					getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
 		}
 	}
+	/**
+	 * This comparator is used to sort mutants listed in the view
+	 * by their number in ascending order. 
+	 * 
+	 * @author Raymond Tang
+	 *
+	 */
 	class MutantComparator extends ViewerComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
@@ -117,6 +127,14 @@ public class MutantView extends ViewPart {
 		}
 	}
 	
+	/**
+	 * This comparator is used to sort mutants listed in the view.
+	 * This comparator causes killed mutants to show up first, then mutants
+	 * that are covered but alive, and uncovered mutants last. 
+	 * 
+	 * @author Raymond Tang
+	 *
+	 */
 	class KilledMutantComparator extends MutantComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
@@ -137,6 +155,14 @@ public class MutantView extends ViewPart {
 		}
 	}
 	
+	/**
+	 * This comparator is used to sort mutants listed in the view. 
+	 * This comparator causes mutants that are covered but alive to show up first, 
+	 * then uncovered mutants, and killed mutants last. 
+	 * 
+	 * @author Raymond Tang
+	 *
+	 */
 	class AliveAndCoveredMutantComparator extends MutantComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
@@ -157,6 +183,14 @@ public class MutantView extends ViewPart {
 		}
 	}
 	
+	/**
+	 * This comparator is used to sort mutants listed in the view. 
+	 * This comparator causes uncovered mutants to show up first, then mutants 
+	 * that are covered but alive, and killed mutants last. 
+	 * 
+	 * @author Raymond Tang
+	 *
+	 */
 	class UncoveredMutantComparator extends MutantComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
@@ -243,7 +277,11 @@ public class MutantView extends ViewPart {
 		manager.add(sortNumberAsc);
 	}
 
+	/**
+	 * Provides functionality to buttons and clicking on items. 
+	 */
 	private void makeActions() {
+		// Click on "Display Mutant" in context menu to show the selected mutant in a message box
 		displayMutant = new Action() {
 			public void run() {
 				ISelection selection = viewer.getSelection();
@@ -261,6 +299,8 @@ public class MutantView extends ViewPart {
 		};
 		displayMutant.setText("Display Mutant");
 		
+		// Click on "Highlight Mutant in Source File" in context menu to highlight the line
+		// in the source file in which the selected mutant occurs
 		highlightMutantInSource = new Action() {
 			public void run() {
 				ISelection selection = viewer.getSelection();
@@ -271,6 +311,8 @@ public class MutantView extends ViewPart {
 		};
 		highlightMutantInSource.setText("Highlight Mutant in Source File");
 		
+		// Click on "Highlight Mutant in Mutated Source File" in context menu to highlight
+		// the line in the mutated source file in which the selected mutant occurs
 		highlightMutantInMutatedSource = new Action() {
 			public void run() {
 				ISelection selection = viewer.getSelection();
@@ -281,6 +323,7 @@ public class MutantView extends ViewPart {
 		};
 		highlightMutantInMutatedSource.setText("Highlight Mutant in Mutated Source File");
 		
+		// Sorts mutants listed in the view using the KilledMutantComparator
 		sortKilledFirst = new Action() {
 			public void run() {
 				viewer.setComparator(new KilledMutantComparator());
@@ -291,6 +334,7 @@ public class MutantView extends ViewPart {
 		sortKilledFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 		
+		// Sorts mutants listed in the view using the AliveAndCoveredMutantComparator
 		sortAliveAndCoveredFirst = new Action() {
 			public void run() {
 				viewer.setComparator(new AliveAndCoveredMutantComparator());
@@ -301,6 +345,7 @@ public class MutantView extends ViewPart {
 		sortAliveAndCoveredFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_OBJ_ELEMENT));
 		
+		// Sorts mutants listed in the view using the UncoveredMutantComparator
 		sortUncoveredFirst = new Action() {
 			public void run() {
 				viewer.setComparator(new UncoveredMutantComparator());
@@ -311,6 +356,7 @@ public class MutantView extends ViewPart {
 		sortUncoveredFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)); 
 		
+		// Sorts mutants listed in the view using the MutantComparator
 		sortNumberAsc = new Action() {
 			public void run() {
 				viewer.setComparator(new MutantComparator());
@@ -321,6 +367,8 @@ public class MutantView extends ViewPart {
 		sortNumberAsc.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 		
+		// Double click on a mutant to highlight the line in the 
+		// source file in which the mutant occurs
 		doubleClickAction = new Action() {
 			public void run() {
 				ISelection selection = viewer.getSelection();
@@ -353,7 +401,7 @@ public class MutantView extends ViewPart {
 	}
 	
 	/**
-	 * Provides Major object to this view
+	 * Provides Major object to this view. 
 	 * 
 	 * @param m Major object
 	 */

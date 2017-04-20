@@ -8,6 +8,10 @@ import mutator.Major;
 
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
@@ -42,8 +46,13 @@ public class MutantView extends ViewPart {
 	public static final String ID = "org.rayzor.mutantview.views.MutantView";
 
 	private TableViewer viewer;
-	private Action action1;
-	private Action action2;
+	private Action displayMutant;
+	private Action highlightMutantInSource;
+	private Action highlightMutantInMutatedSource;
+	private Action sortKilledFirst;
+	private Action sortAliveAndCoveredFirst;
+	private Action sortUncoveredFirst;
+	private Action sortNumberAsc;
 	private Action doubleClickAction;
 	// Major object which contains information about mutants and tests for some java file
 	private Major m = null;
@@ -98,12 +107,72 @@ public class MutantView extends ViewPart {
 					getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
 		}
 	}
-	class NameSorter extends ViewerComparator {
+	class MutantComparator extends ViewerComparator {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			if(!(e1 instanceof Integer && e2 instanceof Integer)) return super.compare(viewer, e1, e2);
 			int e1Int = ((Integer)e1).intValue();
 			int e2Int = ((Integer)e2).intValue();
+			return e1Int - e2Int;
+		}
+	}
+	
+	class KilledMutantComparator extends MutantComparator {
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if(!(e1 instanceof Integer && e2 instanceof Integer) || m == null) return super.compare(viewer, e1, e2);
+			int e1Int = ((Integer)e1).intValue();
+			int e2Int = ((Integer)e2).intValue();
+			boolean e1Covered = m.isMutantCovered(e1Int);
+			boolean e2Covered = m.isMutantCovered(e2Int);
+			boolean e1Killed = m.isMutantKilled(e1Int);
+			boolean e2Killed = m.isMutantKilled(e2Int);
+			if(e1Covered && !e1Killed && e2Killed) return 1;
+			if(e1Covered && !e1Killed && !e2Covered) return -1;
+			if(!e1Covered && e2Killed) return 1;
+			if(e2Covered && !e2Killed && e1Killed) return -1;
+			if(e2Covered && !e2Killed && !e1Covered) return 1;
+			if(!e2Covered && e1Killed) return -1;
+			return e1Int - e2Int;
+		}
+	}
+	
+	class AliveAndCoveredMutantComparator extends MutantComparator {
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if(!(e1 instanceof Integer && e2 instanceof Integer) || m == null) return super.compare(viewer, e1, e2);
+			int e1Int = ((Integer)e1).intValue();
+			int e2Int = ((Integer)e2).intValue();
+			boolean e1Covered = m.isMutantCovered(e1Int);
+			boolean e2Covered = m.isMutantCovered(e2Int);
+			boolean e1Killed = m.isMutantKilled(e1Int);
+			boolean e2Killed = m.isMutantKilled(e2Int);
+			if(e1Covered && !e1Killed && e2Killed) return -1;
+			if(e1Covered && !e1Killed && !e2Covered) return -1;
+			if(!e1Covered && e2Killed) return -1;
+			if(e2Covered && !e2Killed && e1Killed) return 1;
+			if(e2Covered && !e2Killed && !e1Covered) return 1;
+			if(!e2Covered && e1Killed) return 1;
+			return e1Int - e2Int;
+		}
+	}
+	
+	class UncoveredMutantComparator extends MutantComparator {
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if(!(e1 instanceof Integer && e2 instanceof Integer) || m == null) return super.compare(viewer, e1, e2);
+			int e1Int = ((Integer)e1).intValue();
+			int e2Int = ((Integer)e2).intValue();
+			boolean e1Covered = m.isMutantCovered(e1Int);
+			boolean e2Covered = m.isMutantCovered(e2Int);
+			boolean e1Killed = m.isMutantKilled(e1Int);
+			boolean e2Killed = m.isMutantKilled(e2Int);
+			if(e1Covered && !e1Killed && e2Killed) return -1;
+			if(e1Covered && !e1Killed && !e2Covered) return 1;
+			if(!e1Covered && e2Killed) return -1;
+			if(e2Covered && !e2Killed && e1Killed) return 1;
+			if(e2Covered && !e2Killed && !e1Covered) return -1;
+			if(!e2Covered && e1Killed) return 1;
 			return e1Int - e2Int;
 		}
 	}
@@ -122,7 +191,7 @@ public class MutantView extends ViewPart {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
-		viewer.setComparator(new NameSorter());
+		viewer.setComparator(new MutantComparator());
 		viewer.setInput(getViewSite());
 
 		// Create the help context id for the viewer's control
@@ -153,48 +222,109 @@ public class MutantView extends ViewPart {
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(action1);
-		manager.add(new Separator());
-		manager.add(action2);
+		manager.add(sortKilledFirst);
+		manager.add(sortAliveAndCoveredFirst);
+		manager.add(sortUncoveredFirst);
+		manager.add(sortNumberAsc);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(action1);
-		manager.add(action2);
+		manager.add(displayMutant);
+		manager.add(highlightMutantInSource);
+		manager.add(highlightMutantInMutatedSource);
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(action1);
-		manager.add(action2);
+		manager.add(sortKilledFirst);
+		manager.add(sortAliveAndCoveredFirst);
+		manager.add(sortUncoveredFirst);
+		manager.add(sortNumberAsc);
 	}
 
 	private void makeActions() {
-		action1 = new Action() {
+		displayMutant = new Action() {
 			public void run() {
-				showMessage("Action 1 executed");
+				ISelection selection = viewer.getSelection();
+				Object obj = ((IStructuredSelection)selection).getFirstElement();
+				int mutantNumber = ((Integer)obj).intValue();
+				try {
+					ArrayList<String> mutantsLog = m.getMutantsLog();
+					String logLine = mutantsLog.get(mutantNumber - 1);
+					showMessage(logLine);
+					
+				} catch (FileNotFoundException e) {
+					showMessage("mutants.log not found");
+				}
 			}
 		};
-		action1.setText("Action 1");
-		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		displayMutant.setText("Display Mutant");
 		
-		action2 = new Action() {
+		highlightMutantInSource = new Action() {
 			public void run() {
-				showMessage("Action 2 executed");
+				ISelection selection = viewer.getSelection();
+				Object obj = ((IStructuredSelection)selection).getFirstElement();
+				int mutantNumber = ((Integer)obj).intValue();
+				m.highlightMutantInSource(mutantNumber);
 			}
 		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+		highlightMutantInSource.setText("Highlight Mutant in Source File");
+		
+		highlightMutantInMutatedSource = new Action() {
+			public void run() {
+				ISelection selection = viewer.getSelection();
+				Object obj = ((IStructuredSelection)selection).getFirstElement();
+				int mutantNumber = ((Integer)obj).intValue();
+				m.highlightMutantInMutatedSource(mutantNumber);
+			}
+		};
+		highlightMutantInMutatedSource.setText("Highlight Mutant in Mutated Source File");
+		
+		sortKilledFirst = new Action() {
+			public void run() {
+				viewer.setComparator(new KilledMutantComparator());
+			}
+		};
+		sortKilledFirst.setText("Show Killed Mutants First");
+		sortKilledFirst.setToolTipText("Show Killed Mutants First");
+		sortKilledFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
+		sortAliveAndCoveredFirst = new Action() {
+			public void run() {
+				viewer.setComparator(new AliveAndCoveredMutantComparator());
+			}
+		};
+		sortAliveAndCoveredFirst.setText("Show Alive and Covered Mutants First");
+		sortAliveAndCoveredFirst.setToolTipText("Show Alive and Covered Mutants First");
+		sortAliveAndCoveredFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
+		sortUncoveredFirst = new Action() {
+			public void run() {
+				viewer.setComparator(new UncoveredMutantComparator());
+			}
+		};
+		sortUncoveredFirst.setText("Show Uncovered Mutants First");
+		sortUncoveredFirst.setToolTipText("Show Uncovered Mutants First");
+		sortUncoveredFirst.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
+		sortNumberAsc = new Action() {
+			public void run() {
+				viewer.setComparator(new MutantComparator());
+			}
+		};
+		sortNumberAsc.setText("Sort by Number");
+		sortNumberAsc.setToolTipText("Sort by Number");
+		sortNumberAsc.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
 		doubleClickAction = new Action() {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				//showMessage("Double-click detected on "+obj.toString());
 				int mutantNumber = ((Integer)obj).intValue();
 				m.highlightMutantInSource(mutantNumber);
 			}

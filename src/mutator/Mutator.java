@@ -37,7 +37,7 @@ public class Mutator {
 		String fullyQualifiedName = getFullyQualifiedName(fileToMutateLocation, projectLocation);
 		try {
 			// Mutate the java file
-			Major m = new Major(file, fullyQualifiedName, projectLocation);
+			Major m = new Major(file, fullyQualifiedName, projectLocation, binLocation);
 			m.setExportMutants(true);
 			m.mutate();
 			

@@ -80,9 +80,10 @@ public class Major {
 	 * @param javaFile a java File
 	 * @param fullyQualifiedName the fully qualified name of the java file
 	 * @param projectLocation the location of the java file's project
+	 * @param binLocation the location of the java project's bin
 	 * @throws IOException
 	 */
-	public Major(File javaFile, String fullyQualifiedName, String projectLocation) throws IOException {
+	public Major(File javaFile, String fullyQualifiedName, String projectLocation, String binLocation) throws IOException {
 		if(javaFile == null || fullyQualifiedName == null || projectLocation == null) throw new NullPointerException();
 		if(!javaFile.exists()) throw new FileNotFoundException("File " + javaFile.toString() + 
 															  " does not exist");
@@ -93,7 +94,7 @@ public class Major {
 		this.fullyQualifiedName = fullyQualifiedName;
 		this.projectLocation = projectLocation;
 		mutantsLogDirectory = new File(this.projectLocation);
-		binDirectory = new File(this.projectLocation + FILE_SEPARATOR + "bin");
+		binDirectory = new File(binLocation);
 		exportMutants = false;
 		exportDirectory = new File(this.projectLocation + FILE_SEPARATOR + "mutants");
 		System.setProperty("major.export.mutants", "false");

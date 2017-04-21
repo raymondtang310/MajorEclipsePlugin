@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.ISelection;
@@ -26,7 +27,7 @@ import mutator.JavaFileNotSelectedException;
 import mutator.SelectionNotAdaptableException;
 
 /**
- * This class provides functionality such as retrieving project locations and highlighting lines
+ * This class provides functionality such as retrieving selection locations and highlighting lines
  * in a file. 
  * 
  * @author Raymond Tang
@@ -56,10 +57,10 @@ public class EclipseNavigator {
 					return path.toString();
 				}
 			}
-			return "";
 		} catch (Exception e) {
 			return "";
 		}
+		return "";
 	}
 	
 	/**
@@ -81,7 +82,6 @@ public class EclipseNavigator {
 	        	}
 	    	}
 	    }
-	    // Fix this later
 	    throw new SelectionNotAdaptableException("Selection is not IAdaptable");
 	}
 	
@@ -94,7 +94,6 @@ public class EclipseNavigator {
 	 * @throws SelectionNotAdaptableException 
 	 */
 	public static String getAdaptableSelectionLocation(IAdaptable adaptableElement) throws SelectionNotAdaptableException {
-		if(adaptableElement == null) throw new NullPointerException();
 		if(adaptableElement instanceof IResource) return ((IResource)adaptableElement).getLocation().toOSString();
 		else if(adaptableElement instanceof IProject) return ((IProject)adaptableElement).getLocation().toOSString();
 		else if(adaptableElement instanceof IJavaProject) return ((IJavaProject)adaptableElement).getResource().getLocation().toOSString();
@@ -126,13 +125,12 @@ public class EclipseNavigator {
 	 * @throws JavaFileNotSelectedException
 	 */
 	public static ICompilationUnit getSelectedJavaFile() throws JavaFileNotSelectedException {
-		IAdaptable adaptableElement = null;
 		try {
-			adaptableElement = getAdaptableSelection();
+			IAdaptable adaptableElement = getAdaptableSelection();
+			if(adaptableElement instanceof ICompilationUnit) return (ICompilationUnit) adaptableElement;
 		} catch (SelectionNotAdaptableException e) {
 			throw new JavaFileNotSelectedException("Selection is not a java file");
 		}
-		if(adaptableElement instanceof ICompilationUnit) return (ICompilationUnit) adaptableElement;
 	    throw new JavaFileNotSelectedException("Selection is not a java file");
 	}
 	
@@ -145,27 +143,23 @@ public class EclipseNavigator {
 	 * @return true for success, false otherwise
 	 */
 	public static boolean highlightLine(File file, int lineNumber) {
+		if(file == null || lineNumber < 0) return false;
 		if(!file.exists()) return false;
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.toURI());
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		ITextEditor editor = null;
 		try {
-			editor = (ITextEditor) IDE.openEditorOnFileStore(page, fileStore);
+			ITextEditor editor = (ITextEditor) IDE.openEditorOnFileStore(page, fileStore);
+			IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+			if (document != null) {
+				IRegion lineInfo = null;
+				lineInfo = document.getLineInformation(lineNumber - 1);
+			    if (lineInfo != null) editor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
+			    else return false;
+			}
 		} catch (PartInitException e1) {
 			return false;
-		}
-		IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-		if (document != null) {
-			IRegion lineInfo = null;
-			try {
-				lineInfo = document.getLineInformation(lineNumber - 1);
-		    } catch (Exception e) {
-		    	return false;
-		    }
-		    if (lineInfo != null) {
-		    	editor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
-		    }
-		    else return false;
+		} catch (BadLocationException e) {
+			return false;
 		}
 		return true;
 	}

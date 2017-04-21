@@ -16,7 +16,11 @@ import killmap.ExtendedTestFinder;
 import major.mutation.Config;
 
 /**
- * This program generates and compiles mutants in the selected java file using Major.java. 
+ * This program generates and compiles mutants in the selected java file and runs tests against the mutants.
+ * This program produces the mutants.log file, a mutants folder containing mutated source files,
+ * and a CSV file, killMatrix.csv, all in the java project's directory.
+ * killMatrix.csv contains information about which mutants are killed by which test.
+ * Also, this program opens up this plugin's view (MutantView.java). 
  * 
  * @author Raymond Tang
  *
@@ -42,18 +46,13 @@ public class Mutator {
 			m.mutate();
 			
 			// Add bin and test directories of Triangle project to classpath
-			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binLocation).toURI().toURL(), new File(testLocation).toURI().toURL()}, Config.class.getClassLoader());
+			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binLocation).toURI().toURL(), 
+																new File(testLocation).toURI().toURL()}, 
+																Config.class.getClassLoader());
 			Thread.currentThread().setContextClassLoader(urlClassLoader);
 			
 			// Get test classes
-			String[] testClassFilenames = ExtendedTestFinder.getTestClassesFromDirectory(testLocation);
-			Collection<Class<?>> testClasses = new LinkedList<Class<?>>();
-			for(String testClassFilename : testClassFilenames) {
-				String testClassName = FilenameUtils.getBaseName(testClassFilename);
-				String testFullyQualifiedName = "test." + testClassName;
-				Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
-				testClasses.add(testClass);
-			}
+			Collection<Class<?>> testClasses = getTestClasses(testLocation, urlClassLoader);
 			
 			// Create kill matrix CSV file
 			m.createKillMatrixCSV(testClasses);
@@ -85,5 +84,25 @@ public class Mutator {
 		// The (projectPathLength + 5) gets rid of project's path + "/src/" from the pathname and 
 		// the (filePathLength - 5) gets rid of the ".java" file extension
 		return fileLocation.substring(projectPathLength + 5, filePathLength - 5).replace(FILE_SEPARATOR, '.');
+	}
+	
+	/**
+	 * Returns all test classes found in the java file's project. 
+	 * 
+	 * @param testLocation the directory in which test classes are located
+	 * @param urlClassLoader a classloader used to help retrieve a java class's Class object
+	 * @return all test classes found in the java file's project
+	 * @throws ClassNotFoundException
+	 */
+	private static Collection<Class<?>> getTestClasses(String testLocation, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+		String[] testClassFilenames = ExtendedTestFinder.getTestClassesFromDirectory(testLocation);
+		Collection<Class<?>> testClasses = new LinkedList<Class<?>>();
+		for(String testClassFilename : testClassFilenames) {
+			String testClassName = FilenameUtils.getBaseName(testClassFilename);
+			String testFullyQualifiedName = "test." + testClassName;
+			Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
+			testClasses.add(testClass);
+		}
+		return testClasses;
 	}
 }

@@ -1,6 +1,14 @@
 
 package killmap;
 
+/**
+ * Taken from Rene Just's fault-localization-data
+ * Link: https://bitbucket.org/rjust/fault-localization-data/src/1b5b3f155c41ef4d7c11ca422a94e5ff90b558e7/killmap/src/main/killmap/TestMethod.java?at=icse17&fileviewer=file-view-default
+ * Tag: icse17
+ * 
+ * @author Raymond Tang
+ *
+ */
 public class TestMethod implements Comparable<TestMethod> {
 
   private final Class<?> testClass;

@@ -400,7 +400,8 @@ public class Major {
 		for(TestMethod test : testMethods) {
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
-			core.run(Request.method(test.getTestClass(), test.getName()));
+			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
+			boolean originalResult = original.wasSuccessful();
 			List<Integer> coveredMutants = Config.getCoverageList();
 			this.coveredMutants.addAll(coveredMutants);
 			Config.reset();
@@ -409,8 +410,9 @@ public class Major {
 				Outcome outcome;
 				if(coveredMutants.contains(mutantID)) {
 					Config.__M_NO = mutantID;
-					Result result = core.run(Request.method(test.getTestClass(), test.getName()));
-					if(result.wasSuccessful()) outcome = Outcome.ALIVE;
+					Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
+					boolean newResult = resultWithMutant.wasSuccessful();
+					if(newResult == originalResult) outcome = Outcome.ALIVE;
 					else outcome = Outcome.KILLED;
 				}
 				else outcome = Outcome.ALIVE;
@@ -469,15 +471,17 @@ public class Major {
 			TestMethod test = testMethods.get(i);
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
-			core.run(Request.method(test.getTestClass(), test.getName()));
+			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
+			boolean originalResult = original.wasSuccessful();
 			List<Integer> coveredMutants = Config.getCoverageList();
 			this.coveredMutants.addAll(coveredMutants);
 			Config.reset();
 			for(Integer coveredMutant : coveredMutants) {
 				int mutantNumber = coveredMutant.intValue();
 				Config.__M_NO = mutantNumber;
-				Result result = core.run(Request.method(test.getTestClass(), test.getName()));
-				if(!result.wasSuccessful()) killMatrix[mutantNumber - 1][i] = 1;
+				Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
+				boolean newResult = resultWithMutant.wasSuccessful();
+				if(newResult != originalResult) killMatrix[mutantNumber - 1][i] = 1;
 			}
 		}
 		this.killMatrix = killMatrix;

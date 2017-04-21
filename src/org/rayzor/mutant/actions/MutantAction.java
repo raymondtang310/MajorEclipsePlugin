@@ -9,6 +9,7 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import mutator.JavaFileNotSelectedException;
 import mutator.Mutator;
+import mutator.SelectionNotAdaptableException;
 import util.EclipseNavigator;
 
 /**
@@ -49,23 +50,22 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		ICompilationUnit fileToMutate = null;
 		try {
 			// Get selected java file (the highlighted java file in the package explorer)
-			fileToMutate = EclipseNavigator.getSelectedJavaFile();
-		} catch (JavaFileNotSelectedException e) {
+			ICompilationUnit fileToMutate = EclipseNavigator.getSelectedJavaFile();
+			String fileLocation = EclipseNavigator.getAdaptableSelectionLocation(fileToMutate);
+			String projectLocation = EclipseNavigator.getAdaptableSelectionLocation(fileToMutate.getJavaProject());
+			String binLocation = projectLocation + "/bin/";
+			String testLocation = projectLocation + "/src/test/";
+			// Run the Mutator program to generate and compile mutants in Triangle.java
+			Mutator.main(new String[]{fileLocation, projectLocation, binLocation, testLocation});
+		} catch (JavaFileNotSelectedException | SelectionNotAdaptableException e) {
 			MessageDialog.openInformation(
 				window.getShell(),
 				"org.rayzor.mutant",
 				"Error: a java file is not selected");
 			return;
 		}
-		String fileLocation = fileToMutate.getResource().getLocation().toOSString();
-		String projectLocation = fileToMutate.getJavaProject().getResource().getLocation().toOSString();
-		String binLocation = projectLocation + "/bin/";
-		String testLocation = projectLocation + "/src/test/";
-		// Run the Mutator program to generate and compile mutants in Triangle.java
-		Mutator.main(new String[]{fileLocation, projectLocation, binLocation, testLocation});
 	}
 
 	/**

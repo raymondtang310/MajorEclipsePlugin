@@ -1,6 +1,7 @@
 package org.rayzor.mutant.actions;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -55,16 +56,15 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 			ICompilationUnit fileToMutate = EclipseNavigator.getSelectedJavaFile();
 			String fileLocation = EclipseNavigator.getAdaptableSelectionLocation(fileToMutate);
 			String projectLocation = EclipseNavigator.getAdaptableSelectionLocation(fileToMutate.getJavaProject());
-			String binLocation = projectLocation + "/bin/";
-			String testLocation = projectLocation + "/src/test/";
+			String binLocation = EclipseNavigator.getBinLocation(fileToMutate.getJavaProject());
+			String testLocation = EclipseNavigator.getTestLocation(fileToMutate.getJavaProject());
 			// Run the Mutator program to generate and compile mutants in Triangle.java
 			Mutator.main(new String[]{fileLocation, projectLocation, binLocation, testLocation});
-		} catch (JavaFileNotSelectedException | SelectionNotAdaptableException e) {
+		} catch (JavaFileNotSelectedException | SelectionNotAdaptableException | JavaModelException e) {
 			MessageDialog.openInformation(
 				window.getShell(),
 				"org.rayzor.mutant",
 				"Error: a java file is not selected");
-			return;
 		}
 	}
 

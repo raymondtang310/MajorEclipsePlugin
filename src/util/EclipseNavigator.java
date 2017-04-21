@@ -4,13 +4,17 @@ import java.io.File;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -34,6 +38,9 @@ import mutator.SelectionNotAdaptableException;
  *
  */
 public class EclipseNavigator {
+	
+	// File separator. Differs depending on operating system
+	private static final char FILE_SEPARATOR = File.separatorChar;
 	
 	public EclipseNavigator() {
 	}
@@ -135,6 +142,34 @@ public class EclipseNavigator {
 	}
 	
 	/**
+	 * Returns the location of the given java project's bin directory as a pathname string.
+	 * 
+	 * @param project the java project
+	 * @return the location of the java project's bin directory
+	 * @throws JavaModelException
+	 */
+	public static String getBinLocation(IJavaProject project) throws JavaModelException {
+		IPath path = project.getOutputLocation();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IFolder binDirectory = root.getFolder(path);
+		return binDirectory.getLocation().toOSString();
+	}
+	
+	/**
+	 * Returns the location of the given java project's test directory as a pathname string.
+	 * This method assumes that there is a directory named "test" located in a directory named "src"
+	 * located in the project. We might want to change this in the future.
+	 * 
+	 * @param project the java project
+	 * @return the location of the given java project's test directory
+	 * @throws SelectionNotAdaptableException
+	 */
+	public static String getTestLocation(IJavaProject project) throws SelectionNotAdaptableException {
+		String projectLocation = getAdaptableSelectionLocation(project);
+		return projectLocation + FILE_SEPARATOR + "src" + FILE_SEPARATOR + "test";
+	}
+	
+	/**
 	 * Highlights the line corresponding to the given line number in the given file. 
 	 * Returns true for success. Returns false otherwise. 
 	 * 
@@ -156,9 +191,7 @@ public class EclipseNavigator {
 			    if (lineInfo != null) editor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
 			    else return false;
 			}
-		} catch (PartInitException e1) {
-			return false;
-		} catch (BadLocationException e) {
+		} catch (PartInitException | BadLocationException e) {
 			return false;
 		}
 		return true;

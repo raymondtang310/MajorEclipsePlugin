@@ -35,7 +35,8 @@ import util.EclipseNavigator;
 
 /**
  * Given a java file, a Major object provides functionality such as compiling
- * and generating mutants. 
+ * and generating mutants. Also, a Major object can be used to perform mutation 
+ * testing provided test classes. 
  * 
  * @author Raymond Tang
  *
@@ -58,8 +59,6 @@ public class Major {
 	private File mutantsLogDirectory;
 	// The directory to which the mutated .class files is exported
 	private File binDirectory;
-	// Mutation analysis enabled/disabled (true or false)
-	private boolean analysisEnabled;
 	// Base timeout factor (seconds) for test runtime
 	private int timeoutFactor;
 	// Number of generated mutants
@@ -73,18 +72,18 @@ public class Major {
 	 * By default, mutant source files are not generated. If the option to generate mutant source
 	 * files is set to true, then the default export directory is "./mutants".
 	 * 
-	 * A NullPointer exception is thrown if any of the given parameters are null.
+	 * An IllegalArgumentException is thrown if any of the given parameters are null or
+	 * if the file is not a java file.
 	 * A FileNotFoundException is thrown if the file does not exist.
-	 * An IllegalArgumentException is thrown if the file is not a java file.
 	 * 
 	 * @param javaFile a java File
 	 * @param fullyQualifiedName the fully qualified name of the java file
-	 * @param projectLocation the location of the java file's project
-	 * @param binLocation the location of the java project's bin
+	 * @param projectLocation the location of the java file's project a pathname string
+	 * @param binLocation the location of the java project's bin as a pathname string
 	 * @throws IOException
 	 */
 	public Major(File javaFile, String fullyQualifiedName, String projectLocation, String binLocation) throws IOException {
-		if(javaFile == null || fullyQualifiedName == null || projectLocation == null) throw new NullPointerException();
+		if(javaFile == null || fullyQualifiedName == null || projectLocation == null) throw new IllegalArgumentException("parameters cannot be null");
 		if(!javaFile.exists()) throw new FileNotFoundException("File " + javaFile.toString() + 
 															  " does not exist");
 		String type = Files.probeContentType(javaFile.toPath());
@@ -97,9 +96,8 @@ public class Major {
 		binDirectory = new File(binLocation);
 		exportMutants = false;
 		exportDirectory = new File(this.projectLocation + FILE_SEPARATOR + "mutants");
-		System.setProperty("major.export.mutants", "false");
-		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
-		analysisEnabled = false;
+		setExportMutants(false);
+		setExportDirectory(exportDirectory);
 		setTimeoutFactor(8);
 		numMutants = 0;
 		killMatrix = null;
@@ -113,36 +111,35 @@ public class Major {
 	 * @return true for success and false otherwise
 	 */
 	public boolean mutate() {
-		// Create directory in which compiled mutated files will be stored
-		String binPathname = binDirectory.getAbsolutePath();
-		binDirectory.mkdir();
+		// The directory in which compiled mutated files will be stored
+		String binLocation = binDirectory.getAbsolutePath();
 		// Flag for mutation
 		String mutateFlag = "-XMutator:ALL";
-		String[] arguments = {"-d", binPathname, mutateFlag, javaFile.getPath()};
+		String[] arguments = {"-d", binLocation, mutateFlag, javaFile.getPath()};
 		// Create JavaCompiler object
 		// Assuming that Major's javac is in the project directory, major's compiler will be used
 		JavaCompiler compiler = JavacTool.create();
 		// Compile and run the program
-		int flag = compiler.run(null, null, null, arguments);
-		// The run method returns 0 for success and nonzero for errors
-		if(flag == 0) {
-			String sourceDirectory = System.getProperty("user.dir");
-			Path source = Paths.get(sourceDirectory + FILE_SEPARATOR + "mutants.log");
-			Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + FILE_SEPARATOR + 
-									"mutants.log");
-			try {
-				Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-			} catch (IOException e) {
-				return false;
-			}
-			numMutants = this.getNumberOfMutantsAfterCompile();
-			return true;
+		compiler.run(null, null, null, arguments);
+		// mutants.log is created in the working directory by default
+		// Move mutants.log into the project directory
+		String sourceDirectory = System.getProperty("user.dir");
+		Path source = Paths.get(sourceDirectory + FILE_SEPARATOR + "mutants.log");
+		Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + FILE_SEPARATOR + 
+								"mutants.log");
+		try {
+			Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			return false;
 		}
-		return false;
+		// Record number of mutants generated
+		numMutants = this.getNumberOfMutantsAfterCompile();
+		return true;
 	}
 	
 	/**
-	 * Returns the number of generated mutants. This method is only run directly after compiling. 
+	 * Returns the number of generated mutants.
+	 * This method is run directly after compiling in the mutate method.
 	 * 
 	 * @return the number of generated mutants
 	 */
@@ -193,18 +190,20 @@ public class Major {
 	
 	/**
 	 * Sets the exportDirectory property to the given directory.
-	 * A NullPointer exception is thrown if the given directory is null.
+	 * 
+	 * An IllegalArgumentException is thrown if the given directory is null.
 	 * 
 	 * @param directory the directory to which mutant source files will be exported
 	 */
 	public void setExportDirectory(File directory) {
-		if(directory == null) throw new NullPointerException();
+		if(directory == null) throw new IllegalArgumentException("directory cannot be null");
 		exportDirectory = directory;
 		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 	}
 	
 	/**
 	 * Returns the mutants.log file.
+	 * 
 	 * Throws a FileNotFoundException if mutants.log does not exist.
 	 * 
 	 * @return the mutants.log file
@@ -220,8 +219,8 @@ public class Major {
 	
 	/**
 	 * Parses mutants.log into an ArrayList of strings. The i-th string in the ArrayList
-	 * is the i-th line in mutants.log.
-	 * Returns the ArrayList.
+	 * is the i-th line in mutants.log. Returns the ArrayList.
+	 * 
 	 * Throws a FileNotFoundException if mutants.log does not exist.
 	 * 
 	 * @return the mutants.log file parsed as an ArrayList<String>
@@ -250,12 +249,13 @@ public class Major {
 	
 	/**
 	 * Sets the mutants.log directory to the given directory.
-	 * A NullPointer exception is thrown if the given directory is null.
+	 * 
+	 * An IllegalArgumentException is thrown if the given directory is null.
 	 * 
 	 * @param directory the directory to which the mutants.log file will be exported
 	 */
 	public void setMutantsLogDirectory(File directory) {
-		if(directory == null) throw new NullPointerException();
+		if(directory == null) throw new IllegalArgumentException("directory cannot be null");
 		mutantsLogDirectory = directory;
 	}
 	
@@ -269,16 +269,15 @@ public class Major {
 	 */
 	public boolean highlightMutantInSource(int mutantNumber) {
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
-		ArrayList<String> log = null;
 		try {
-			log = this.getMutantsLog();
+			ArrayList<String> log = this.getMutantsLog();
+			if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
+			String logLine = log.get(mutantNumber - 1);
+			int mutantLineNumber = this.getMutantLineNumber(logLine);
+			return EclipseNavigator.highlightLine(javaFile, mutantLineNumber);
 		} catch (FileNotFoundException e) {
 			return false;
 		}
-		if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
-		String logLine = log.get(mutantNumber - 1);
-		int mutantLineNumber = this.getMutantLineNumber(logLine);
-		return EclipseNavigator.highlightLine(javaFile, mutantLineNumber);
 	}
 	
 	/**
@@ -291,33 +290,38 @@ public class Major {
 	 */
 	public boolean highlightMutantInMutatedSource(int mutantNumber) {
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
-		ArrayList<String> log = null;
 		try {
-			log = this.getMutantsLog();
+			ArrayList<String> log = this.getMutantsLog();
+			if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
+			String logLine = log.get(mutantNumber - 1);
+			String fullyQualifiedPath = this.fullyQualifiedName.replace('.', FILE_SEPARATOR);
+			// Here we assume a particular file system structure for finding mutated source files
+			// E.g., for mutant 5, its file path should be exportDirectory/5/packageName/sourceFileName
+			String mutatedFileLocation = exportDirectory.getAbsolutePath() + FILE_SEPARATOR +
+										 String.valueOf(mutantNumber) + 
+										 FILE_SEPARATOR + fullyQualifiedPath + ".java";
+			File mutatedFile = new File(mutatedFileLocation);
+			int mutantLineNumber = this.getMutantLineNumber(logLine);
+			return EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
 		} catch (FileNotFoundException e) {
 			return false;
 		}
-		if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
-		String logLine = log.get(mutantNumber - 1);
-		String path = this.fullyQualifiedName.replace('.', FILE_SEPARATOR);
-		String mutatedFileLocation = exportDirectory.getAbsolutePath() + FILE_SEPARATOR +
-									 String.valueOf(mutantNumber) + FILE_SEPARATOR + path + ".java";
-		File mutatedFile = new File(mutatedFileLocation);
-		int mutantLineNumber = this.getMutantLineNumber(logLine);
-		return EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
 	}
 	
 	/**
 	 * Returns the number of the source file line on which the mutant corresponding
 	 * with the given mutants.log line occurs. 
-	 * A NullPointer exception is thrown if the given log line is null.
+	 * 
+	 * An IllegalArgumentException is thrown if the given log line is null.
 	 * 
 	 * @param logLine a line in mutants.log
 	 * @return the number of the source file line on which the mutant corresponding
 	 * 		   with the given mutants.log line occurs
 	 */
 	private int getMutantLineNumber(String logLine) {
-		if(logLine == null) throw new NullPointerException();
+		// For any given line in mutants.log, the number of the source file line
+		// on which the mutant occurs is the number just before the last colon
+		if(logLine == null) throw new IllegalArgumentException("logLine cannot be null");
 		String reverseLine = new StringBuilder(logLine).reverse().toString();
 		StringTokenizer tokenizer = new StringTokenizer(reverseLine);
 		tokenizer.nextToken(":");
@@ -326,26 +330,6 @@ public class Major {
 		return Integer.parseInt(lineNoStr);
 	}
 	
-	/**
-	 * Returns true if mutation analysis is enabled. Returns false otherwise. 
-	 * 
-	 * @return true if mutation analysis is enabled, false otherwise
-	 */
-	public boolean isMutationAnalysEnabled() {
-		return analysisEnabled;
-	}
-	
-	/**
-	 * Enables mutation analysis if the given boolean parameter equals true. 
-	 * Disables mutation analysis if the given boolean parameter equals false. 
-	 * 
-	 * @param enable a boolean value, which equals true to enable mutation analysis,
-	 * 				 or false to disable mutation analysis
-	 */
-	public void enableMutationAnalysis(boolean enable) {
-		analysisEnabled = enable;
-	}
-
 	/**
 	 * Returns the timeout factor in seconds for test runtime. 
 	 * 
@@ -375,13 +359,15 @@ public class Major {
 	}
 
 	/**
-	 * Sets the bin directory to the given directory. Compiled mutated .class files will be stored here. 
-	 * A NullPointer exception is thrown if the given directory is null.
+	 * Sets the bin directory to the given directory. 
+	 * Compiled mutated .class files will be stored here. 
+	 * 
+	 * An IllegalArgumentException is thrown if the given directory is null.
 	 * 
 	 * @param binDirectory the directory to be used as the bin directory
 	 */
 	public void setBinDirectory(File binDirectory) {
-		if(binDirectory == null) throw new NullPointerException();
+		if(binDirectory == null) throw new IllegalArgumentException("bin directory cannot be null");
 		this.binDirectory = binDirectory;
 	}
 	
@@ -398,15 +384,17 @@ public class Major {
 	 * Generates and returns a kill map. 
 	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
 	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
-	 * A NullPointer exception is thrown if the given collection of test classes is null.
 	 * 
-	 * @param testClass a class containing tests to run against the given java program
+	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
+	 * 
+	 * @param testClasses classes containing tests to run against the given java program
 	 * @return a map between WorkOrders and Outcomes, detailing the Outcome (KILLED or ALIVE) 
 	 * 		   of a WorkOrder (a mutant and a test). Returns an empty map object if there are 
 	 * 		   no mutants generated or if there are no test methods in the given test class. 
 	 */
 	public Map<WorkOrder, Outcome> getKillMap(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new NullPointerException();
+		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
+		this.coveredMutants.clear();
 		Collection<TestMethod> testMethods = TestFinder.getTestMethods(testClasses);
 		Map<WorkOrder, Outcome> killMap = new TreeMap<WorkOrder, Outcome>();
 		for(TestMethod test : testMethods) {
@@ -414,6 +402,7 @@ public class Major {
 			JUnitCore core = new JUnitCore();
 			core.run(Request.method(test.getTestClass(), test.getName()));
 			List<Integer> coveredMutants = Config.getCoverageList();
+			this.coveredMutants.addAll(coveredMutants);
 			Config.reset();
 			for(int mutantID = 1; mutantID <= this.numMutants; mutantID++) {
 				WorkOrder workOrder = new WorkOrder(mutantID, test);
@@ -435,12 +424,13 @@ public class Major {
 	 * Generates and prints out a kill map. 
 	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
 	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
-	 * A NullPointer exception is thrown if the given collection of test classes is null.
 	 * 
-	 * @param testClass a class containing tests to run against the given java program
+	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
+	 * 
+	 * @param testClasses classes containing tests to run against the given java program
 	 */
 	public void printKillMap(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new NullPointerException();
+		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
 		Map<WorkOrder, Outcome> killMap = this.getKillMap(testClasses);
 		if(killMap.isEmpty()) return;
 		for(Map.Entry<WorkOrder, Outcome> entry : killMap.entrySet()) {
@@ -453,13 +443,15 @@ public class Major {
 	}
 	
 	/**
-	 * Generates and returns a kill matrix, represented as an array of integer arrays. 
-	 * The rows of the matrix represent mutants, and the columns represent tests. 
-	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j did not kill mutant i. 
-	 * The rows (mutants) are sorted (ascending) by mutantIDs. The columns (tests) are sorted by name. 
-	 * A NullPointer exception is thrown if the given collection of test classes is null.
+	 * Generates and returns a kill matrix, represented as an array of integer arrays.
+	 * The rows of the matrix represent mutants, and the columns represent tests.
+	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j
+	 * did not kill mutant i. The rows (mutants) are sorted (ascending) by mutantIDs.
+	 * The columns (tests) are sorted by name.
 	 * 
-	 * @param testClass a class containing tests to run against the given java program
+	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
+	 * 
+	 * @param testClasses classes containing tests to run against the given java program
 	 * @return a kill matrix, represented as a two dimensional integer array, 
 	 * 		   where the rows represent mutants and the columns represent tests. 
 	 * 		   Returns an empty int[][] if there are no mutants generated or if there are no test 
@@ -467,7 +459,7 @@ public class Major {
 	 */
 	public int[][] getKillMatrix(Collection<Class<?>> testClasses) {
 		this.coveredMutants.clear();
-		if(testClasses == null) throw new NullPointerException();
+		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
 		Collection<TestMethod> testMethodsCollection = TestFinder.getTestMethods(testClasses);
 		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
 		int numTests = testMethods.size();
@@ -493,15 +485,17 @@ public class Major {
 	}
 	
 	/**
-	 * Generates a CSV file, providing details on whether or not the provided tests killed the mutants. 
-	 * The CSV file is named killMatrix.csv and is stored in the current project directory. 
-	 * A NullPointer exception is thrown if the given collection of test classes is null.
+	 * Generates a CSV file, providing details on whether or not the
+	 * provided tests killed the mutants. The CSV file is named killMatrix.csv
+	 * and is stored in the current project directory.
 	 * 
-	 * @param testClass a class containing tests to run against the given java program
+	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
+	 * 
+	 * @param testClasses classes containing tests to run against the given java program
 	 * @return true for success, false otherwise
 	 */
 	public boolean createKillMatrixCSV(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new NullPointerException();
+		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
 		int[][] killMatrix = this.getKillMatrix(testClasses);
 		if(killMatrix.length == 0) return false;
 		String fileName = projectLocation + FILE_SEPARATOR + "killMatrix.csv";
@@ -529,14 +523,16 @@ public class Major {
 	/**
 	 * Generates and prints out a kill matrix, represented as an array of integer arrays. 
 	 * The rows of the matrix represent mutants, and the columns represent tests. 
-	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j did not kill mutant i. 
-	 * The rows (mutants) are sorted (ascending) by mutantIDs. The columns (tests) are sorted by name. 
-	 * A NullPointer exception is thrown if the given collection of test classes is null.
+	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j
+	 * did not kill mutant i. The rows (mutants) are sorted (ascending) by mutantIDs.
+	 * The columns (tests) are sorted by name. 
 	 * 
-	 * @param testClass a class containing tests to run against the given java program
+	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
+	 * 
+	 * @param testClasses classes containing tests to run against the given java program
 	 */
 	public void printKillMatrix(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new NullPointerException();
+		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
 		int[][] killMatrix = this.getKillMatrix(testClasses);
 		for(int i = 0; i < killMatrix.length; i++) {
 			for(int j = 0; j < killMatrix[i].length; j++) {
@@ -553,7 +549,7 @@ public class Major {
 	 * @return true if the mutant is killed, false otherwise
 	 */
 	public boolean isMutantKilled(int mutantNumber) {
-		if(killMatrix == null) return false;
+		if(killMatrix == null || mutantNumber <= 0 || mutantNumber > killMatrix.length) return false;
 		int[] tests = killMatrix[mutantNumber - 1];
 		for(int j = 0; j < tests.length; j++) {
 			if(tests[j] == 1) return true;

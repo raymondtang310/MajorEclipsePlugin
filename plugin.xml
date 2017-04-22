@@ -17,7 +17,7 @@
          </menu>
          <action
                label="&amp;Mutate"
-               icon="icons/ladybug.jpg"
+               icon="icons/logo.jpg"
                class="org.rayzor.mutant.actions.MutantAction"
                tooltip="Mutate"
                menubarPath="mutantMenu/mutantGroup"
@@ -35,7 +35,7 @@
       </category>
       <view
             name="Mutants"
-            icon="icons/sample.gif"
+            icon="icons/logo.jpg"
             category="org.rayzor.mutantView"
             class="org.rayzor.mutantview.views.MutantView"
             id="org.rayzor.mutantview.views.MutantView">

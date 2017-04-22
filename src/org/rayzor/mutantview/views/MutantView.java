@@ -1,22 +1,37 @@
 package org.rayzor.mutantview.views;
 
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.*;
-
-import mutator.Major;
-
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.Image;
-
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-import org.eclipse.jface.action.*;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.*;
-import org.eclipse.swt.widgets.Menu;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
+
+import mutator.Major;
 
 
 /**
@@ -70,13 +85,19 @@ public class MutantView extends ViewPart {
 	 * (like Task List, for example).
 	 */
 	 
+	/**
+	 * Provides the mutant IDs to be listed in the view.
+	 * 
+	 * @author Raymond Tang
+	 *
+	 */
 	class ViewContentProvider implements IStructuredContentProvider {
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 		public void dispose() {
 		}
 		/**
-		 * This method provides an array of all mutant numbers to the view.
+		 * This method provides an array of all mutant IDs to the view.
 		 */
 		public Object[] getElements(Object parent) {
 			if(m == null) return new Object[0];
@@ -88,6 +109,15 @@ public class MutantView extends ViewPart {
 			return mutantNumbers;
 		}
 	}
+	/**
+	 * Assigns images to items (mutants) listed in the view.
+	 * A green plus sign is displayed next to a mutant ID if it is killed.
+	 * Blue circles are displayed next to a mutant ID if it is covered but alive.
+	 * A red X is displayed next to a mutant ID if it is uncovered.
+	 * 
+	 * @author Raymond Tang
+	 *
+	 */
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		public String getColumnText(Object obj, int index) {
 			return getText(obj);
@@ -145,11 +175,17 @@ public class MutantView extends ViewPart {
 			boolean e2Covered = m.isMutantCovered(e2Int);
 			boolean e1Killed = m.isMutantKilled(e1Int);
 			boolean e2Killed = m.isMutantKilled(e2Int);
+			// If mutant e1 is covered and alive and mutant e2 is killed, e2 shows up earlier in the view
 			if(e1Covered && !e1Killed && e2Killed) return 1;
+			// If mutant e1 is covered and alive and mutant e2 is uncovered, e1 shows up earlier in the view
 			if(e1Covered && !e1Killed && !e2Covered) return -1;
+			// If mutant e1 is uncovered and mutant e2 is killed, e2 shows up earlier in the view
 			if(!e1Covered && e2Killed) return 1;
+			// If mutant e2 is covered and alive and mutant e1 is killed, e1 shows up earlier in the view
 			if(e2Covered && !e2Killed && e1Killed) return -1;
+			// If mutant e2 is covered and alive and mutant e1 is uncovered, e2 shows up earlier in the view
 			if(e2Covered && !e2Killed && !e1Covered) return 1;
+			// If mutant e2 is uncovered and mutant e1 is killed, e1 shows up earlier in the view
 			if(!e2Covered && e1Killed) return -1;
 			return e1Int - e2Int;
 		}
@@ -173,11 +209,17 @@ public class MutantView extends ViewPart {
 			boolean e2Covered = m.isMutantCovered(e2Int);
 			boolean e1Killed = m.isMutantKilled(e1Int);
 			boolean e2Killed = m.isMutantKilled(e2Int);
+			// If mutant e1 is covered and alive and mutant e2 is killed, e1 shows up earlier in the view
 			if(e1Covered && !e1Killed && e2Killed) return -1;
+			// If mutant e1 is covered and alive and mutant e2 is uncovered, e1 shows up earlier in the view
 			if(e1Covered && !e1Killed && !e2Covered) return -1;
+			// If mutant e1 is uncovered and mutant e2 is killed, e1 shows up earlier in the view
 			if(!e1Covered && e2Killed) return -1;
+			// If mutant e2 is covered and alive and mutant e1 is killed, e2 shows up earlier in the view
 			if(e2Covered && !e2Killed && e1Killed) return 1;
+			// If mutant e2 is covered and alive and mutant e1 is uncovered, e2 shows up earlier in the view
 			if(e2Covered && !e2Killed && !e1Covered) return 1;
+			// If mutant e2 is uncovered and mutant e1 is killed, e2 shows up earlier in the view
 			if(!e2Covered && e1Killed) return 1;
 			return e1Int - e2Int;
 		}
@@ -201,11 +243,17 @@ public class MutantView extends ViewPart {
 			boolean e2Covered = m.isMutantCovered(e2Int);
 			boolean e1Killed = m.isMutantKilled(e1Int);
 			boolean e2Killed = m.isMutantKilled(e2Int);
+			// If mutant e1 is covered and alive and mutant e2 is killed, e1 shows up earlier in the view
 			if(e1Covered && !e1Killed && e2Killed) return -1;
+			// If mutant e1 is covered and alive and mutant e2 is uncovered, e2 shows up earlier in the view
 			if(e1Covered && !e1Killed && !e2Covered) return 1;
+			// If mutant e1 is uncovered and mutant e2 is killed, e1 shows up earlier in the view
 			if(!e1Covered && e2Killed) return -1;
+			// If mutant e2 is covered and alive and mutant e1 is killed, e2 shows up earlier in the view
 			if(e2Covered && !e2Killed && e1Killed) return 1;
+			// If mutant e2 is covered and alive and mutant e1 is uncovered, e1 shows up earlier in the view
 			if(e2Covered && !e2Killed && !e1Covered) return -1;
+			// If mutant e2 is uncovered and mutant e1 is killed, e2 shows up earlier in the view
 			if(!e2Covered && e1Killed) return 1;
 			return e1Int - e2Int;
 		}
@@ -236,6 +284,9 @@ public class MutantView extends ViewPart {
 		contributeToActionBars();
 	}
 
+	/**
+	 * Configures the context menu.
+	 */
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
@@ -249,12 +300,20 @@ public class MutantView extends ViewPart {
 		getSite().registerContextMenu(menuMgr, viewer);
 	}
 
+	/**
+	 * Configures the pull down menu and toolbar.
+	 */
 	private void contributeToActionBars() {
 		IActionBars bars = getViewSite().getActionBars();
 		fillLocalPullDown(bars.getMenuManager());
 		fillLocalToolBar(bars.getToolBarManager());
 	}
 
+	/**
+	 * Adds items to the pull down menu.
+	 * 
+	 * @param manager the pull down menu to add items to
+	 */
 	private void fillLocalPullDown(IMenuManager manager) {
 		manager.add(sortKilledFirst);
 		manager.add(sortAliveAndCoveredFirst);
@@ -262,6 +321,11 @@ public class MutantView extends ViewPart {
 		manager.add(sortNumberAsc);
 	}
 
+	/**
+	 * Adds items to the context menu.
+	 * 
+	 * @param manager the menu to add items to
+	 */
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(displayMutant);
 		manager.add(highlightMutantInSource);
@@ -270,6 +334,11 @@ public class MutantView extends ViewPart {
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
+	/**
+	 * Adds items to the toolbar.
+	 * 
+	 * @param manager the toolbar to add items to
+	 */
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(sortKilledFirst);
 		manager.add(sortAliveAndCoveredFirst);
@@ -379,6 +448,9 @@ public class MutantView extends ViewPart {
 		};
 	}
 
+	/**
+	 * Makes it so doubleClickAction runs upon double clicking on a mutant in the view.
+	 */
 	private void hookDoubleClickAction() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
@@ -386,6 +458,12 @@ public class MutantView extends ViewPart {
 			}
 		});
 	}
+	
+	/**
+	 * Opens up a message box containing the given message.
+	 * 
+	 * @param message the message to display
+	 */
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
 			viewer.getControl().getShell(),

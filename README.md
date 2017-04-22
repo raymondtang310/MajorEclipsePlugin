@@ -11,19 +11,21 @@ A plugin for Eclipse integrating the Major Mutation Framework
 1. In the Package Explorer, open up a java project and click on a java source file that you wish to mutate.  
 2. Click on the Mutate button.
 
-**After clicking on the Mutate button:**
+**Generated Files**
 
-1. One folder and two files should be generated directly under the java project&#39;s directory:
+One folder and two files should be generated directly under the java project&#39;s directory:
 
 	i. a folder named mutants
 	ii. a CSV file named killMatrix.csv
 	iii. a log file named mutants.log
 
 i. The mutants folder contains subfolders named &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, etc. Each of these subfolders contains a mutated source file containing the mutant with mutantID equal to the subfolder&#39;s number.  
-ii.   killMatrix.csv contains information on which mutants were killed by which tests.  
-iii.  mutants.log contains information on generated mutants.
+ii. killMatrix.csv contains information on which mutants were killed by which tests.  
+iii. mutants.log contains information on generated mutants.
 
-2. A view named &quot;Mutants&quot; should open up. The view should list each mutant by their mutantID. To the left of each mutantID should be one of the following images:
+**View**
+
+A view named &quot;Mutants&quot; should open up. The view should list each mutant by their mutantID. To the left of each mutantID should be one of the following images:
 
 	i. a green plus sign
 	ii. blue circles

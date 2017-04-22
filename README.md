@@ -26,8 +26,9 @@ ii.   killMatrix.csv contains information on which mutants were killed by which 
 iii.  mutants.log contains information on generated mutants.
 
 2. A view named &quot;Mutants&quot; should open up. The view should list each mutant by their mutantID. To the left of each mutantID should be one of the following images:
+
 	i. a green plus sign
- 	ii. blue circles
+	ii. blue circles
 	iii. a red X
 
 i. A green plus sign means that the mutant is killed.

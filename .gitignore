@@ -1,4 +1,4 @@
 *.log
 mutants/
 *.csv
-
+bin/

@@ -58,7 +58,7 @@ public class Mutator {
 			m.createKillMatrixCSV(testClasses);
 			
 			// Open view
-			String viewId = "org.rayzor.mutantview.views.MutantView";
+			String viewId = MutantView.ID;
 			MutantView view = (MutantView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
 			view.setMajorObject(m);
 		} catch (IOException e) {

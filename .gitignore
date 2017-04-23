@@ -1,7 +1,4 @@
-mutatedBin/
 *.log
-bin/
 mutants/
-test/
 *.csv
 

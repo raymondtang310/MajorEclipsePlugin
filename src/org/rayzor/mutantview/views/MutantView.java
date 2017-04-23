@@ -109,6 +109,7 @@ public class MutantView extends ViewPart {
 			return mutantNumbers;
 		}
 	}
+	
 	/**
 	 * Assigns images to items (mutants) listed in the view.
 	 * A green plus sign is displayed next to a mutant ID if it is killed.
@@ -140,6 +141,7 @@ public class MutantView extends ViewPart {
 					getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
 		}
 	}
+	
 	/**
 	 * This comparator is used to sort mutants listed in the view
 	 * by their number in ascending order. 
@@ -481,10 +483,15 @@ public class MutantView extends ViewPart {
 	/**
 	 * Provides Major object to this view. 
 	 * 
+	 * Throws an IllegalArgumentException if the given Major object is null.
+	 * 
 	 * @param m Major object
 	 */
 	public void setMajorObject(Major m) {
+		if(m == null) throw new IllegalArgumentException("Major object cannot be null");
 		this.m = m;
 		viewer.setContentProvider(new ViewContentProvider());
 	}
+	
+	
 }

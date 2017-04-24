@@ -42,9 +42,6 @@ public class EclipseNavigator {
 	// File separator. Differs depending on operating system
 	private static final char FILE_SEPARATOR = File.separatorChar;
 	
-	public EclipseNavigator() {
-	}
-	
 	/**
 	 * If a project is selected, this method returns the project's location as a string. 
 	 * Otherwise, the empty string is returned instead. 

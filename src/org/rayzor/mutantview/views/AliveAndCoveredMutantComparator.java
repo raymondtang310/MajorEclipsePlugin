@@ -29,7 +29,7 @@ public class AliveAndCoveredMutantComparator extends MutantIDComparator {
 	
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		if(!(e1 instanceof Integer && e2 instanceof Integer) || m == null) return super.compare(viewer, e1, e2);
+		if(!(e1 instanceof Integer && e2 instanceof Integer)) return super.compare(viewer, e1, e2);
 		int e1Int = ((Integer)e1).intValue();
 		int e2Int = ((Integer)e2).intValue();
 		boolean e1Covered = m.isMutantCovered(e1Int);

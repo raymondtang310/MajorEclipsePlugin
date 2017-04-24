@@ -261,18 +261,18 @@ public class Major {
 	
 	/**
 	 * Highlights the line in the source file in which the mutant corresponding 
-	 * with the given number occurs. The given number (mutantNumber) is the number of the line
+	 * with the given ID occurs. The given ID (mutantID) is the number of the line
 	 * in mutants.log detailing the desired mutant
 	 * 
-	 * @param mutantNumber the number of the mutant to highlight
+	 * @param mutantID the ID of the mutant to highlight
 	 * @return true for success, false otherwise
 	 */
-	public boolean highlightMutantInSource(int mutantNumber) {
+	public boolean highlightMutantInSource(int mutantID) {
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
 		try {
 			ArrayList<String> log = this.getMutantsLog();
-			if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
-			String logLine = log.get(mutantNumber - 1);
+			if(mutantID <= 0 || mutantID > log.size()) return false;
+			String logLine = log.get(mutantID - 1);
 			int mutantLineNumber = this.getMutantLineNumber(logLine);
 			return EclipseNavigator.highlightLine(javaFile, mutantLineNumber);
 		} catch (FileNotFoundException e) {
@@ -282,23 +282,23 @@ public class Major {
 	
 	/**
 	 * Highlights the line in the mutated source file in which the mutant corresponding 
-	 * with the given number is located. The given number (mutantNumber) is the number of the line
+	 * with the given ID is located. The given ID (mutantID) is the number of the line
 	 * in mutants.log detailing the desired mutant
 	 * 
-	 * @param mutantNumber the number of the mutant to highlight
+	 * @param mutantID the ID of the mutant to highlight
 	 * @return true for success, false otherwise
 	 */
-	public boolean highlightMutantInMutatedSource(int mutantNumber) {
+	public boolean highlightMutantInMutatedSource(int mutantID) {
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
 		try {
 			ArrayList<String> log = this.getMutantsLog();
-			if(mutantNumber <= 0 || mutantNumber > log.size()) return false;
-			String logLine = log.get(mutantNumber - 1);
+			if(mutantID <= 0 || mutantID > log.size()) return false;
+			String logLine = log.get(mutantID - 1);
 			String fullyQualifiedPath = this.fullyQualifiedName.replace('.', FILE_SEPARATOR);
 			// Here we assume a particular file system structure for finding mutated source files
 			// E.g., for mutant 5, its file path should be exportDirectory/5/packageName/sourceFileName
 			String mutatedFileLocation = exportDirectory.getAbsolutePath() + FILE_SEPARATOR +
-										 String.valueOf(mutantNumber) + 
+										 String.valueOf(mutantID) + 
 										 FILE_SEPARATOR + fullyQualifiedPath + ".java";
 			File mutatedFile = new File(mutatedFileLocation);
 			int mutantLineNumber = this.getMutantLineNumber(logLine);
@@ -477,11 +477,11 @@ public class Major {
 			this.coveredMutants.addAll(coveredMutants);
 			Config.reset();
 			for(Integer coveredMutant : coveredMutants) {
-				int mutantNumber = coveredMutant.intValue();
-				Config.__M_NO = mutantNumber;
+				int mutantID = coveredMutant.intValue();
+				Config.__M_NO = mutantID;
 				Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
 				boolean newResult = resultWithMutant.wasSuccessful();
-				if(newResult != originalResult) killMatrix[mutantNumber - 1][i] = 1;
+				if(newResult != originalResult) killMatrix[mutantID - 1][i] = 1;
 			}
 		}
 		this.killMatrix = killMatrix;
@@ -549,12 +549,12 @@ public class Major {
 	/**
 	 * Returns true if the given mutant is killed by some test. Returns false otherwise. 
 	 * 
-	 * @param mutantNumber the number of the mutant
+	 * @param mutantID the ID of the mutant
 	 * @return true if the mutant is killed, false otherwise
 	 */
-	public boolean isMutantKilled(int mutantNumber) {
-		if(killMatrix == null || mutantNumber <= 0 || mutantNumber > killMatrix.length) return false;
-		int[] tests = killMatrix[mutantNumber - 1];
+	public boolean isMutantKilled(int mutantID) {
+		if(killMatrix == null || mutantID <= 0 || mutantID > killMatrix.length) return false;
+		int[] tests = killMatrix[mutantID - 1];
 		for(int j = 0; j < tests.length; j++) {
 			if(tests[j] == 1) return true;
 		}
@@ -564,11 +564,11 @@ public class Major {
 	/**
 	 * Returns true if the given mutant is covered by some test. Returns false otherwise. 
 	 * 
-	 * @param mutantNumber the number of the mutant
+	 * @param mutantID the ID of the mutant
 	 * @return true if the mutant is covered, false otherwise
 	 */
-	public boolean isMutantCovered(int mutantNumber) {
-		return coveredMutants.contains(mutantNumber);
+	public boolean isMutantCovered(int mutantID) {
+		return coveredMutants.contains(mutantID);
 	}
 	
 }

@@ -11,7 +11,7 @@ package killmap;
  *
  */
 public class WorkOrder implements Comparable<WorkOrder> {
-	// The ID (number) of the mutant
+	// The ID of the mutant
 	private int mutantID;
 	// The test method
 	private TestMethod testMethod;

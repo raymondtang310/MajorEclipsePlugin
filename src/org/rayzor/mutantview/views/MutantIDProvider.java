@@ -38,10 +38,10 @@ public class MutantIDProvider implements IStructuredContentProvider {
 	public Object[] getElements(Object parent) {
 		if(m == null) return new Object[0];
 		int numMutants = m.getNumberOfMutants();
-		Integer[] mutantNumbers = new Integer[numMutants];
-		for(int i = 1; i <= mutantNumbers.length; i++) {
-			mutantNumbers[i-1] = i;
+		Integer[] mutantIDs = new Integer[numMutants];
+		for(int i = 1; i <= mutantIDs.length; i++) {
+			mutantIDs[i-1] = i;
 		}
-		return mutantNumbers;
+		return mutantIDs;
 	}
 }

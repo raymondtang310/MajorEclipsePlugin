@@ -29,7 +29,7 @@ import mutator.Major;
 
 /**
  * This class is the workbench view for this plugin.
- * It displays a menu of each mutant by its number and
+ * It displays a menu of each mutant by its ID and
  * displays whether the mutant was killed or not after running tests against it.
  * Double-clicking on a mutant will open up the source file that was mutated
  * and highlight the line on which the mutant occurs.
@@ -65,7 +65,7 @@ public class MutantView extends ViewPart {
 	private Action sortKilledFirst;
 	private Action sortAliveAndCoveredFirst;
 	private Action sortUncoveredFirst;
-	private Action sortNumberAsc;
+	private Action sortIDAsc;
 	private Action doubleClickAction;
 	// Major object which contains information about mutants and tests for some java file
 	private Major m = null;
@@ -131,7 +131,7 @@ public class MutantView extends ViewPart {
 		manager.add(sortKilledFirst);
 		manager.add(sortAliveAndCoveredFirst);
 		manager.add(sortUncoveredFirst);
-		manager.add(sortNumberAsc);
+		manager.add(sortIDAsc);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class MutantView extends ViewPart {
 		manager.add(sortKilledFirst);
 		manager.add(sortAliveAndCoveredFirst);
 		manager.add(sortUncoveredFirst);
-		manager.add(sortNumberAsc);
+		manager.add(sortIDAsc);
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class MutantView extends ViewPart {
 		createSortKilledFirstAction();
 		createSortAliveAndCoveredFirstAction();
 		createSortUncoveredFirstAction();
-		createSortNumberAscAction();
+		createSortIDAscAction();
 		createDoubleClickAction();
 	}
 	
@@ -179,10 +179,10 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantNumber = ((Integer)obj).intValue();
+				int mutantID = ((Integer)obj).intValue();
 				try {
 					ArrayList<String> mutantsLog = m.getMutantsLog();
-					String logLine = mutantsLog.get(mutantNumber - 1);
+					String logLine = mutantsLog.get(mutantID - 1);
 					showMessage(logLine);
 					
 				} catch (FileNotFoundException e) {
@@ -200,8 +200,8 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantNumber = ((Integer)obj).intValue();
-				m.highlightMutantInSource(mutantNumber);
+				int mutantID = ((Integer)obj).intValue();
+				m.highlightMutantInSource(mutantID);
 			}
 		};
 		highlightMutantInSource.setText("Highlight Mutant in Source File");		
@@ -214,8 +214,8 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantNumber = ((Integer)obj).intValue();
-				m.highlightMutantInMutatedSource(mutantNumber);
+				int mutantID = ((Integer)obj).intValue();
+				m.highlightMutantInMutatedSource(mutantID);
 			}
 		};
 		highlightMutantInMutatedSource.setText("Highlight Mutant in Mutated Source File");		
@@ -266,16 +266,16 @@ public class MutantView extends ViewPart {
 				getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR));
 	}
 	
-	private void createSortNumberAscAction() {
+	private void createSortIDAscAction() {
 		// Sorts mutants listed in the view using the MutantComparator
-		sortNumberAsc = new Action() {
+		sortIDAsc = new Action() {
 			public void run() {
 				viewer.setComparator(new MutantIDComparator());
 			}
 		};
-		sortNumberAsc.setText("Sort by Number");
-		sortNumberAsc.setToolTipText("Sort by Number");
-		sortNumberAsc.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+		sortIDAsc.setText("Sort by ID");
+		sortIDAsc.setToolTipText("Sort by ID");
+		sortIDAsc.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 	}
 	
@@ -286,8 +286,8 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantNumber = ((Integer)obj).intValue();
-				m.highlightMutantInSource(mutantNumber);
+				int mutantID = ((Integer)obj).intValue();
+				m.highlightMutantInSource(mutantID);
 			}
 		};
 	}

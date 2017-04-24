@@ -45,7 +45,7 @@ public class Mutator {
 			m.setExportMutants(true);
 			m.mutate();
 			
-			// Add bin and test directories of Triangle project to classpath
+			// Add bin and test directories of the java project to the classpath
 			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new File(binLocation).toURI().toURL(), 
 																new File(testLocation).toURI().toURL()}, 
 																Config.class.getClassLoader());

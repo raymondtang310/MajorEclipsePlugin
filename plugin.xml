@@ -37,7 +37,7 @@
             name="Mutants"
             icon="icons/logo.jpg"
             category="org.rayzor.mutantView"
-            class="org.rayzor.mutantview.views.MutantView"
+            class="org.rayzor.mutantview.MutantView"
             id="org.rayzor.mutantview.views.MutantView">
       </view>
    </extension>

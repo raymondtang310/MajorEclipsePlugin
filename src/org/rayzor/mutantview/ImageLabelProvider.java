@@ -1,4 +1,4 @@
-package org.rayzor.mutantview.views;
+package org.rayzor.mutantview;
 
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;

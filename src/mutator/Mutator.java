@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.rayzor.mutantview.views.MutantView;
+import org.rayzor.mutantview.MutantView;
 
 import killmap.ExtendedTestFinder;
 import major.mutation.Config;

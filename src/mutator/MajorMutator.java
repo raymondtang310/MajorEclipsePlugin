@@ -32,9 +32,8 @@ import major.mutation.Config;
 import util.TestFinder;
 
 /**
- * Given a java file, a Major object provides functionality such as compiling
- * and generating mutants. Also, a Major object can be used to perform mutation 
- * testing provided test classes. 
+ * Given a java file, this mutator provides functionality such as compiling
+ * and generating mutants. 
  * 
  * @author Raymond Tang
  *

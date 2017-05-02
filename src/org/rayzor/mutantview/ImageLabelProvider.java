@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import mutator.Major;
+import mutator.MajorMutator;
 
 /**
  * Assigns images to items (mutants) listed in the view.
@@ -20,14 +20,14 @@ import mutator.Major;
 public class ImageLabelProvider extends LabelProvider implements ITableLabelProvider {
 	
 	// Major object which contains information about mutants and tests for some java file
-	private Major m;
+	private MajorMutator m;
 		
 	/**
 	 * Sets the Major object for this LabelProvider to use. 
 	 * 
 	 * @param m a Major object
 	 */
-	public void setMajorObject(Major m) {
+	public void setMajorObject(MajorMutator m) {
 		this.m = m;
 	}
 	

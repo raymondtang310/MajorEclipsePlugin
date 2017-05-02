@@ -2,7 +2,7 @@ package org.rayzor.mutantview;
 
 import org.eclipse.jface.viewers.Viewer;
 
-import mutator.Major;
+import mutator.MajorMutator;
 
 /**
  * This comparator is used to sort mutants listed in the view.
@@ -15,14 +15,14 @@ import mutator.Major;
 public class KilledMutantComparator extends MutantIDComparator {
 	
 	// Major object which contains information about mutants and tests for some java file
-	private Major m;
+	private MajorMutator m;
 	
 	/**
 	 * Sets the Major object for this comparator to use. 
 	 * 
 	 * @param m a Major object
 	 */
-	public void setMajorObject(Major m) {
+	public void setMajorObject(MajorMutator m) {
 		if(m == null) throw new IllegalArgumentException("Major object cannot be null");
 		this.m = m;
 	}

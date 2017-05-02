@@ -24,7 +24,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import mutator.Major;
+import mutator.MajorMutator;
 
 
 /**
@@ -68,7 +68,7 @@ public class MutantView extends ViewPart {
 	private Action sortIDAsc;
 	private Action doubleClickAction;
 	// Major object which contains information about mutants and tests for some java file
-	private Major m = null;
+	private MajorMutator m = null;
 
 	/**
 	 * The constructor.
@@ -329,7 +329,7 @@ public class MutantView extends ViewPart {
 	 * 
 	 * @param m Major object
 	 */
-	public void setMajorObject(Major m) {
+	public void setMajorObject(MajorMutator m) {
 		if(m == null) throw new IllegalArgumentException("Major object cannot be null");
 		this.m = m;
 		mutantIDProvider.setMajorObect(m);

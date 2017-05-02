@@ -42,7 +42,7 @@ import major.mutation.Config;
  *
  */
 
-public class Major {
+public class MajorMutator implements Mutator {
 	// File separator. Differs depending on operating system
 	private static final char FILE_SEPARATOR = File.separatorChar;	
 	// The given java file
@@ -82,7 +82,7 @@ public class Major {
 	 * @param binLocation the location of the java project's bin as a pathname string
 	 * @throws IOException
 	 */
-	public Major(File javaFile, String fullyQualifiedName, String projectLocation, String binLocation) throws IOException {
+	public MajorMutator(File javaFile, String fullyQualifiedName, String projectLocation, String binLocation) throws IOException {
 		if(javaFile == null || fullyQualifiedName == null || projectLocation == null) throw new IllegalArgumentException("parameters cannot be null");
 		if(!javaFile.exists()) throw new FileNotFoundException("File " + javaFile.toString() + 
 															  " does not exist");
@@ -104,12 +104,10 @@ public class Major {
 		coveredMutants = new TreeSet<Integer>();
 	}
 	
-	/**
-	 * Compile and generate mutants.
-	 * Returns true if successful. Returns false otherwise.
-	 * 
-	 * @return true for success and false otherwise
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#mutate()
 	 */
+	@Override
 	public boolean mutate() {
 		// The directory in which compiled mutated files will be stored
 		String binLocation = binDirectory.getAbsolutePath();
@@ -159,56 +157,45 @@ public class Major {
 		}
 	}
 	
-	/**
-	 * Returns true if the option to generate mutant source files is set to true.
-	 * Returns false otherwise.
-	 * 
-	 * @return the value of the exportMutants property
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#isExportMutants()
 	 */
+	@Override
 	public boolean isExportMutants() {
 		return exportMutants;
 	}
 	
-	/**
-	 * Sets the exportMutants property to either true or false.
-	 * 
-	 * @param exportMutants the value to which the exportMutants property will be set
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#setExportMutants(boolean)
 	 */
+	@Override
 	public void setExportMutants(boolean exportMutants) {
 		this.exportMutants = exportMutants;
 		System.setProperty("major.export.mutants", String.valueOf(this.exportMutants));
 	}
 	
-	/**
-	 * Returns the export directory.
-	 * 
-	 * @return the export directory
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#getExportDirectory()
 	 */
+	@Override
 	public File getExportDirectory() {
 		return exportDirectory;
 	}
 	
-	/**
-	 * Sets the exportDirectory property to the given directory.
-	 * 
-	 * An IllegalArgumentException is thrown if the given directory is null.
-	 * 
-	 * @param directory the directory to which mutant source files will be exported
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#setExportDirectory(java.io.File)
 	 */
+	@Override
 	public void setExportDirectory(File directory) {
 		if(directory == null) throw new IllegalArgumentException("directory cannot be null");
 		exportDirectory = directory;
 		System.setProperty("major.export.directory", exportDirectory.getAbsolutePath());
 	}
 	
-	/**
-	 * Returns the mutants.log file.
-	 * 
-	 * Throws a FileNotFoundException if mutants.log does not exist.
-	 * 
-	 * @return the mutants.log file
-	 * @throws FileNotFoundException
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#getMutantsLogFile()
 	 */
+	@Override
 	public File getMutantsLogFile() throws FileNotFoundException {
 		String mutantsLogPathname = mutantsLogDirectory.getAbsolutePath() + FILE_SEPARATOR + 
 									"mutants.log";
@@ -217,15 +204,10 @@ public class Major {
 		return mutantsLog;
 	}
 	
-	/**
-	 * Parses mutants.log into an ArrayList of strings. The i-th string in the ArrayList
-	 * is the i-th line in mutants.log. Returns the ArrayList.
-	 * 
-	 * Throws a FileNotFoundException if mutants.log does not exist.
-	 * 
-	 * @return the mutants.log file parsed as an ArrayList<String>
-	 * @throws FileNotFoundException
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#getMutantsLog()
 	 */
+	@Override
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
 		File mutantsLog = this.getMutantsLogFile();
 		Scanner scanner = new Scanner(mutantsLog);
@@ -238,22 +220,18 @@ public class Major {
 		return log;
 	}
 	
-	/**
-	 * Returns the export directory of mutants.log.
-	 * 
-	 * @return the directory to which the mutants.log file is exported
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#getMutantsLogDirectory()
 	 */
+	@Override
 	public File getMutantsLogDirectory() {
 		return mutantsLogDirectory;
 	}
 	
-	/**
-	 * Sets the mutants.log directory to the given directory.
-	 * 
-	 * An IllegalArgumentException is thrown if the given directory is null.
-	 * 
-	 * @param directory the directory to which the mutants.log file will be exported
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#setMutantsLogDirectory(java.io.File)
 	 */
+	@Override
 	public void setMutantsLogDirectory(File directory) {
 		if(directory == null) throw new IllegalArgumentException("directory cannot be null");
 		mutantsLogDirectory = directory;
@@ -330,52 +308,44 @@ public class Major {
 		return Integer.parseInt(lineNoStr);
 	}
 	
-	/**
-	 * Returns the timeout factor in seconds for test runtime. 
-	 * 
-	 * @return the timeout factor in seconds for test runtime
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#getTimeoutFactor()
 	 */
+	@Override
 	public int getTimeoutFactor() {
 		return timeoutFactor;
 	}
 
-	/**
-	 * Sets the timeout factor for test runtime. 
-	 * 
-	 * @param timeoutFactor the amount of time in seconds to which the timeout factor will be set
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#setTimeoutFactor(int)
 	 */
+	@Override
 	public void setTimeoutFactor(int timeoutFactor) {
 		this.timeoutFactor = timeoutFactor;
 		System.setProperty("timeoutFactor", String.valueOf(this.timeoutFactor));
 	}
 
-	/**
-	 * Returns the directory in which the compiled mutated .class files get stored. 
-	 * 
-	 * @return the bin directory
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#getBinDirectory()
 	 */
+	@Override
 	public File getBinDirectory() {
 		return binDirectory;
 	}
 
-	/**
-	 * Sets the bin directory to the given directory. 
-	 * Compiled mutated .class files will be stored here. 
-	 * 
-	 * An IllegalArgumentException is thrown if the given directory is null.
-	 * 
-	 * @param binDirectory the directory to be used as the bin directory
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#setBinDirectory(java.io.File)
 	 */
+	@Override
 	public void setBinDirectory(File binDirectory) {
 		if(binDirectory == null) throw new IllegalArgumentException("bin directory cannot be null");
 		this.binDirectory = binDirectory;
 	}
 	
-	/**
-	 * Returns the number of generated mutants. 
-	 * 
-	 * @return the number of generated mutants
+	/* (non-Javadoc)
+	 * @see mutator.MutantAnalyzer#getNumberOfMutants()
 	 */
+	@Override
 	public int getNumberOfMutants() {
 		return this.numMutants;
 	}

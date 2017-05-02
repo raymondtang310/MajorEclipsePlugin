@@ -3,7 +3,7 @@ package org.rayzor.mutantview;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import mutator.Major;
+import mutator.Mutator;
 
 /**
  * Provides the mutant IDs to be listed in the view.
@@ -14,7 +14,7 @@ import mutator.Major;
 public class MutantIDProvider implements IStructuredContentProvider {
 	
 	// Major object which contains information about mutants and tests for some java file
-	private Major m;
+	private Mutator m;
 	
 	/**
 	 * Takes in a Major object which contains information
@@ -22,7 +22,7 @@ public class MutantIDProvider implements IStructuredContentProvider {
 	 * 
 	 * @param m a Major object
 	 */
-	public void setMajorObect(Major m) {
+	public void setMajorObect(Mutator m) {
 		this.m = m;
 	}
 	

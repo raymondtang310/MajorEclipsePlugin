@@ -13,7 +13,22 @@ public interface Mutator {
 	 * @return true for success and false otherwise
 	 */
 	boolean mutate();
+	
+	/**
+	 * Returns the java file that is being mutated by this mutator.
+	 * 
+	 * @return the java file that is being mutated by this mutator
+	 */
+	File getJavaFile();
 
+	/**
+	 * Returns the fully qualified name of the java file being mutated by this mutator.
+	 * 
+	 * @return the fully qualified name of the java file being mutated by this mutator
+	 */
+	String getFullyQualifiedName();
+
+	
 	/**
 	 * Returns true if the option to generate mutant source files is set to true.
 	 * Returns false otherwise.

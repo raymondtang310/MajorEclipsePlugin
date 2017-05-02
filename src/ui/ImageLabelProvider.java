@@ -19,13 +19,13 @@ import mutator.MajorMutator;
  */
 public class ImageLabelProvider extends LabelProvider implements ITableLabelProvider {
 	
-	// Major object which contains information about mutants and tests for some java file
+	// Mutator which contains information about mutants and tests for some java file
 	private MajorMutator m;
 		
 	/**
-	 * Sets the Major object for this LabelProvider to use. 
+	 * Sets the mutator for this LabelProvider to use. 
 	 * 
-	 * @param m a Major object
+	 * @param m a mutator
 	 */
 	public void setMajorObject(MajorMutator m) {
 		this.m = m;

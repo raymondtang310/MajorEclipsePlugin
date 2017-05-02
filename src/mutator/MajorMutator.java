@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -29,7 +28,6 @@ import com.sun.tools.javac.api.JavacTool;
 import analyzer.Outcome;
 import analyzer.TestMethod;
 import analyzer.WorkOrder;
-import eclipseFacade.EclipseNavigator;
 import major.mutation.Config;
 import util.TestFinder;
 
@@ -105,7 +103,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#mutate()
+	 * @see mutator.Mutator#mutate()
 	 */
 	@Override
 	public boolean mutate() {
@@ -158,7 +156,23 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#isExportMutants()
+	 * @see mutator.Mutator#getJavaFile()
+	 */
+	@Override
+	public File getJavaFile() {
+		return javaFile;
+	}
+	
+	/* (non-Javadoc)
+	 * @see mutator.Mutator#getJavaFile()
+	 */
+	@Override
+	public String getFullyQualifiedName() {
+		return fullyQualifiedName;
+	}
+	
+	/* (non-Javadoc)
+	 * @see mutator.Mutator#isExportMutants()
 	 */
 	@Override
 	public boolean isExportMutants() {
@@ -166,7 +180,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#setExportMutants(boolean)
+	 * @see mutator.Mutator#setExportMutants(boolean)
 	 */
 	@Override
 	public void setExportMutants(boolean exportMutants) {
@@ -175,7 +189,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#getExportDirectory()
+	 * @see mutator.Mutator#getExportDirectory()
 	 */
 	@Override
 	public File getExportDirectory() {
@@ -183,7 +197,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#setExportDirectory(java.io.File)
+	 * @see mutator.Mutator#setExportDirectory(java.io.File)
 	 */
 	@Override
 	public void setExportDirectory(File directory) {
@@ -193,7 +207,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#getMutantsLogFile()
+	 * @see mutator.Mutator#getMutantsLogFile()
 	 */
 	@Override
 	public File getMutantsLogFile() throws FileNotFoundException {
@@ -205,7 +219,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#getMutantsLog()
+	 * @see mutator.Mutator#getMutantsLog()
 	 */
 	@Override
 	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
@@ -221,7 +235,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#getMutantsLogDirectory()
+	 * @see mutator.Mutator#getMutantsLogDirectory()
 	 */
 	@Override
 	public File getMutantsLogDirectory() {
@@ -229,7 +243,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#setMutantsLogDirectory(java.io.File)
+	 * @see mutator.Mutator#setMutantsLogDirectory(java.io.File)
 	 */
 	@Override
 	public void setMutantsLogDirectory(File directory) {
@@ -237,79 +251,8 @@ public class MajorMutator implements Mutator {
 		mutantsLogDirectory = directory;
 	}
 	
-	/**
-	 * Highlights the line in the source file in which the mutant corresponding 
-	 * with the given ID occurs. The given ID (mutantID) is the number of the line
-	 * in mutants.log detailing the desired mutant
-	 * 
-	 * @param mutantID the ID of the mutant to highlight
-	 * @return true for success, false otherwise
-	 */
-	public boolean highlightMutantInSource(int mutantID) {
-		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
-		try {
-			ArrayList<String> log = this.getMutantsLog();
-			if(mutantID <= 0 || mutantID > log.size()) return false;
-			String logLine = log.get(mutantID - 1);
-			int mutantLineNumber = this.getMutantLineNumber(logLine);
-			return EclipseNavigator.highlightLine(javaFile, mutantLineNumber);
-		} catch (FileNotFoundException e) {
-			return false;
-		}
-	}
-	
-	/**
-	 * Highlights the line in the mutated source file in which the mutant corresponding 
-	 * with the given ID is located. The given ID (mutantID) is the number of the line
-	 * in mutants.log detailing the desired mutant
-	 * 
-	 * @param mutantID the ID of the mutant to highlight
-	 * @return true for success, false otherwise
-	 */
-	public boolean highlightMutantInMutatedSource(int mutantID) {
-		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
-		try {
-			ArrayList<String> log = this.getMutantsLog();
-			if(mutantID <= 0 || mutantID > log.size()) return false;
-			String logLine = log.get(mutantID - 1);
-			String fullyQualifiedPath = this.fullyQualifiedName.replace('.', FILE_SEPARATOR);
-			// Here we assume a particular file system structure for finding mutated source files
-			// E.g., for mutant 5, its file path should be exportDirectory/5/packageName/sourceFileName
-			String mutatedFileLocation = exportDirectory.getAbsolutePath() + FILE_SEPARATOR +
-										 String.valueOf(mutantID) + 
-										 FILE_SEPARATOR + fullyQualifiedPath + ".java";
-			File mutatedFile = new File(mutatedFileLocation);
-			int mutantLineNumber = this.getMutantLineNumber(logLine);
-			return EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
-		} catch (FileNotFoundException e) {
-			return false;
-		}
-	}
-	
-	/**
-	 * Returns the number of the source file line on which the mutant corresponding
-	 * with the given mutants.log line occurs. 
-	 * 
-	 * An IllegalArgumentException is thrown if the given log line is null.
-	 * 
-	 * @param logLine a line in mutants.log
-	 * @return the number of the source file line on which the mutant corresponding
-	 * 		   with the given mutants.log line occurs
-	 */
-	private int getMutantLineNumber(String logLine) {
-		// For any given line in mutants.log, the number of the source file line
-		// on which the mutant occurs is the number just before the last colon
-		if(logLine == null) throw new IllegalArgumentException("logLine cannot be null");
-		String reverseLine = new StringBuilder(logLine).reverse().toString();
-		StringTokenizer tokenizer = new StringTokenizer(reverseLine);
-		tokenizer.nextToken(":");
-		String reversedLineNoStr = tokenizer.nextToken(":");
-		String lineNoStr = new StringBuilder(reversedLineNoStr).reverse().toString();
-		return Integer.parseInt(lineNoStr);
-	}
-	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#getTimeoutFactor()
+	 * @see mutator.Mutator#getTimeoutFactor()
 	 */
 	@Override
 	public int getTimeoutFactor() {
@@ -317,7 +260,7 @@ public class MajorMutator implements Mutator {
 	}
 
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#setTimeoutFactor(int)
+	 * @see mutator.Mutator#setTimeoutFactor(int)
 	 */
 	@Override
 	public void setTimeoutFactor(int timeoutFactor) {
@@ -326,7 +269,7 @@ public class MajorMutator implements Mutator {
 	}
 
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#getBinDirectory()
+	 * @see mutator.Mutator#getBinDirectory()
 	 */
 	@Override
 	public File getBinDirectory() {
@@ -334,7 +277,7 @@ public class MajorMutator implements Mutator {
 	}
 
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#setBinDirectory(java.io.File)
+	 * @see mutator.Mutator#setBinDirectory(java.io.File)
 	 */
 	@Override
 	public void setBinDirectory(File binDirectory) {
@@ -343,7 +286,7 @@ public class MajorMutator implements Mutator {
 	}
 	
 	/* (non-Javadoc)
-	 * @see mutator.MutantAnalyzer#getNumberOfMutants()
+	 * @see mutator.Mutator#getNumberOfMutants()
 	 */
 	@Override
 	public int getNumberOfMutants() {

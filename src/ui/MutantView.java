@@ -67,7 +67,7 @@ public class MutantView extends ViewPart {
 	private Action sortUncoveredFirst;
 	private Action sortIDAsc;
 	private Action doubleClickAction;
-	// Major object which contains information about mutants and tests for some java file
+	// Mutator which contains information about mutants and tests for some java file
 	private MajorMutator m = null;
 
 	/**
@@ -201,7 +201,8 @@ public class MutantView extends ViewPart {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
-				m.highlightMutantInSource(mutantID);
+				MutantHighlighter highlighter = new MutantHighlighter(m);
+				highlighter.highlightMutantInSource(mutantID);
 			}
 		};
 		highlightMutantInSource.setText("Highlight Mutant in Source File");		
@@ -215,7 +216,8 @@ public class MutantView extends ViewPart {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
-				m.highlightMutantInMutatedSource(mutantID);
+				MutantHighlighter highlighter = new MutantHighlighter(m);
+				highlighter.highlightMutantInMutatedSource(mutantID);
 			}
 		};
 		highlightMutantInMutatedSource.setText("Highlight Mutant in Mutated Source File");		
@@ -287,7 +289,8 @@ public class MutantView extends ViewPart {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
-				m.highlightMutantInSource(mutantID);
+				MutantHighlighter highlighter = new MutantHighlighter(m);
+				highlighter.highlightMutantInSource(mutantID);
 			}
 		};
 	}
@@ -323,14 +326,14 @@ public class MutantView extends ViewPart {
 	}
 	
 	/**
-	 * Provides Major object to this view. 
+	 * Provides mutator to this view. 
 	 * 
-	 * Throws an IllegalArgumentException if the given Major object is null.
+	 * Throws an IllegalArgumentException if the given mutator is null.
 	 * 
-	 * @param m Major object
+	 * @param m a mutator
 	 */
 	public void setMajorObject(MajorMutator m) {
-		if(m == null) throw new IllegalArgumentException("Major object cannot be null");
+		if(m == null) throw new IllegalArgumentException("Mutator cannot be null");
 		this.m = m;
 		mutantIDProvider.setMajorObect(m);
 		imageLabelProvider.setMajorObject(m);

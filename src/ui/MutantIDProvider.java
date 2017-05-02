@@ -13,14 +13,14 @@ import mutator.Mutator;
  */
 public class MutantIDProvider implements IStructuredContentProvider {
 	
-	// Major object which contains information about mutants and tests for some java file
+	// Mutator which contains information about mutants and tests for some java file
 	private Mutator m;
 	
 	/**
-	 * Takes in a Major object which contains information
+	 * Takes in a mutator which contains information
 	 * about mutants and tests for some java file.
 	 * 
-	 * @param m a Major object
+	 * @param m a mutator
 	 */
 	public void setMajorObect(Mutator m) {
 		this.m = m;

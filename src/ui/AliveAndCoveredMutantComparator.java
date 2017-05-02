@@ -14,16 +14,16 @@ import mutator.MajorMutator;
  */
 public class AliveAndCoveredMutantComparator extends MutantIDComparator {
 
-	// Major object which contains information about mutants and tests for some java file
+	// Mutator which contains information about mutants and tests for some java file
 	private MajorMutator m;
 		
 	/**
-	 * Sets the Major object for this comparator to use. 
+	 * Sets the mutator for this comparator to use. 
 	 * 
-	 * @param m a Major object
+	 * @param m a mutator
 	 */
 	public void setMajorObject(MajorMutator m) {
-		if(m == null) throw new IllegalArgumentException("Major object cannot be null");
+		if(m == null) throw new IllegalArgumentException("Mutator cannot be null");
 		this.m = m;
 	}
 	

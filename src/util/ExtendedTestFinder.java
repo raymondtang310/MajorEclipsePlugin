@@ -1,9 +1,11 @@
-package killmap;
+package util;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import analyzer.TestMethod;
 
 /**
  * This class acts an extension to TestFinder.java, 

@@ -26,12 +26,12 @@ import org.junit.runner.Result;
 
 import com.sun.tools.javac.api.JavacTool;
 
+import analyzer.Outcome;
+import analyzer.TestMethod;
+import analyzer.WorkOrder;
 import eclipseFacade.EclipseNavigator;
-import killmap.Outcome;
-import killmap.TestFinder;
-import killmap.TestMethod;
-import killmap.WorkOrder;
 import major.mutation.Config;
+import util.TestFinder;
 
 /**
  * Given a java file, a Major object provides functionality such as compiling

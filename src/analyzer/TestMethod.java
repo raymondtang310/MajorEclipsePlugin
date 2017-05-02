@@ -1,5 +1,5 @@
 
-package killmap;
+package analyzer;
 
 /**
  * A TestMethod object represents a JUnit test. This stores information on a test method's name and test class. 

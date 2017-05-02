@@ -4,7 +4,7 @@
  * and, given a list of test-classes, can return all test-methods therein.
  */
 
-package killmap;
+package util;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,6 +16,8 @@ import java.nio.charset.Charset;
 
 import org.junit.runner.Description;
 import org.junit.runner.Request;
+
+import analyzer.TestMethod;
 
 import java.io.IOException;
 

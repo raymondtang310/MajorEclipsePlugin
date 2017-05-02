@@ -1,4 +1,4 @@
-package killmap;
+package analyzer;
 
 /**
  * A WorkOrder is a wrapper for a mutant and a test.

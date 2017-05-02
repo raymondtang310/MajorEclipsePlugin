@@ -1,4 +1,4 @@
-package killmap;
+package analyzer;
 
 /**
  * An Outcome refers to whether a mutant is killed or not by a test. If a test kills a mutant,

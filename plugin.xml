@@ -18,7 +18,7 @@
          <action
                label="&amp;Mutate"
                icon="icons/logo.jpg"
-               class="org.rayzor.mutant.actions.MutantAction"
+               class="ui.MutantAction"
                tooltip="Mutate"
                menubarPath="mutantMenu/mutantGroup"
                toolbarPath="mutantGroup"
@@ -37,7 +37,7 @@
             name="Mutants"
             icon="icons/logo.jpg"
             category="org.rayzor.mutantView"
-            class="org.rayzor.mutantview.MutantView"
+            class="ui.MutantView"
             id="org.rayzor.mutantview.views.MutantView">
       </view>
    </extension>

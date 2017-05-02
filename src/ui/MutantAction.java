@@ -1,4 +1,4 @@
-package org.rayzor.mutant.actions;
+package ui;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.rayzor.mutantview.MutantView;
 
 import eclipseFacade.EclipseNavigator;
 import eclipseFacade.JavaFileNotSelectedException;

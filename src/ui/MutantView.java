@@ -1,4 +1,4 @@
-package org.rayzor.mutantview;
+package ui;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;

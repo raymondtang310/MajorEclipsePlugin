@@ -1,4 +1,4 @@
-package mutator;
+package eclipseFacade;
 
 public class JavaFileNotSelectedException extends Exception {
 

@@ -1,4 +1,4 @@
-package mutator;
+package eclipseFacade;
 
 public class SelectionNotAdaptableException extends Exception {
 

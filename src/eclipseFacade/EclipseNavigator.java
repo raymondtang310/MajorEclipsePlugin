@@ -27,9 +27,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import mutator.JavaFileNotSelectedException;
-import mutator.SelectionNotAdaptableException;
-
 /**
  * This class provides functionality such as retrieving selection locations and highlighting lines
  * in a file. 

@@ -8,6 +8,13 @@ import java.util.StringTokenizer;
 import eclipseFacade.EclipseNavigator;
 import mutator.Mutator;
 
+/**
+ * Given a mutator, a MutantHighlighter provides methods to highlight
+ * a mutant in its source file as well as its mutated source file.
+ * 
+ * @author Raymond Tang
+ *
+ */
 public class MutantHighlighter {
 	// File separator. Differs depending on operating system
 	private static final char FILE_SEPARATOR = File.separatorChar;

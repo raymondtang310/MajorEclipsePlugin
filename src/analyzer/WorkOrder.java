@@ -11,13 +11,13 @@ package analyzer;
  *
  */
 public class WorkOrder implements Comparable<WorkOrder> {
-	// The ID of the mutant
-	private int mutantID;
+	// The mutant
+	private Mutant mutant;
 	// The test method
 	private TestMethod testMethod;
 	
-	public WorkOrder(int mutantID, TestMethod testMethod) {
-		this.mutantID = mutantID;
+	public WorkOrder(Mutant mutant, TestMethod testMethod) {
+		this.mutant = mutant;
 		this.testMethod = testMethod;
 	}
 
@@ -26,8 +26,8 @@ public class WorkOrder implements Comparable<WorkOrder> {
 	 * 
 	 * @return the mutant's ID
 	 */
-	public int getMutantID() {
-		return mutantID;
+	public Mutant getMutant() {
+		return mutant;
 	}
 
 	/**
@@ -55,8 +55,10 @@ public class WorkOrder implements Comparable<WorkOrder> {
 	 */
 	@Override
 	public int compareTo(WorkOrder workOrder) {
-		if(this.mutantID < workOrder.getMutantID()) return -1;
-		if(this.mutantID > workOrder.getMutantID()) return 1;
+		int thisMutantID = mutant.getID();
+		int otherMutantId = workOrder.getMutant().getID();
+		if(thisMutantID < otherMutantId) return -1;
+		if(thisMutantID > otherMutantId) return 1;
 		return this.testMethod.compareTo(workOrder.getTestMethod());
 	}
 	

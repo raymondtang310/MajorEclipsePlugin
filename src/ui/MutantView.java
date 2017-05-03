@@ -24,7 +24,8 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import mutator.MajorMutator;
+import analyzer.KillMatrix;
+import mutator.Mutator;
 
 
 /**
@@ -67,8 +68,10 @@ public class MutantView extends ViewPart {
 	private Action sortUncoveredFirst;
 	private Action sortIDAsc;
 	private Action doubleClickAction;
-	// Mutator which contains information about mutants and tests for some java file
-	private MajorMutator m = null;
+	// Mutator which contains information about mutants for some java file
+	private Mutator m = null;
+	// KillMatrix which contains information about tests and mutants
+	private KillMatrix k = null;
 
 	/**
 	 * The constructor.
@@ -228,7 +231,7 @@ public class MutantView extends ViewPart {
 		sortKilledFirst = new Action() {
 			public void run() {
 				KilledMutantComparator comparator = new KilledMutantComparator();
-				comparator.setMajorObject(m);
+				comparator.setKillMatrix(k);
 				viewer.setComparator(comparator);
 			}
 		};
@@ -243,7 +246,7 @@ public class MutantView extends ViewPart {
 		sortAliveAndCoveredFirst = new Action() {
 			public void run() {
 				AliveAndCoveredMutantComparator comparator = new AliveAndCoveredMutantComparator();
-				comparator.setMajorObject(m);
+				comparator.setKillMatrix(k);
 				viewer.setComparator(comparator);
 			}
 		};
@@ -258,7 +261,7 @@ public class MutantView extends ViewPart {
 		sortUncoveredFirst = new Action() {
 			public void run() {
 				UncoveredMutantComparator comparator = new UncoveredMutantComparator();
-				comparator.setMajorObject(m);
+				comparator.setKillMatrix(k);
 				viewer.setComparator(comparator);
 			}
 		};
@@ -326,17 +329,16 @@ public class MutantView extends ViewPart {
 	}
 	
 	/**
-	 * Provides mutator to this view. 
-	 * 
-	 * Throws an IllegalArgumentException if the given mutator is null.
+	 * Provides mutator and kill matrix to this view. 
 	 * 
 	 * @param m a mutator
+	 * @param k a KillMatrix
 	 */
-	public void setMajorObject(MajorMutator m) {
-		if(m == null) throw new IllegalArgumentException("Mutator cannot be null");
+	public void setInput(Mutator m, KillMatrix k) {
 		this.m = m;
-		mutantIDProvider.setMajorObect(m);
-		imageLabelProvider.setMajorObject(m);
+		this.k = k;
+		mutantIDProvider.setMutator(m);
+		imageLabelProvider.setKillMatrix(k);
 		viewer.setContentProvider(mutantIDProvider);
 		viewer.setLabelProvider(imageLabelProvider);
 	}

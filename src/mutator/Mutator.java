@@ -26,8 +26,14 @@ public interface Mutator {
 	 * 
 	 * @return the fully qualified name of the java file being mutated by this mutator
 	 */
-	String getFullyQualifiedName();
+	String getFullyQualifiedNameOfJavaFile();
 
+	/**
+	 * Returns the location of the java file's project as a pathname string.
+	 * 
+	 * @return the location of the java file's project
+	 */
+	String getProjectLocationOfJavaFile();
 	
 	/**
 	 * Returns true if the option to generate mutant source files is set to true.

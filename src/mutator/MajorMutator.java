@@ -3,33 +3,16 @@ package mutator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.tools.JavaCompiler;
 
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Request;
-import org.junit.runner.Result;
-
 import com.sun.tools.javac.api.JavacTool;
-
-import analyzer.Outcome;
-import analyzer.TestMethod;
-import analyzer.WorkOrder;
-import major.mutation.Config;
-import util.TestFinder;
 
 /**
  * Given a java file, this mutator provides functionality such as compiling
@@ -60,10 +43,6 @@ public class MajorMutator implements Mutator {
 	private int timeoutFactor;
 	// Number of generated mutants
 	private int numMutants;
-	// The most recently computed kill matrix
-	private int[][] killMatrix;
-	// Set of covered mutants
-	private Set<Integer> coveredMutants;
 	
 	/**
 	 * By default, mutant source files are not generated. If the option to generate mutant source
@@ -97,8 +76,6 @@ public class MajorMutator implements Mutator {
 		setExportDirectory(exportDirectory);
 		setTimeoutFactor(8);
 		numMutants = 0;
-		killMatrix = null;
-		coveredMutants = new TreeSet<Integer>();
 	}
 	
 	/* (non-Javadoc)
@@ -166,8 +143,16 @@ public class MajorMutator implements Mutator {
 	 * @see mutator.Mutator#getJavaFile()
 	 */
 	@Override
-	public String getFullyQualifiedName() {
+	public String getFullyQualifiedNameOfJavaFile() {
 		return fullyQualifiedName;
+	}
+	
+	/* (non-Javadoc)
+	 * @see mutator.Mutator#getProjectLocation()
+	 */
+	@Override
+	public String getProjectLocationOfJavaFile() {
+		return projectLocation;
 	}
 	
 	/* (non-Javadoc)
@@ -290,197 +275,6 @@ public class MajorMutator implements Mutator {
 	@Override
 	public int getNumberOfMutants() {
 		return this.numMutants;
-	}
-	
-	/**
-	 * Generates and returns a kill map. 
-	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
-	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
-	 * 
-	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
-	 * 
-	 * @param testClasses classes containing tests to run against the given java program
-	 * @return a map between WorkOrders and Outcomes, detailing the Outcome (KILLED or ALIVE) 
-	 * 		   of a WorkOrder (a mutant and a test). Returns an empty map object if there are 
-	 * 		   no mutants generated or if there are no test methods in the given test class. 
-	 */
-	public Map<WorkOrder, Outcome> getKillMap(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
-		this.coveredMutants.clear();
-		Collection<TestMethod> testMethods = TestFinder.getTestMethods(testClasses);
-		Map<WorkOrder, Outcome> killMap = new TreeMap<WorkOrder, Outcome>();
-		for(TestMethod test : testMethods) {
-			Config.__M_NO = 0;
-			JUnitCore core = new JUnitCore();
-			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
-			boolean originalResult = original.wasSuccessful();
-			List<Integer> coveredMutants = Config.getCoverageList();
-			this.coveredMutants.addAll(coveredMutants);
-			Config.reset();
-			for(int mutantID = 1; mutantID <= this.numMutants; mutantID++) {
-				WorkOrder workOrder = new WorkOrder(mutantID, test);
-				Outcome outcome;
-				if(coveredMutants.contains(mutantID)) {
-					Config.__M_NO = mutantID;
-					Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
-					boolean newResult = resultWithMutant.wasSuccessful();
-					if(newResult == originalResult) outcome = Outcome.ALIVE;
-					else outcome = Outcome.KILLED;
-				}
-				else outcome = Outcome.ALIVE;
-				killMap.put(workOrder, outcome);
-			}
-		}
-		return killMap;
-	}
-	
-	/**
-	 * Generates and prints out a kill map. 
-	 * The mapping is between a WorkOrder (a mutant and a test) and an Outcome 
-	 * (KILLED if the test killed the mutant, or ALIVE if the test did not kill the mutant). 
-	 * 
-	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
-	 * 
-	 * @param testClasses classes containing tests to run against the given java program
-	 */
-	public void printKillMap(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
-		Map<WorkOrder, Outcome> killMap = this.getKillMap(testClasses);
-		if(killMap.isEmpty()) return;
-		for(Map.Entry<WorkOrder, Outcome> entry : killMap.entrySet()) {
-			WorkOrder workOrder = entry.getKey();
-			int mutantID = workOrder.getMutantID();
-			String testName = workOrder.getTestMethod().getName();
-			Outcome outcome = entry.getValue();
-			System.out.println("Mutant# " + mutantID + ", Test: " + testName + ", Outcome: " + outcome);
-		}
-	}
-	
-	/**
-	 * Generates and returns a kill matrix, represented as an array of integer arrays.
-	 * The rows of the matrix represent mutants, and the columns represent tests.
-	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j
-	 * did not kill mutant i. The rows (mutants) are sorted (ascending) by mutantIDs.
-	 * The columns (tests) are sorted by name.
-	 * 
-	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
-	 * 
-	 * @param testClasses classes containing tests to run against the given java program
-	 * @return a kill matrix, represented as a two dimensional integer array, 
-	 * 		   where the rows represent mutants and the columns represent tests. 
-	 * 		   Returns an empty int[][] if there are no mutants generated or if there are no test 
-	 *		   methods in the given test class. 
-	 */
-	public int[][] getKillMatrix(Collection<Class<?>> testClasses) {
-		this.coveredMutants.clear();
-		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
-		Collection<TestMethod> testMethodsCollection = TestFinder.getTestMethods(testClasses);
-		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
-		int numTests = testMethods.size();
-		if(numMutants == 0 || numTests == 0) return new int[0][0];
-		int[][] killMatrix = new int[numMutants][numTests];
-		for(int i = 0; i < numTests; i++) {
-			TestMethod test = testMethods.get(i);
-			Config.__M_NO = 0;
-			JUnitCore core = new JUnitCore();
-			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
-			boolean originalResult = original.wasSuccessful();
-			List<Integer> coveredMutants = Config.getCoverageList();
-			this.coveredMutants.addAll(coveredMutants);
-			Config.reset();
-			for(Integer coveredMutant : coveredMutants) {
-				int mutantID = coveredMutant.intValue();
-				Config.__M_NO = mutantID;
-				Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
-				boolean newResult = resultWithMutant.wasSuccessful();
-				if(newResult != originalResult) killMatrix[mutantID - 1][i] = 1;
-			}
-		}
-		this.killMatrix = killMatrix;
-		return killMatrix;
-	}
-	
-	/**
-	 * Generates a CSV file, providing details on whether or not the
-	 * provided tests killed the mutants. The CSV file is named killMatrix.csv
-	 * and is stored in the current project directory.
-	 * 
-	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
-	 * 
-	 * @param testClasses classes containing tests to run against the given java program
-	 * @return true for success, false otherwise
-	 */
-	public boolean createKillMatrixCSV(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
-		int[][] killMatrix = this.getKillMatrix(testClasses);
-		if(killMatrix.length == 0) return false;
-		String fileName = projectLocation + FILE_SEPARATOR + "killMatrix.csv";
-		char csvSeparator = ',';
-		Collection<TestMethod> tests = TestFinder.getTestMethods(testClasses);
-		int numTests = tests.size();
-		try {
-			PrintWriter writer = new PrintWriter(fileName);
-			writer.print("Mutant#");
-			for(TestMethod test : tests) writer.print(csvSeparator + test.getName());
-			writer.println();
-			for(int i = 0; i < numMutants; i++) {
-				int mutantID = i + 1;
-				writer.print(mutantID);
-				for(int j = 0; j < numTests; j++) writer.print("" + csvSeparator + killMatrix[i][j]);
-				writer.println();
-			}
-			writer.close();
-			return true;
-		} catch (FileNotFoundException e) {
-			return false;
-		}
-	}
-	
-	/**
-	 * Generates and prints out a kill matrix, represented as an array of integer arrays. 
-	 * The rows of the matrix represent mutants, and the columns represent tests. 
-	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j
-	 * did not kill mutant i. The rows (mutants) are sorted (ascending) by mutantIDs.
-	 * The columns (tests) are sorted by name. 
-	 * 
-	 * An IllegalArgumentException is thrown if the given collection of test classes is null.
-	 * 
-	 * @param testClasses classes containing tests to run against the given java program
-	 */
-	public void printKillMatrix(Collection<Class<?>> testClasses) {
-		if(testClasses == null) throw new IllegalArgumentException("test classes cannot be null");
-		int[][] killMatrix = this.getKillMatrix(testClasses);
-		for(int i = 0; i < killMatrix.length; i++) {
-			for(int j = 0; j < killMatrix[i].length; j++) {
-				System.out.print(killMatrix[i][j] + " ");
-			}
-			System.out.println();
-		}
-	}
-	
-	/**
-	 * Returns true if the given mutant is killed by some test. Returns false otherwise. 
-	 * 
-	 * @param mutantID the ID of the mutant
-	 * @return true if the mutant is killed, false otherwise
-	 */
-	public boolean isMutantKilled(int mutantID) {
-		if(killMatrix == null || mutantID <= 0 || mutantID > killMatrix.length) return false;
-		int[] tests = killMatrix[mutantID - 1];
-		for(int j = 0; j < tests.length; j++) {
-			if(tests[j] == 1) return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns true if the given mutant is covered by some test. Returns false otherwise. 
-	 * 
-	 * @param mutantID the ID of the mutant
-	 * @return true if the mutant is covered, false otherwise
-	 */
-	public boolean isMutantCovered(int mutantID) {
-		return coveredMutants.contains(mutantID);
 	}
 	
 }

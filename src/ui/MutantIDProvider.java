@@ -22,7 +22,7 @@ public class MutantIDProvider implements IStructuredContentProvider {
 	 * 
 	 * @param m a mutator
 	 */
-	public void setMajorObect(Mutator m) {
+	public void setMutator(Mutator m) {
 		this.m = m;
 	}
 	

@@ -2,7 +2,7 @@ package ui;
 
 import org.eclipse.jface.viewers.Viewer;
 
-import mutator.MajorMutator;
+import analyzer.KillMatrix;
 
 /**
  * This comparator is used to sort mutants listed in the view. 
@@ -14,28 +14,28 @@ import mutator.MajorMutator;
  */
 public class UncoveredMutantComparator extends MutantIDComparator {
 
-	// Mutator which contains information about mutants and tests for some java file
-	private MajorMutator m;
+	// KillMatrix which contains information about mutants and tests for some java file
+	private KillMatrix k;
 		
 	/**
-	 * Sets the mutator for this comparator to use. 
+	 * Sets the KillMatrix for this comparator to use. 
 	 * 
-	 * @param m a mutator
+	 * @param k a KillMatrix
 	 */
-	public void setMajorObject(MajorMutator m) {
-		if(m == null) throw new IllegalArgumentException("Mutator cannot be null");
-		this.m = m;
+	public void setKillMatrix(KillMatrix k) {
+		if(k == null) throw new IllegalArgumentException("Mutator cannot be null");
+		this.k = k;
 	}
 	
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		if(!(e1 instanceof Integer && e2 instanceof Integer) || m == null) return super.compare(viewer, e1, e2);
+		if(!(e1 instanceof Integer && e2 instanceof Integer) || k == null) return super.compare(viewer, e1, e2);
 		int e1Int = ((Integer)e1).intValue();
 		int e2Int = ((Integer)e2).intValue();
-		boolean e1Covered = m.isMutantCovered(e1Int);
-		boolean e2Covered = m.isMutantCovered(e2Int);
-		boolean e1Killed = m.isMutantKilled(e1Int);
-		boolean e2Killed = m.isMutantKilled(e2Int);
+		boolean e1Covered = k.isMutantCovered(e1Int);
+		boolean e2Covered = k.isMutantCovered(e2Int);
+		boolean e1Killed = k.isMutantKilled(e1Int);
+		boolean e2Killed = k.isMutantKilled(e2Int);
 		// If mutant e1 is covered and alive and mutant e2 is killed, e1 shows up earlier in the view
 		if(e1Covered && !e1Killed && e2Killed) return -1;
 		// If mutant e1 is covered and alive and mutant e2 is uncovered, e2 shows up earlier in the view

@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import mutator.MajorMutator;
+import analyzer.KillMatrix;
 
 /**
  * Assigns images to items (mutants) listed in the view.
@@ -19,16 +19,16 @@ import mutator.MajorMutator;
  */
 public class ImageLabelProvider extends LabelProvider implements ITableLabelProvider {
 	
-	// Mutator which contains information about mutants and tests for some java file
-	private MajorMutator m;
+	// KillMatrix which contains information about mutants and tests for some java file
+	private KillMatrix k;
 		
 	/**
-	 * Sets the mutator for this LabelProvider to use. 
+	 * Sets the KillMatrix for this LabelProvider to use. 
 	 * 
-	 * @param m a mutator
+	 * @param k a KillMatrix
 	 */
-	public void setMajorObject(MajorMutator m) {
-		this.m = m;
+	public void setKillMatrix(KillMatrix k) {
+		this.k = k;
 	}
 	
 	public String getColumnText(Object obj, int index) {
@@ -40,14 +40,14 @@ public class ImageLabelProvider extends LabelProvider implements ITableLabelProv
 	}
 	
 	public Image getImage(Object obj) {
-		if(m == null) return PlatformUI.getWorkbench().getSharedImages().
-								getImage(ISharedImages.IMG_OBJ_ADD);
+		if(k == null) return PlatformUI.getWorkbench().getSharedImages().
+								getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
 		int mutantID = ((Integer)obj).intValue();
 		// Display green plus sign next to mutant ID if it is killed
-		if(m.isMutantKilled(mutantID)) return PlatformUI.getWorkbench().getSharedImages().
+		if(k.isMutantKilled(mutantID)) return PlatformUI.getWorkbench().getSharedImages().
 													getImage(ISharedImages.IMG_OBJ_ADD);
 		// Display blue circles next to mutant ID if it is covered but alive
-		if(m.isMutantCovered(mutantID)) return PlatformUI.getWorkbench().getSharedImages().
+		if(k.isMutantCovered(mutantID)) return PlatformUI.getWorkbench().getSharedImages().
 													getImage(ISharedImages.IMG_OBJ_ELEMENT);
 		// Display red X next to mutant ID if it is uncovered
 		return PlatformUI.getWorkbench().getSharedImages().

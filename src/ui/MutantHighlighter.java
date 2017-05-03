@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import eclipseFacade.EclipseNavigator;
+import eclipseFacade.EclipseFacade;
 import mutator.Mutator;
 
 /**
@@ -41,7 +41,7 @@ public class MutantHighlighter {
 			if(mutantID <= 0 || mutantID > log.size()) return false;
 			String logLine = log.get(mutantID - 1);
 			int mutantLineNumber = this.getMutantLineNumber(logLine);
-			return EclipseNavigator.highlightLine(mutator.getJavaFile(), mutantLineNumber);
+			return EclipseFacade.highlightLine(mutator.getJavaFile(), mutantLineNumber);
 		} catch (FileNotFoundException e) {
 			return false;
 		}
@@ -62,7 +62,7 @@ public class MutantHighlighter {
 			ArrayList<String> log = mutator.getMutantsLog();
 			if(mutantID <= 0 || mutantID > log.size()) return false;
 			String logLine = log.get(mutantID - 1);
-			String fullyQualifiedPath = mutator.getFullyQualifiedName().replace('.', FILE_SEPARATOR);
+			String fullyQualifiedPath = mutator.getFullyQualifiedNameOfJavaFile().replace('.', FILE_SEPARATOR);
 			// Here we assume a particular file system structure for finding mutated source files
 			// E.g., for mutant 5, its file path should be exportDirectory/5/packageName/sourceFileName
 			String mutatedFileLocation = exportDirectory.getAbsolutePath() + FILE_SEPARATOR +
@@ -70,7 +70,7 @@ public class MutantHighlighter {
 										 FILE_SEPARATOR + fullyQualifiedPath + ".java";
 			File mutatedFile = new File(mutatedFileLocation);
 			int mutantLineNumber = this.getMutantLineNumber(logLine);
-			return EclipseNavigator.highlightLine(mutatedFile, mutantLineNumber);
+			return EclipseFacade.highlightLine(mutatedFile, mutantLineNumber);
 		} catch (FileNotFoundException e) {
 			return false;
 		}

@@ -34,7 +34,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * @author Raymond Tang
  *
  */
-public class EclipseNavigator {
+public class EclipseFacade {
 	
 	// File separator. Differs depending on operating system
 	private static final char FILE_SEPARATOR = File.separatorChar;

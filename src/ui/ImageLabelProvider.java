@@ -6,6 +6,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import analyzer.Mutant;
 import analyzer.MutantAnalyzer;
 
 /**
@@ -42,7 +43,7 @@ public class ImageLabelProvider extends LabelProvider implements ITableLabelProv
 	public Image getImage(Object obj) {
 		if(analyzer == null) return PlatformUI.getWorkbench().getSharedImages().
 								getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
-		int mutantID = ((Integer)obj).intValue();
+		int mutantID = ((Mutant)obj).getID();
 		// Display green plus sign next to mutant ID if it is killed
 		if(analyzer.isMutantKilled(mutantID)) return PlatformUI.getWorkbench().getSharedImages().
 													getImage(ISharedImages.IMG_OBJ_ADD);

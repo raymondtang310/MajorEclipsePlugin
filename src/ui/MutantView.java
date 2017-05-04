@@ -1,7 +1,7 @@
 package ui;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -184,7 +184,7 @@ public class MutantView extends ViewPart {
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
 				try {
-					ArrayList<String> mutantsLog = mutator.getMutantsLog();
+					List<String> mutantsLog = mutator.getMutantsLog();
 					String logLine = mutantsLog.get(mutantID - 1);
 					showMessage(logLine);
 					

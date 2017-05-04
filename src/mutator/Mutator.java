@@ -2,7 +2,9 @@ package mutator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.List;
+
+import analyzer.Mutant;
 
 public interface Mutator {
 
@@ -75,15 +77,15 @@ public interface Mutator {
 	File getMutantsLogFile() throws FileNotFoundException;
 
 	/**
-	 * Parses mutants.log into an ArrayList of strings. The i-th string in the ArrayList
-	 * is the i-th line in mutants.log. Returns the ArrayList.
+	 * Parses mutants.log into a list of strings. The i-th string in the list
+	 * is the i-th line in mutants.log. Returns the list.
 	 * 
 	 * Throws a FileNotFoundException if mutants.log does not exist.
 	 * 
-	 * @return the mutants.log file parsed as an ArrayList<String>
+	 * @return the mutants.log file parsed as an List<String>
 	 * @throws FileNotFoundException
 	 */
-	ArrayList<String> getMutantsLog() throws FileNotFoundException;
+	List<String> getMutantsLog() throws FileNotFoundException;
 
 	/**
 	 * Returns the export directory of mutants.log.
@@ -134,5 +136,13 @@ public interface Mutator {
 	 * @return the number of generated mutants
 	 */
 	int getNumberOfMutants();
+	
+	/**
+	 * Returns a list of the generated mutants.
+	 * Returns an empty list if no mutants are generated.
+	 * 
+	 * @return a list of the generated mutants
+	 */
+	List<Mutant> getMutants();
 
 }

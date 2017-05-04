@@ -8,11 +8,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.tools.JavaCompiler;
 
 import com.sun.tools.javac.api.JavacTool;
+
+import analyzer.Mutant;
 
 /**
  * Given a java file, this mutator provides functionality such as compiling
@@ -206,7 +209,7 @@ public class MajorMutator implements Mutator {
 	 * @see mutator.Mutator#getMutantsLog()
 	 */
 	@Override
-	public ArrayList<String> getMutantsLog() throws FileNotFoundException {
+	public List<String> getMutantsLog() throws FileNotFoundException {
 		File mutantsLog = this.getMutantsLogFile();
 		Scanner scanner = new Scanner(mutantsLog);
 		ArrayList<String> log = new ArrayList<String>();
@@ -275,6 +278,19 @@ public class MajorMutator implements Mutator {
 	@Override
 	public int getNumberOfMutants() {
 		return this.numMutants;
+	}
+
+	/* (non-Javadoc)
+	 * @see mutator.Mutator#getMutants()
+	 */
+	@Override
+	public List<Mutant> getMutants() {
+		List<Mutant> mutants = new ArrayList<Mutant>();
+		for(int mutantID = 1; mutantID <= this.numMutants; mutantID++) {
+			Mutant mutant = new Mutant(mutantID);
+			mutants.add(mutant);
+		}
+		return mutants;
 	}
 	
 }

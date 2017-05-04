@@ -156,7 +156,7 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 	 * @throws ClassNotFoundException
 	 */
 	private static Collection<Class<?>> getTestClasses(String testLocation, ClassLoader urlClassLoader) throws ClassNotFoundException {
-		String[] testClassFilenames = ExtendedTestFinder.getTestClassesFromDirectory(testLocation);
+		String[] testClassFilenames = ExtendedTestFinder.getTestClassPathsFromDirectory(testLocation);
 		Collection<Class<?>> testClasses = new LinkedList<Class<?>>();
 		for(String testClassFilename : testClassFilenames) {
 			String testClassName = FilenameUtils.getBaseName(testClassFilename);

@@ -36,7 +36,7 @@ public class ExtendedTestFinder extends TestFinder {
 	 * @param testLocation the location of the test directory as a pathname string
 	 * @return the pathname strings of all files in the given directory containing test classes
 	 */
-	public static String[] getTestClassesFromDirectory(String testLocation) {
+	public static String[] getTestClassPathsFromDirectory(String testLocation) {
 		File testDirectory = new File(testLocation);
 		return testDirectory.list(new FilenameFilter() {
 			@Override

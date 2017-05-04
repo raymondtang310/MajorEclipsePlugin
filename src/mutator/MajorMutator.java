@@ -18,8 +18,8 @@ import com.sun.tools.javac.api.JavacTool;
 import analyzer.Mutant;
 
 /**
- * Given a java file, this mutator provides functionality such as compiling
- * and generating mutants. 
+ * Given a java file, this Mutator provides functionality such as compiling
+ * and generating mutants using Major.
  * 
  * @author Raymond Tang
  *

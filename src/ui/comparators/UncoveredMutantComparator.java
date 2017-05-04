@@ -24,7 +24,7 @@ public class UncoveredMutantComparator extends MutantIDComparator {
 	 * @param analyzer a MutantAnalyzer
 	 */
 	public void setKillMatrix(MutantAnalyzer analyzer) {
-		if(analyzer == null) throw new IllegalArgumentException("Mutator cannot be null");
+		if(analyzer == null) throw new IllegalArgumentException("MutantAnalyzer cannot be null");
 		this.analyzer = analyzer;
 	}
 	

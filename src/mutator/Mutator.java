@@ -6,6 +6,12 @@ import java.util.List;
 
 import analyzer.Mutant;
 
+/**
+ * A Mutator compiles and generates mutants in a given java file.
+ * 
+ * @author Raymond Tang
+ *
+ */
 public interface Mutator {
 
 	/**

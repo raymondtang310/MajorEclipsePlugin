@@ -80,14 +80,14 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 			String binLocation = EclipseFacade.getBinLocation(fileToMutate.getJavaProject());
 			String testLocation = EclipseFacade.getTestLocation(fileToMutate.getJavaProject());
 			// Generate and compile mutants in the selected java file
-			Mutator m = mutate(fileToMutateLocation, projectLocation, binLocation);
+			Mutator mutator = mutate(fileToMutateLocation, projectLocation, binLocation);
 			// Create a classloader which puts the bin and test directories on the classpath
 			ClassLoader classLoader = configureClassLoader(binLocation, testLocation);
-			// Create KillMatrix
-			MutantAnalyzer k = createKillMatrix(testLocation, classLoader, m);
-			k.exportKillMatrixCSV();
+			// Create MutantAnalyzer
+			MutantAnalyzer analyzer = createKillMatrix(testLocation, classLoader, mutator);
+			analyzer.exportKillMatrixCSV();
 			// Open view
-			openView(m, k);
+			openView(analyzer);
 		} catch (JavaFileNotSelectedException | SelectionNotAdaptableException | JavaModelException | IOException | ClassNotFoundException | PartInitException e) {
 			MessageDialog.openInformation(
 				window.getShell(),
@@ -101,10 +101,10 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 		// Fully qualified name of the file
 		String fullyQualifiedName = getFullyQualifiedName(fileToMutateLocation, projectLocation);
 		// Mutate the java file
-		Mutator m = new MajorMutator(file, fullyQualifiedName, projectLocation, binLocation);
-		m.setExportMutants(true);
-		m.mutate();
-		return m;
+		Mutator mutator = new MajorMutator(file, fullyQualifiedName, projectLocation, binLocation);
+		mutator.setExportMutants(true);
+		mutator.mutate();
+		return mutator;
 	}
 	
 	private ClassLoader configureClassLoader(String binLocation, String testLocation) throws MalformedURLException {
@@ -116,19 +116,19 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 		return urlClassLoader;
 	}
 
-	private MutantAnalyzer createKillMatrix(String testLocation, ClassLoader urlClassLoader, Mutator m) throws ClassNotFoundException {
+	private MutantAnalyzer createKillMatrix(String testLocation, ClassLoader urlClassLoader, Mutator mutator) throws ClassNotFoundException {
 		// Get test classes
 		Collection<Class<?>> testClasses = getTestClasses(testLocation, urlClassLoader);
-		// Create KillMatrix
-		MutantAnalyzer k = new MajorMutantAnalyzer(m, testClasses);
-		return k;
+		// Create MutantAnalyzer
+		MutantAnalyzer analyzer = new MajorMutantAnalyzer(mutator, testClasses);
+		return analyzer;
 	}
 	
-	private void openView(Mutator m, MutantAnalyzer k) throws PartInitException {
+	private void openView(MutantAnalyzer analyzer) throws PartInitException {
 		// Open view
 		String viewId = MutantView.ID;
 		MutantView view = (MutantView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);
-		view.setInput(m, k);
+		view.setMutantAnalyzer(analyzer);
 	}
 	
 	/**

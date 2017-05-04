@@ -14,28 +14,28 @@ import analyzer.MutantAnalyzer;
  */
 public class UncoveredMutantComparator extends MutantIDComparator {
 
-	// KillMatrix which contains information about mutants and tests for some java file
-	private MutantAnalyzer k;
+	// MutantAnalyzer which contains information about mutants and tests for some java file
+	private MutantAnalyzer analyzer;
 		
 	/**
-	 * Sets the KillMatrix for this comparator to use. 
+	 * Sets the MutantAnalyzer for this comparator to use. 
 	 * 
-	 * @param k a KillMatrix
+	 * @param analyzer a MutantAnalyzer
 	 */
-	public void setKillMatrix(MutantAnalyzer k) {
-		if(k == null) throw new IllegalArgumentException("Mutator cannot be null");
-		this.k = k;
+	public void setKillMatrix(MutantAnalyzer analyzer) {
+		if(analyzer == null) throw new IllegalArgumentException("Mutator cannot be null");
+		this.analyzer = analyzer;
 	}
 	
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		if(!(e1 instanceof Integer && e2 instanceof Integer) || k == null) return super.compare(viewer, e1, e2);
+		if(!(e1 instanceof Integer && e2 instanceof Integer) || analyzer == null) return super.compare(viewer, e1, e2);
 		int e1Int = ((Integer)e1).intValue();
 		int e2Int = ((Integer)e2).intValue();
-		boolean e1Covered = k.isMutantCovered(e1Int);
-		boolean e2Covered = k.isMutantCovered(e2Int);
-		boolean e1Killed = k.isMutantKilled(e1Int);
-		boolean e2Killed = k.isMutantKilled(e2Int);
+		boolean e1Covered = analyzer.isMutantCovered(e1Int);
+		boolean e2Covered = analyzer.isMutantCovered(e2Int);
+		boolean e1Killed = analyzer.isMutantKilled(e1Int);
+		boolean e2Killed = analyzer.isMutantKilled(e2Int);
 		// If mutant e1 is covered and alive and mutant e2 is killed, e1 shows up earlier in the view
 		if(e1Covered && !e1Killed && e2Killed) return -1;
 		// If mutant e1 is covered and alive and mutant e2 is uncovered, e2 shows up earlier in the view

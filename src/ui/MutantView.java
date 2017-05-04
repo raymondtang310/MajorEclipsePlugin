@@ -69,9 +69,9 @@ public class MutantView extends ViewPart {
 	private Action sortIDAsc;
 	private Action doubleClickAction;
 	// Mutator which contains information about mutants for some java file
-	private Mutator m = null;
-	// KillMatrix which contains information about tests and mutants
-	private MutantAnalyzer k = null;
+	private Mutator mutator = null;
+	// MutantAnalyzer which contains information about mutants and tests for some java file
+	private MutantAnalyzer analyzer = null;
 
 	/**
 	 * The constructor.
@@ -184,7 +184,7 @@ public class MutantView extends ViewPart {
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
 				try {
-					ArrayList<String> mutantsLog = m.getMutantsLog();
+					ArrayList<String> mutantsLog = mutator.getMutantsLog();
 					String logLine = mutantsLog.get(mutantID - 1);
 					showMessage(logLine);
 					
@@ -204,7 +204,7 @@ public class MutantView extends ViewPart {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
-				MutantHighlighter highlighter = new MutantHighlighter(m);
+				MutantHighlighter highlighter = new MutantHighlighter(mutator);
 				highlighter.highlightMutantInSource(mutantID);
 			}
 		};
@@ -219,7 +219,7 @@ public class MutantView extends ViewPart {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
-				MutantHighlighter highlighter = new MutantHighlighter(m);
+				MutantHighlighter highlighter = new MutantHighlighter(mutator);
 				highlighter.highlightMutantInMutatedSource(mutantID);
 			}
 		};
@@ -231,7 +231,7 @@ public class MutantView extends ViewPart {
 		sortKilledFirst = new Action() {
 			public void run() {
 				KilledMutantComparator comparator = new KilledMutantComparator();
-				comparator.setKillMatrix(k);
+				comparator.setKillMatrix(analyzer);
 				viewer.setComparator(comparator);
 			}
 		};
@@ -246,7 +246,7 @@ public class MutantView extends ViewPart {
 		sortAliveAndCoveredFirst = new Action() {
 			public void run() {
 				AliveAndCoveredMutantComparator comparator = new AliveAndCoveredMutantComparator();
-				comparator.setKillMatrix(k);
+				comparator.setKillMatrix(analyzer);
 				viewer.setComparator(comparator);
 			}
 		};
@@ -261,7 +261,7 @@ public class MutantView extends ViewPart {
 		sortUncoveredFirst = new Action() {
 			public void run() {
 				UncoveredMutantComparator comparator = new UncoveredMutantComparator();
-				comparator.setKillMatrix(k);
+				comparator.setKillMatrix(analyzer);
 				viewer.setComparator(comparator);
 			}
 		};
@@ -292,7 +292,7 @@ public class MutantView extends ViewPart {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
 				int mutantID = ((Integer)obj).intValue();
-				MutantHighlighter highlighter = new MutantHighlighter(m);
+				MutantHighlighter highlighter = new MutantHighlighter(mutator);
 				highlighter.highlightMutantInSource(mutantID);
 			}
 		};
@@ -329,16 +329,15 @@ public class MutantView extends ViewPart {
 	}
 	
 	/**
-	 * Provides mutator and kill matrix to this view. 
+	 * Provides a MutantAnalyzer to this view. 
 	 * 
-	 * @param m a mutator
-	 * @param k a KillMatrix
+	 * @param analyzer a MutantAnalyzer
 	 */
-	public void setInput(Mutator m, MutantAnalyzer k) {
-		this.m = m;
-		this.k = k;
-		mutantIDProvider.setMutator(m);
-		imageLabelProvider.setKillMatrix(k);
+	public void setMutantAnalyzer(MutantAnalyzer analyzer) {
+		this.mutator = analyzer.getMutator();
+		this.analyzer = analyzer;
+		mutantIDProvider.setMutator(mutator);
+		imageLabelProvider.setMutantAnalyzer(this.analyzer);
 		viewer.setContentProvider(mutantIDProvider);
 		viewer.setLabelProvider(imageLabelProvider);
 	}

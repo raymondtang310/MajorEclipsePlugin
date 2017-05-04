@@ -2,7 +2,7 @@ package ui;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import eclipseFacade.EclipseFacade;
@@ -37,7 +37,7 @@ public class MutantHighlighter {
 		File exportDirectory = mutator.getExportDirectory();
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
 		try {
-			ArrayList<String> log = mutator.getMutantsLog();
+			List<String> log = mutator.getMutantsLog();
 			if(mutantID <= 0 || mutantID > log.size()) return false;
 			String logLine = log.get(mutantID - 1);
 			int mutantLineNumber = this.getMutantLineNumber(logLine);
@@ -59,7 +59,7 @@ public class MutantHighlighter {
 		File exportDirectory = mutator.getExportDirectory();
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
 		try {
-			ArrayList<String> log = mutator.getMutantsLog();
+			List<String> log = mutator.getMutantsLog();
 			if(mutantID <= 0 || mutantID > log.size()) return false;
 			String logLine = log.get(mutantID - 1);
 			String fullyQualifiedPath = mutator.getFullyQualifiedNameOfJavaFile().replace('.', FILE_SEPARATOR);

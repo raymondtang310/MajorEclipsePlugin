@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import analyzer.Mutant;
 import eclipseFacade.EclipseFacade;
 import mutator.Mutator;
 
@@ -26,19 +27,20 @@ public class MutantHighlighter {
 	}
 	
 	/**
-	 * Highlights the line in the source file in which the mutant corresponding 
-	 * with the given ID occurs. The given ID (mutantID) is the number of the line
+	 * Highlights the line in the source file in which the given mutant occurs.
+	 * The given mutant's ID is the number of the line
 	 * in mutants.log detailing the desired mutant.
 	 * 
-	 * @param mutantID the ID of the mutant to highlight
+	 * @param mutant the mutant to highlight
 	 * @return true for success, false otherwise
 	 */
-	public boolean highlightMutantInSource(int mutantID) {
+	public boolean highlightMutantInSource(Mutant mutant) {
 		File exportDirectory = mutator.getExportDirectory();
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
 		try {
+			int mutantID = mutant.getID();
 			List<String> log = mutator.getMutantsLog();
-			if(mutantID <= 0 || mutantID > log.size()) return false;
+			if(mutantID < 1 || mutantID > log.size()) return false;
 			String logLine = log.get(mutantID - 1);
 			int mutantLineNumber = this.getMutantLineNumber(logLine);
 			return EclipseFacade.highlightLine(mutator.getJavaFile(), mutantLineNumber);
@@ -48,17 +50,18 @@ public class MutantHighlighter {
 	}
 	
 	/**
-	 * Highlights the line in the mutated source file in which the mutant corresponding 
-	 * with the given ID is located. The given ID (mutantID) is the number of the line
+	 * Highlights the line in the mutated source file in which the given mutant is located.
+	 * The given mutant's ID is the number of the line
 	 * in mutants.log detailing the desired mutant
 	 * 
-	 * @param mutantID the ID of the mutant to highlight
+	 * @param mutant the mutant to highlight
 	 * @return true for success, false otherwise
 	 */
-	public boolean highlightMutantInMutatedSource(int mutantID) {
+	public boolean highlightMutantInMutatedSource(Mutant mutant) {
 		File exportDirectory = mutator.getExportDirectory();
 		if(!exportDirectory.exists() || exportDirectory.list().length <= 0) return false;
 		try {
+			int mutantID = mutant.getID();
 			List<String> log = mutator.getMutantsLog();
 			if(mutantID <= 0 || mutantID > log.size()) return false;
 			String logLine = log.get(mutantID - 1);

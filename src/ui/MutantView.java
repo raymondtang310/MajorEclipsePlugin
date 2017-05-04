@@ -204,9 +204,9 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantID = ((Mutant)obj).getID();
+				Mutant mutant = (Mutant)obj;
 				MutantHighlighter highlighter = new MutantHighlighter(mutator);
-				highlighter.highlightMutantInSource(mutantID);
+				highlighter.highlightMutantInSource(mutant);
 			}
 		};
 		highlightMutantInSource.setText("Highlight Mutant in Source File");		
@@ -219,9 +219,9 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantID = ((Mutant)obj).getID();
+				Mutant mutant = (Mutant)obj;
 				MutantHighlighter highlighter = new MutantHighlighter(mutator);
-				highlighter.highlightMutantInMutatedSource(mutantID);
+				highlighter.highlightMutantInMutatedSource(mutant);
 			}
 		};
 		highlightMutantInMutatedSource.setText("Highlight Mutant in Mutated Source File");		
@@ -292,9 +292,9 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantID = ((Mutant)obj).getID();
+				Mutant mutant = (Mutant)obj;
 				MutantHighlighter highlighter = new MutantHighlighter(mutator);
-				highlighter.highlightMutantInSource(mutantID);
+				highlighter.highlightMutantInSource(mutant);
 			}
 		};
 	}

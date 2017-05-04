@@ -47,17 +47,17 @@ public interface MutantAnalyzer {
 	/**
 	 * Returns true if the given mutant is killed by some test. Returns false otherwise.
 	 * 
-	 * @param mutantID the ID of the mutant
+	 * @param mutant a mutant
 	 * @return true if the mutant is killed, false otherwise
 	 */
-	boolean isMutantKilled(int mutantID);
+	boolean isMutantKilled(Mutant mutant);
 
 	/**
 	 * Returns true if the given mutant is covered by some test. Returns false otherwise.
 	 * 
-	 * @param mutantID the ID of the mutant
+	 * @param mutant a mutant
 	 * @return true if the mutant is covered, false otherwise
 	 */
-	boolean isMutantCovered(int mutantID);
+	boolean isMutantCovered(Mutant mutant);
 
 }

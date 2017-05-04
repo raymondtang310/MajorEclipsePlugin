@@ -43,12 +43,12 @@ public class ImageLabelProvider extends LabelProvider implements ITableLabelProv
 	public Image getImage(Object obj) {
 		if(analyzer == null) return PlatformUI.getWorkbench().getSharedImages().
 								getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
-		int mutantID = ((Mutant)obj).getID();
+		Mutant mutant = (Mutant)obj;
 		// Display green plus sign next to mutant ID if it is killed
-		if(analyzer.isMutantKilled(mutantID)) return PlatformUI.getWorkbench().getSharedImages().
+		if(analyzer.isMutantKilled(mutant)) return PlatformUI.getWorkbench().getSharedImages().
 													getImage(ISharedImages.IMG_OBJ_ADD);
 		// Display blue circles next to mutant ID if it is covered but alive
-		if(analyzer.isMutantCovered(mutantID)) return PlatformUI.getWorkbench().getSharedImages().
+		if(analyzer.isMutantCovered(mutant)) return PlatformUI.getWorkbench().getSharedImages().
 													getImage(ISharedImages.IMG_OBJ_ELEMENT);
 		// Display red X next to mutant ID if it is uncovered
 		return PlatformUI.getWorkbench().getSharedImages().

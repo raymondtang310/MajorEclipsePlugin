@@ -17,8 +17,8 @@ public class MutantIDComparator extends ViewerComparator {
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
 		if(!(e1 instanceof Mutant && e2 instanceof Mutant)) return super.compare(viewer, e1, e2);
-		int e1Int = ((Mutant)e1).getID();
-		int e2Int = ((Mutant)e2).getID();
-		return e1Int - e2Int;
+		Mutant mutant1 = (Mutant)e1;
+		Mutant mutant2 = (Mutant)e2;
+		return mutant1.getID() - mutant2.getID();
 	}
 }

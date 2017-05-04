@@ -31,8 +31,8 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 	private static final char FILE_SEPARATOR = File.separatorChar;
 	// A mutator containing information about mutants
 	private Mutator mutator;
-	// Set of covered mutants
-	private Set<Integer> coveredMutants;
+	// Set of covered mutantIDs
+	private Set<Integer> coveredMutantIDs;
 	// KillMap
 	private KillMap killMap;
 	// Tests to run against mutants
@@ -41,7 +41,7 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 	public MajorMutantAnalyzer(Mutator mutator, Collection<Class<?>> testClasses) {
 		this.mutator = mutator;
 		this.tests = new ArrayList<TestMethod>(TestFinder.getTestMethods(testClasses));
-		this.coveredMutants = new TreeSet<Integer>();
+		this.coveredMutantIDs = new TreeSet<Integer>();
 		killMap = executeMutationTests();
 	}
 
@@ -60,7 +60,7 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
 			boolean originalResult = original.wasSuccessful();
 			List<Integer> coveredMutants = Config.getCoverageList();
-			this.coveredMutants.addAll(coveredMutants);
+			this.coveredMutantIDs.addAll(coveredMutants);
 			Config.reset();
 			for(int mutantID = 1; mutantID <= numMutants; mutantID++) {
 				Mutant mutant = new Mutant(mutantID);
@@ -135,9 +135,9 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 	 * @see analyzer.MutantAnalyzer#isMutantKilled(int)
 	 */
 	@Override
-	public boolean isMutantKilled(int mutantID) {
+	public boolean isMutantKilled(Mutant mutant) {
+		int mutantID = mutant.getID();
 		if(killMap.size() == 0 || mutantID < 1 || mutantID > killMap.getMutants().size()) return false;
-		Mutant mutant = new Mutant(mutantID);
 		for(TestMethod test : tests) {
 			if(killMap.get(mutant, test) == Outcome.KILLED) return true;
 		}
@@ -148,8 +148,9 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 	 * @see analyzer.MutantAnalyzer#isMutantCovered(int)
 	 */
 	@Override
-	public boolean isMutantCovered(int mutantID) {
-		return coveredMutants.contains(mutantID);
+	public boolean isMutantCovered(Mutant mutant) {
+		int mutantID = mutant.getID();
+		return coveredMutantIDs.contains(mutantID);
 	}
 
 }

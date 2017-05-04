@@ -38,18 +38,29 @@ public class Mutant implements Comparable<Mutant>{
 	}
 
 	/**
-	 * Compares the given Mutant to this Mutant by their IDs.
-	 * If this Mutant's ID is greater/less than the given Mutant's ID,
-	 * than this Mutant is considered greater/less than the given Mutant.
+	 * Compares the given mutant to this mutant by their IDs.
+	 * If this mutant's ID is greater/less than the given mutant's ID,
+	 * than this mutant is considered greater/less than the given mutant.
 	 * Mutants are considered equal if their IDs are equal.
 	 * 
-	 * @param the Mutant to compare to
-	 * @return a positive integer, negative integer, or 0 if this Mutant
-	 * 		   is greater than, less than, or equal to the given Mutant,
+	 * @param the mutant to compare to
+	 * @return a positive integer, negative integer, or 0 if this mutant
+	 * 		   is greater than, less than, or equal to the given mutant,
 	 * 		   respectively
 	 */
 	@Override
 	public int compareTo(Mutant otherMutant) {
 		return this.mutantID - otherMutant.getID();
+	}
+	
+	/**
+	 * Returns this mutant's ID as a string.
+	 * 
+	 * @return this mutant's ID as a string.
+	 */
+	
+	@Override
+	public String toString() {
+		return String.valueOf(this.mutantID);
 	}
 }

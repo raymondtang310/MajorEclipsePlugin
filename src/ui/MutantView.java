@@ -24,6 +24,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import analyzer.Mutant;
 import analyzer.MutantAnalyzer;
 import mutator.Mutator;
 
@@ -58,7 +59,7 @@ public class MutantView extends ViewPart {
 	public static final String ID = "org.rayzor.mutantview.views.MutantView";
 
 	private TableViewer viewer;
-	private MutantIDProvider mutantIDProvider;
+	private MutantProvider mutantIDProvider;
 	private ImageLabelProvider imageLabelProvider;
 	private Action displayMutant;
 	private Action highlightMutantInSource;
@@ -85,7 +86,7 @@ public class MutantView extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		mutantIDProvider = new MutantIDProvider();
+		mutantIDProvider = new MutantProvider();
 		imageLabelProvider = new ImageLabelProvider();
 		viewer.setContentProvider(mutantIDProvider);
 		viewer.setLabelProvider(imageLabelProvider);
@@ -182,7 +183,7 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantID = ((Integer)obj).intValue();
+				int mutantID = ((Mutant)obj).getID();
 				try {
 					List<String> mutantsLog = mutator.getMutantsLog();
 					String logLine = mutantsLog.get(mutantID - 1);
@@ -203,7 +204,7 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantID = ((Integer)obj).intValue();
+				int mutantID = ((Mutant)obj).getID();
 				MutantHighlighter highlighter = new MutantHighlighter(mutator);
 				highlighter.highlightMutantInSource(mutantID);
 			}
@@ -218,7 +219,7 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantID = ((Integer)obj).intValue();
+				int mutantID = ((Mutant)obj).getID();
 				MutantHighlighter highlighter = new MutantHighlighter(mutator);
 				highlighter.highlightMutantInMutatedSource(mutantID);
 			}
@@ -291,7 +292,7 @@ public class MutantView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				int mutantID = ((Integer)obj).intValue();
+				int mutantID = ((Mutant)obj).getID();
 				MutantHighlighter highlighter = new MutantHighlighter(mutator);
 				highlighter.highlightMutantInSource(mutantID);
 			}

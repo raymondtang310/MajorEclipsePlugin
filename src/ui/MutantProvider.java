@@ -1,8 +1,11 @@
 package ui;
 
+import java.util.List;
+
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
+import analyzer.Mutant;
 import mutator.Mutator;
 
 /**
@@ -11,7 +14,7 @@ import mutator.Mutator;
  * @author Raymond Tang
  *
  */
-public class MutantIDProvider implements IStructuredContentProvider {
+public class MutantProvider implements IStructuredContentProvider {
 	
 	// Mutator which contains information about mutants for some java file
 	private Mutator mutator;
@@ -33,15 +36,11 @@ public class MutantIDProvider implements IStructuredContentProvider {
 	}
 	
 	/**
-	 * This method provides an array of all mutant IDs to the view.
+	 * This method provides an array of all mutants to the view.
 	 */
 	public Object[] getElements(Object parent) {
 		if(mutator == null) return new Object[0];
-		int numMutants = mutator.getNumberOfMutants();
-		Integer[] mutantIDs = new Integer[numMutants];
-		for(int i = 1; i <= mutantIDs.length; i++) {
-			mutantIDs[i-1] = i;
-		}
-		return mutantIDs;
+		List<Mutant> mutants = mutator.getMutants();
+		return mutants.toArray();
 	}
 }

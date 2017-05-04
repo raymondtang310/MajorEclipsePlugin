@@ -7,7 +7,7 @@ package analyzer;
  * @author Raymond Tang
  *
  */
-public class Mutant {
+public class Mutant implements Comparable<Mutant>{
 	// This mutant's ID
 	private int mutantID;
 	
@@ -35,5 +35,21 @@ public class Mutant {
 		if(!(obj instanceof Mutant)) return false;
 		Mutant otherMutant = (Mutant)obj;
 		return this.mutantID == otherMutant.getID();
+	}
+
+	/**
+	 * Compares the given Mutant to this Mutant by their IDs.
+	 * If this Mutant's ID is greater/less than the given Mutant's ID,
+	 * than this Mutant is considered greater/less than the given Mutant.
+	 * Mutants are considered equal if their IDs are equal.
+	 * 
+	 * @param the Mutant to compare to
+	 * @return a positive integer, negative integer, or 0 if this Mutant
+	 * 		   is greater than, less than, or equal to the given Mutant,
+	 * 		   respectively
+	 */
+	@Override
+	public int compareTo(Mutant otherMutant) {
+		return this.mutantID - otherMutant.getID();
 	}
 }

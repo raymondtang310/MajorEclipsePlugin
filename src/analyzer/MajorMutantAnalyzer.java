@@ -18,7 +18,10 @@ import mutator.Mutator;
 import util.TestFinder;
 
 /**
- * 
+ * Given a Mutator and test classes, a MajorMutantAnalyzer performs
+ * mutation testing by running each test method given by the test classes
+ * against each mutant given by the Mutator. This MutantAnalyzer provides
+ * coverage information on mutants in addition to whether or not mutants are killed.
  * 
  * @author Raymond Tang
  *
@@ -30,8 +33,8 @@ public class MajorMutantAnalyzer {
 	private Mutator mutator;
 	// Set of covered mutants
 	private Set<Integer> coveredMutants;
-	// Kill matrix represented as a 2D integer array
-	private int[][] killMatrix;
+	// KillMap
+	private KillMap killMap;
 	// Tests to run against mutants
 	private List<TestMethod> tests;
 
@@ -39,28 +42,19 @@ public class MajorMutantAnalyzer {
 		this.mutator = mutator;
 		this.tests = new ArrayList<TestMethod>(TestFinder.getTestMethods(testClasses));
 		this.coveredMutants = new TreeSet<Integer>();
-		this.killMatrix = computeKillMatrix();
+		killMap = executeMutationTests();
 	}
 
 	/**
-	 * Generates and returns a kill matrix represented as a 2D integer array.
-	 * The rows of the matrix represent mutants and the columns represent tests.
-	 * An entry matrix[i][j] equals 1 if test j killed mutant i, or 0 if test j
-	 * did not kill mutant i. The rows (mutants) are sorted (ascending) by mutantIDs.
-	 * The columns (tests) are sorted by name.
+	 * Performs mutation testing by running each test against each mutant in isolation. 
+	 * Returns a KillMap containing the results of the mutation testing.
 	 * 
-	 * @return a kill matrix represented as a two dimensional integer array,
-	 * 		   where the rows represent mutants and the columns represent tests.
-	 * 		   Returns an empty int[][] if there are no mutants generated or if there are no test
-	 *		   methods in the given test class.
+	 * @return a KillMap containing the results of the mutation testing
 	 */
-	private int[][] computeKillMatrix() {
-		int numTests = tests.size();
+	private KillMap executeMutationTests() {
+		KillMap killMap = new KillMap();
 		int numMutants = mutator.getNumberOfMutants();
-		if(numMutants == 0 || numTests == 0) return new int[0][0];
-		int[][] killMatrix = new int[numMutants][numTests];
-		for(int i = 0; i < numTests; i++) {
-			TestMethod test = tests.get(i);
+		for(TestMethod test : tests) {
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
 			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
@@ -68,17 +62,50 @@ public class MajorMutantAnalyzer {
 			List<Integer> coveredMutants = Config.getCoverageList();
 			this.coveredMutants.addAll(coveredMutants);
 			Config.reset();
-			for(Integer coveredMutant : coveredMutants) {
-				int mutantID = coveredMutant.intValue();
-				Config.__M_NO = mutantID;
-				Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
-				boolean newResult = resultWithMutant.wasSuccessful();
-				if(newResult != originalResult) killMatrix[mutantID - 1][i] = 1;
+			for(int mutantID = 1; mutantID <= numMutants; mutantID++) {
+				Mutant mutant = new Mutant(mutantID);
+				Outcome outcome;
+				if(coveredMutants.contains(mutantID)) {
+					Config.__M_NO = mutantID;
+					Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
+					boolean newResult = resultWithMutant.wasSuccessful();
+					if(newResult == originalResult) outcome = Outcome.ALIVE;
+					else outcome = Outcome.KILLED;
+				}
+				else outcome = Outcome.ALIVE;
+				killMap.put(mutant, test, outcome);
 			}
 		}
-		return killMatrix;
+		return killMap;
 	}
-
+	
+	/**
+	 * Returns the given Mutator.
+	 * 
+	 * @return the given Mutator
+	 */
+	public Mutator getMutator() {
+		return mutator;
+	}
+	
+	/**
+	 * Returns the tests contained in the given test classes.
+	 * 
+	 * @return the tests contained in the given test classes
+	 */
+	public List<TestMethod> getTests() {
+		return tests;
+	}
+	
+	/**
+	 * Returns a KillMap containing the results of the mutation testing.
+	 * 
+	 * @return a KillMap containing the results of the mutation testing
+	 */
+	public KillMap getKillMap() {
+		return killMap;
+	}
+	
 	/**
 	 * Generates a CSV file, providing details on whether or not the
 	 * provided tests killed the mutants. The CSV file is named killMatrix.csv
@@ -86,11 +113,10 @@ public class MajorMutantAnalyzer {
 	 * 
 	 * @return true for success, false otherwise
 	 */
-	public boolean exportCSV() {
-		if(killMatrix.length == 0) return false;
+	public boolean exportKillMatrixCSV() {
+		if(killMap.size() == 0) return false;
 		String fileName = mutator.getProjectLocationOfJavaFile() + FILE_SEPARATOR + "killMatrix.csv";
 		char csvSeparator = ',';
-		int numTests = tests.size();
 		int numMutants = mutator.getNumberOfMutants();
 		try {
 			PrintWriter writer = new PrintWriter(fileName);
@@ -100,7 +126,8 @@ public class MajorMutantAnalyzer {
 			for(int i = 0; i < numMutants; i++) {
 				int mutantID = i + 1;
 				writer.print(mutantID);
-				for(int j = 0; j < numTests; j++) writer.print("" + csvSeparator + killMatrix[i][j]);
+				Mutant mutant = new Mutant(mutantID);
+				for(TestMethod test: tests) writer.print("" + csvSeparator + killMap.get(mutant, test));
 				writer.println();
 			}
 			writer.close();
@@ -117,10 +144,10 @@ public class MajorMutantAnalyzer {
 	 * @return true if the mutant is killed, false otherwise
 	 */
 	public boolean isMutantKilled(int mutantID) {
-		if(killMatrix == null || mutantID < 1 || mutantID > killMatrix.length) return false;
-		int[] tests = killMatrix[mutantID - 1];
-		for(int j = 0; j < tests.length; j++) {
-			if(tests[j] == 1) return true;
+		if(killMap.size() == 0 || mutantID < 1 || mutantID > killMap.getMutants().size()) return false;
+		Mutant mutant = new Mutant(mutantID);
+		for(TestMethod test : tests) {
+			if(killMap.get(mutant, test) == Outcome.KILLED) return true;
 		}
 		return false;
 	}

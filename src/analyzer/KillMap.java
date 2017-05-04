@@ -69,5 +69,9 @@ public class KillMap {
 		WorkOrder workOrder = new WorkOrder(mutant, test);
 		return map.get(workOrder);
 	}
+	
+	public int size() {
+		return map.size();
+	}
 
 }

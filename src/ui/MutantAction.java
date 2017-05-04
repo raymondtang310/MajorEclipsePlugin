@@ -84,7 +84,7 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 			ClassLoader classLoader = configureClassLoader(binLocation, testLocation);
 			// Create KillMatrix
 			MajorMutantAnalyzer k = createKillMatrix(testLocation, classLoader, m);
-			k.exportCSV();
+			k.exportKillMatrixCSV();
 			// Open view
 			openView(m, k);
 		} catch (JavaFileNotSelectedException | SelectionNotAdaptableException | JavaModelException | IOException | ClassNotFoundException | PartInitException e) {

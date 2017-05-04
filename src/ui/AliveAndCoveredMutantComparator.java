@@ -2,7 +2,7 @@ package ui;
 
 import org.eclipse.jface.viewers.Viewer;
 
-import analyzer.MajorMutantAnalyzer;
+import analyzer.MutantAnalyzer;
 
 /**
  * This comparator is used to sort mutants listed in the view. 
@@ -15,14 +15,14 @@ import analyzer.MajorMutantAnalyzer;
 public class AliveAndCoveredMutantComparator extends MutantIDComparator {
 
 	// KillMatrix which contains information about mutants and tests for some java file
-	private MajorMutantAnalyzer k;
+	private MutantAnalyzer k;
 		
 	/**
 	 * Sets the KillMatrix for this comparator to use. 
 	 * 
 	 * @param k a KillMatrix
 	 */
-	public void setKillMatrix(MajorMutantAnalyzer k) {
+	public void setKillMatrix(MutantAnalyzer k) {
 		if(k == null) throw new IllegalArgumentException("KillMatrix cannot be null");
 		this.k = k;
 	}

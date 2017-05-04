@@ -24,7 +24,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import analyzer.MajorMutantAnalyzer;
+import analyzer.MutantAnalyzer;
 import mutator.Mutator;
 
 
@@ -71,7 +71,7 @@ public class MutantView extends ViewPart {
 	// Mutator which contains information about mutants for some java file
 	private Mutator m = null;
 	// KillMatrix which contains information about tests and mutants
-	private MajorMutantAnalyzer k = null;
+	private MutantAnalyzer k = null;
 
 	/**
 	 * The constructor.
@@ -334,7 +334,7 @@ public class MutantView extends ViewPart {
 	 * @param m a mutator
 	 * @param k a KillMatrix
 	 */
-	public void setInput(Mutator m, MajorMutantAnalyzer k) {
+	public void setInput(Mutator m, MutantAnalyzer k) {
 		this.m = m;
 		this.k = k;
 		mutantIDProvider.setMutator(m);

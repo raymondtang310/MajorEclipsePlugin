@@ -26,7 +26,7 @@ import util.TestFinder;
  * @author Raymond Tang
  *
  */
-public class MajorMutantAnalyzer {
+public class MajorMutantAnalyzer implements MutantAnalyzer {
 	// File separator. Differs depending on operating system
 	private static final char FILE_SEPARATOR = File.separatorChar;
 	// A mutator containing information about mutants
@@ -79,40 +79,34 @@ public class MajorMutantAnalyzer {
 		return killMap;
 	}
 	
-	/**
-	 * Returns the given Mutator.
-	 * 
-	 * @return the given Mutator
+	/* (non-Javadoc)
+	 * @see analyzer.MutantAnalyzer#getMutator()
 	 */
+	@Override
 	public Mutator getMutator() {
 		return mutator;
 	}
 	
-	/**
-	 * Returns the tests contained in the given test classes.
-	 * 
-	 * @return the tests contained in the given test classes
+	/* (non-Javadoc)
+	 * @see analyzer.MutantAnalyzer#getTests()
 	 */
+	@Override
 	public List<TestMethod> getTests() {
 		return tests;
 	}
 	
-	/**
-	 * Returns a KillMap containing the results of the mutation testing.
-	 * 
-	 * @return a KillMap containing the results of the mutation testing
+	/* (non-Javadoc)
+	 * @see analyzer.MutantAnalyzer#getKillMap()
 	 */
+	@Override
 	public KillMap getKillMap() {
 		return killMap;
 	}
 	
-	/**
-	 * Generates a CSV file, providing details on whether or not the
-	 * provided tests killed the mutants. The CSV file is named killMatrix.csv
-	 * and is stored in the project directory of the java file that was mutated.
-	 * 
-	 * @return true for success, false otherwise
+	/* (non-Javadoc)
+	 * @see analyzer.MutantAnalyzer#exportKillMatrixCSV()
 	 */
+	@Override
 	public boolean exportKillMatrixCSV() {
 		if(killMap.size() == 0) return false;
 		String fileName = mutator.getProjectLocationOfJavaFile() + FILE_SEPARATOR + "killMatrix.csv";
@@ -137,12 +131,10 @@ public class MajorMutantAnalyzer {
 		}
 	}
 	
-	/**
-	 * Returns true if the given mutant is killed by some test. Returns false otherwise.
-	 * 
-	 * @param mutantID the ID of the mutant
-	 * @return true if the mutant is killed, false otherwise
+	/* (non-Javadoc)
+	 * @see analyzer.MutantAnalyzer#isMutantKilled(int)
 	 */
+	@Override
 	public boolean isMutantKilled(int mutantID) {
 		if(killMap.size() == 0 || mutantID < 1 || mutantID > killMap.getMutants().size()) return false;
 		Mutant mutant = new Mutant(mutantID);
@@ -152,12 +144,10 @@ public class MajorMutantAnalyzer {
 		return false;
 	}
 	
-	/**
-	 * Returns true if the given mutant is covered by some test. Returns false otherwise.
-	 * 
-	 * @param mutantID the ID of the mutant
-	 * @return true if the mutant is covered, false otherwise
+	/* (non-Javadoc)
+	 * @see analyzer.MutantAnalyzer#isMutantCovered(int)
 	 */
+	@Override
 	public boolean isMutantCovered(int mutantID) {
 		return coveredMutants.contains(mutantID);
 	}

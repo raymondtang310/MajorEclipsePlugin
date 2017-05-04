@@ -6,9 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.LinkedList;
 
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.IAction;
@@ -118,7 +116,7 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 
 	private MutantAnalyzer createKillMatrix(String testLocation, ClassLoader urlClassLoader, Mutator mutator) throws ClassNotFoundException {
 		// Get test classes
-		Collection<Class<?>> testClasses = getTestClasses(testLocation, urlClassLoader);
+		Collection<Class<?>> testClasses = ExtendedTestFinder.getTestClasses(testLocation, urlClassLoader);
 		// Create MutantAnalyzer
 		MutantAnalyzer analyzer = new MajorMutantAnalyzer(mutator, testClasses);
 		return analyzer;
@@ -147,26 +145,6 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 		return fileLocation.substring(projectPathLength + 5, filePathLength - 5).replace(FILE_SEPARATOR, '.');
 	}
 	
-	/**
-	 * Returns all test classes found in the java file's project. 
-	 * 
-	 * @param testLocation the directory in which test classes are located
-	 * @param urlClassLoader a classloader used to help retrieve a java class's Class object
-	 * @return all test classes found in the java file's project
-	 * @throws ClassNotFoundException
-	 */
-	private static Collection<Class<?>> getTestClasses(String testLocation, ClassLoader urlClassLoader) throws ClassNotFoundException {
-		String[] testClassFilenames = ExtendedTestFinder.getTestClassPathsFromDirectory(testLocation);
-		Collection<Class<?>> testClasses = new LinkedList<Class<?>>();
-		for(String testClassFilename : testClassFilenames) {
-			String testClassName = FilenameUtils.getBaseName(testClassFilename);
-			String testFullyQualifiedName = "test." + testClassName;
-			Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
-			testClasses.add(testClass);
-		}
-		return testClasses;
-	}
-
 	/**
 	 * Auto generated comment by Eclipse:
 	 * <p><p>

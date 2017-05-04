@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+
+import org.apache.commons.io.FilenameUtils;
 
 import analyzer.TestMethod;
 
@@ -44,6 +47,27 @@ public class ExtendedTestFinder extends TestFinder {
 				return new File(current, name).isFile();
 			}
 		});
+	}
+
+	/**
+	 * Returns all test classes found in the java file's project. 
+	 * 
+	 * @param testLocation the directory in which test classes are located
+	 * @param urlClassLoader a classloader used to help retrieve a java class's Class object
+	 * @return all test classes found in the java file's project
+	 * @throws ClassNotFoundException
+	 */
+	public static Collection<Class<?>> getTestClasses(String testLocation, ClassLoader urlClassLoader) throws ClassNotFoundException {
+		String[] testClassFilenames = getTestClassPathsFromDirectory(testLocation);
+		Collection<Class<?>> testClasses = new LinkedList<Class<?>>();
+		for(String testClassFilename : testClassFilenames) {
+			String testClassName = FilenameUtils.getBaseName(testClassFilename);
+			// For now, we assume that test classes are stored under a directory named test
+			String testFullyQualifiedName = "test." + testClassName;
+			Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
+			testClasses.add(testClass);
+		}
+		return testClasses;
 	}
 	
 }

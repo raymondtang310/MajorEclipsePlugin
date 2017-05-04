@@ -26,30 +26,33 @@ public class KillMap {
 	}
 
 	/**
+	 * Returns the set of mutants contained in this KillMap.
 	 * 
-	 * 
-	 * @return
+	 * @return the set of mutants contained in this KillMap
 	 */
 	public Set<Mutant> getMutants() {
 		return mutants;
 	}
 
 	/**
+	 * Returns the set of tests contained in this KillMap.
 	 * 
-	 * 
-	 * @return
+	 * @return the set of tests contained in this KillMap
 	 */
 	public Set<TestMethod> getTests() {
 		return tests;
 	}
 
 	/**
+	 * Associates the given mutant and test with the given outcome.
+	 * Returns the previous outcome associated with the (mutant, test) pair,
+	 * or null if there was no mapping for the (mutant, test) pair.
 	 * 
-	 * 
-	 * @param mutant
-	 * @param test
-	 * @param outcome
-	 * @return
+	 * @param mutant a mutant
+	 * @param test a test method
+	 * @param outcome an outcome
+	 * @return the previous outcome associated with the (mutant, test) pair,
+	 * 		   or null if there was no mapping for the (mutant, test) pair.
 	 */
 	public Outcome put(Mutant mutant, TestMethod test, Outcome outcome) {
 		mutants.add(mutant);
@@ -59,17 +62,24 @@ public class KillMap {
 	}
 
 	/**
+	 * Returns the Outcome to which the (mutant, test) pair is mapped to,
+	 * or null if this KillMap does not contain the (mutant, test) pair.
 	 * 
-	 * 
-	 * @param mutant
-	 * @param test
-	 * @return
+	 * @param mutant a mutant
+	 * @param test a test method
+	 * @return the Outcome to which the (mutant, test) pair is mapped to,
+	 * 		   or null if this KillMap does not contain the (mutant, test) pair
 	 */
 	public Outcome get(Mutant mutant, TestMethod test) {
 		WorkOrder workOrder = new WorkOrder(mutant, test);
 		return map.get(workOrder);
 	}
 	
+	/**
+	 * Returns the number of (mutant, test) pairings in this KillMap.
+	 * 
+	 * @return the number of (mutant, test) pairings in this KillMap
+	 */
 	public int size() {
 		return map.size();
 	}

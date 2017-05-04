@@ -2,6 +2,7 @@ package ui;
 
 import org.eclipse.jface.viewers.Viewer;
 
+import analyzer.Mutant;
 import analyzer.MutantAnalyzer;
 
 /**
@@ -29,9 +30,9 @@ public class UncoveredMutantComparator extends MutantIDComparator {
 	
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		if(!(e1 instanceof Integer && e2 instanceof Integer) || analyzer == null) return super.compare(viewer, e1, e2);
-		int e1Int = ((Integer)e1).intValue();
-		int e2Int = ((Integer)e2).intValue();
+		if(!(e1 instanceof Mutant && e2 instanceof Mutant) || analyzer == null) return super.compare(viewer, e1, e2);
+		int e1Int = ((Mutant)e1).getID();
+		int e2Int = ((Mutant)e2).getID();
 		boolean e1Covered = analyzer.isMutantCovered(e1Int);
 		boolean e2Covered = analyzer.isMutantCovered(e2Int);
 		boolean e1Killed = analyzer.isMutantKilled(e1Int);

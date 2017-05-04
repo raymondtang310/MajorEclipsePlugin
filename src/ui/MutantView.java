@@ -27,6 +27,12 @@ import org.eclipse.ui.part.ViewPart;
 import analyzer.Mutant;
 import analyzer.MutantAnalyzer;
 import mutator.Mutator;
+import ui.comparators.AliveAndCoveredMutantComparator;
+import ui.comparators.KilledMutantComparator;
+import ui.comparators.MutantIDComparator;
+import ui.comparators.UncoveredMutantComparator;
+import ui.providers.ImageLabelProvider;
+import ui.providers.MutantProvider;
 
 
 /**

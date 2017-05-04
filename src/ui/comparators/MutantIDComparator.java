@@ -1,4 +1,4 @@
-package ui;
+package ui.comparators;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;

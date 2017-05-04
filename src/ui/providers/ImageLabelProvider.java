@@ -1,4 +1,4 @@
-package ui;
+package ui.providers;
 
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;

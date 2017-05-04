@@ -1,4 +1,4 @@
-package ui;
+package ui.providers;
 
 import java.util.List;
 

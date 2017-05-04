@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import analyzer.KillMatrix;
+import analyzer.MajorMutantAnalyzer;
 import eclipseFacade.EclipseFacade;
 import eclipseFacade.JavaFileNotSelectedException;
 import eclipseFacade.SelectionNotAdaptableException;
@@ -83,7 +83,7 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 			// Create a classloader which puts the bin and test directories on the classpath
 			ClassLoader classLoader = configureClassLoader(binLocation, testLocation);
 			// Create KillMatrix
-			KillMatrix k = createKillMatrix(testLocation, classLoader, m);
+			MajorMutantAnalyzer k = createKillMatrix(testLocation, classLoader, m);
 			k.exportCSV();
 			// Open view
 			openView(m, k);
@@ -115,15 +115,15 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 		return urlClassLoader;
 	}
 
-	private KillMatrix createKillMatrix(String testLocation, ClassLoader urlClassLoader, Mutator m) throws ClassNotFoundException {
+	private MajorMutantAnalyzer createKillMatrix(String testLocation, ClassLoader urlClassLoader, Mutator m) throws ClassNotFoundException {
 		// Get test classes
 		Collection<Class<?>> testClasses = getTestClasses(testLocation, urlClassLoader);
 		// Create KillMatrix
-		KillMatrix k = new KillMatrix(m, testClasses);
+		MajorMutantAnalyzer k = new MajorMutantAnalyzer(m, testClasses);
 		return k;
 	}
 	
-	private void openView(Mutator m, KillMatrix k) throws PartInitException {
+	private void openView(Mutator m, MajorMutantAnalyzer k) throws PartInitException {
 		// Open view
 		String viewId = MutantView.ID;
 		MutantView view = (MutantView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId);

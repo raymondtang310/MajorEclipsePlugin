@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import analyzer.KillMatrix;
+import analyzer.MajorMutantAnalyzer;
 
 /**
  * Assigns images to items (mutants) listed in the view.
@@ -20,14 +20,14 @@ import analyzer.KillMatrix;
 public class ImageLabelProvider extends LabelProvider implements ITableLabelProvider {
 	
 	// KillMatrix which contains information about mutants and tests for some java file
-	private KillMatrix k;
+	private MajorMutantAnalyzer k;
 		
 	/**
 	 * Sets the KillMatrix for this LabelProvider to use. 
 	 * 
 	 * @param k a KillMatrix
 	 */
-	public void setKillMatrix(KillMatrix k) {
+	public void setKillMatrix(MajorMutantAnalyzer k) {
 		this.k = k;
 	}
 	

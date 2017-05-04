@@ -23,4 +23,17 @@ public class Mutant {
 	public int getID() {
 		return mutantID;
 	}
+	
+	/**
+	 * Checks if the given Mutant is equal to this Mutant. Two Mutants are equal
+	 * if and only if their IDs are equal.
+	 * 
+	 * @return true if the given mutant is equal to this mutant, false otherwise
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Mutant)) return false;
+		Mutant otherMutant = (Mutant)obj;
+		return this.mutantID == otherMutant.getID();
+	}
 }

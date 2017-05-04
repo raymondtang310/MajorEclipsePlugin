@@ -18,12 +18,12 @@ import mutator.Mutator;
 import util.TestFinder;
 
 /**
- * A KillMatrix stores information about which tests killed which mutants.
+ * 
  * 
  * @author Raymond Tang
  *
  */
-public class KillMatrix {
+public class MajorMutantAnalyzer {
 	// File separator. Differs depending on operating system
 	private static final char FILE_SEPARATOR = File.separatorChar;
 	// A mutator containing information about mutants
@@ -32,12 +32,12 @@ public class KillMatrix {
 	private Set<Integer> coveredMutants;
 	// Kill matrix represented as a 2D integer array
 	private int[][] killMatrix;
-	// Test classes containing tests to run against mutants
-	private Collection<Class<?>> testClasses;
+	// Tests to run against mutants
+	private List<TestMethod> tests;
 
-	public KillMatrix(Mutator mutator, Collection<Class<?>> testClasses) {
+	public MajorMutantAnalyzer(Mutator mutator, Collection<Class<?>> testClasses) {
 		this.mutator = mutator;
-		this.testClasses = testClasses;
+		this.tests = new ArrayList<TestMethod>(TestFinder.getTestMethods(testClasses));
 		this.coveredMutants = new TreeSet<Integer>();
 		this.killMatrix = computeKillMatrix();
 	}
@@ -55,14 +55,12 @@ public class KillMatrix {
 	 *		   methods in the given test class.
 	 */
 	private int[][] computeKillMatrix() {
-		Collection<TestMethod> testMethodsCollection = TestFinder.getTestMethods(testClasses);
-		ArrayList<TestMethod> testMethods = new ArrayList<TestMethod>(testMethodsCollection);
-		int numTests = testMethods.size();
+		int numTests = tests.size();
 		int numMutants = mutator.getNumberOfMutants();
 		if(numMutants == 0 || numTests == 0) return new int[0][0];
 		int[][] killMatrix = new int[numMutants][numTests];
 		for(int i = 0; i < numTests; i++) {
-			TestMethod test = testMethods.get(i);
+			TestMethod test = tests.get(i);
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
 			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
@@ -92,7 +90,6 @@ public class KillMatrix {
 		if(killMatrix.length == 0) return false;
 		String fileName = mutator.getProjectLocationOfJavaFile() + FILE_SEPARATOR + "killMatrix.csv";
 		char csvSeparator = ',';
-		Collection<TestMethod> tests = TestFinder.getTestMethods(testClasses);
 		int numTests = tests.size();
 		int numMutants = mutator.getNumberOfMutants();
 		try {

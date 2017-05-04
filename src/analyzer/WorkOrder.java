@@ -62,4 +62,19 @@ public class WorkOrder implements Comparable<WorkOrder> {
 		return this.testMethod.compareTo(workOrder.getTestMethod());
 	}
 	
+	/**
+	 * Checks if the given WorkOrder is equal to this WorkOrder. They are equal if and only if
+	 * their mutants are equal and their test methods are equal. 
+	 * 
+	 * @return true if the given WorkOrder is equal to this WorkOrder, false otherwise
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof WorkOrder)) return false;
+		WorkOrder otherWorkOrder = (WorkOrder)obj;
+		Mutant otherMutant = otherWorkOrder.getMutant();
+		TestMethod otherTestMethod = otherWorkOrder.getTestMethod();
+		return (this.mutant == otherMutant && this.testMethod == otherTestMethod);
+	}
+	
 }

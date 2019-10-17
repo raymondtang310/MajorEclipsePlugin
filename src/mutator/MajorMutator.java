@@ -118,7 +118,7 @@ public class MajorMutator implements Mutator {
 		Path source = Paths.get(sourceDirectory + FILE_SEPARATOR + "mutants.log");
 		Path target = Paths.get(mutantsLogDirectory.getAbsolutePath() + FILE_SEPARATOR + "mutants.log");
 		try {
-			Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			throw new IOException("Error occurred while trying to export mutants.log", e);
 		}

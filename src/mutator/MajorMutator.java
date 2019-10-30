@@ -13,6 +13,8 @@ import java.util.Scanner;
 
 import javax.tools.JavaCompiler;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.sun.tools.javac.api.JavacTool;
 
 import analyzer.Mutant;
@@ -72,9 +74,9 @@ public class MajorMutator implements Mutator {
 			throw new IllegalArgumentException("parameters cannot be null");
 		if (!javaFile.exists())
 			throw new FileNotFoundException("File " + javaFile.toString() + " does not exist");
-		String type = Files.probeContentType(javaFile.toPath());
-		if (!type.equals("text/x-java"))
-			throw new IllegalArgumentException(javaFile.toString() + " is not a java file");
+		String fileExtension = FilenameUtils.getExtension(javaFile.getPath());
+		if (!fileExtension.equals("java"))
+			throw new IllegalArgumentException(javaFile + " is not a java file");
 		this.javaFile = javaFile;
 		this.fullyQualifiedName = fullyQualifiedName;
 		this.projectLocation = projectLocation;

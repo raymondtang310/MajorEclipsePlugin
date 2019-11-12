@@ -69,7 +69,9 @@ public class ExtendedTestFinder extends TestFinder {
 		String[] testClassFilenames = getTestClassPathsFromDirectory(testLocation);
 		Collection<Class<?>> testClasses = new LinkedList<Class<?>>();
 		for (String testClassFilename : testClassFilenames) {
-			String testClassName = FilenameUtils.getBaseName(testClassFilename);
+			// String testClassName =
+			// FilenameUtils.getBaseName(testClassFilename);
+			String testClassName = "TestSuite";
 			// For now, we assume that test classes are stored under a directory
 			// named test
 			String testFullyQualifiedName = "test." + testClassName;
@@ -77,7 +79,8 @@ public class ExtendedTestFinder extends TestFinder {
 				Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
 				testClasses.add(testClass);
 			} catch (ClassNotFoundException e) {
-				throw new ClassNotFoundException("Could not locate/load/link test class named " + testClassName, e);
+				throw new ClassNotFoundException("Could not locate/load/link test class named " + testClassName
+						+ " from file named " + testClassFilename + " at " + testLocation, e);
 			}
 		}
 		return testClasses;

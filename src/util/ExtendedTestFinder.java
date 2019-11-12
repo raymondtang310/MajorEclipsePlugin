@@ -5,6 +5,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.StringJoiner;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -77,7 +78,17 @@ public class ExtendedTestFinder extends TestFinder {
 				Class<?> testClass = Class.forName(testFullyQualifiedName, true, urlClassLoader);
 				testClasses.add(testClass);
 			} catch (ClassNotFoundException e) {
-				throw new ClassNotFoundException("Could not locate/load/link test class named " + testClassName, e);
+				StringJoiner errorMessageJoiner = new StringJoiner("\n");
+				errorMessageJoiner.add("Could not locate/load/link test class named " + testClassName
+						+ " from file named " + testClassFilename + " at " + testLocation);
+				errorMessageJoiner.add("");
+				errorMessageJoiner.add("Test filenames:");
+				errorMessageJoiner.add("");
+				for (String filename : testClassFilenames) {
+					errorMessageJoiner.add(filename);
+				}
+
+				throw new ClassNotFoundException(errorMessageJoiner.toString(), e);
 			}
 		}
 		return testClasses;

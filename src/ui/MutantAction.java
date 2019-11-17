@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.StringJoiner;
 
@@ -96,6 +97,8 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 			analyzer.exportKillMatrixCSV();
 			// Open view
 			openView(analyzer);
+			// Display summary of mutation results
+			displayMutationSummary(analyzer);
 		} catch (JavaFileNotSelectedException | SelectionNotAdaptableException | JavaModelException e) {
 			MessageDialog.openInformation(window.getShell(), "org.rayzor.mutant", "Error: A Java file is not selected");
 		} catch (MutateException e) {
@@ -162,6 +165,23 @@ public class MutantAction implements IWorkbenchWindowActionDelegate {
 		MutantView view = (MutantView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.showView(viewId);
 		view.setMutantAnalyzer(analyzer);
+	}
+
+	private void displayMutationSummary(MutantAnalyzer analyzer) {
+		int numCoveredMutants = analyzer.getNumberOfCoveredMutants();
+		int numKilledMutants = analyzer.getNumberOfKilledMutants();
+		int totalNumMutants = analyzer.getNumberOfMutants();
+		double mutationScore = analyzer.getMutationScore();
+
+		StringJoiner summaryMessageJoiner = new StringJoiner("\n");
+		String formattedMutationScore = new DecimalFormat("#.##").format(mutationScore);
+		summaryMessageJoiner.add("Mutation Score: " + formattedMutationScore);
+		summaryMessageJoiner.add("");
+		summaryMessageJoiner.add("Total number of mutants: " + totalNumMutants);
+		summaryMessageJoiner.add("Number of mutants covered: " + numCoveredMutants);
+		summaryMessageJoiner.add("Number of mutants killed: " + numKilledMutants);
+
+		MessageDialog.openInformation(window.getShell(), "org.rayzor.mutant", summaryMessageJoiner.toString());
 	}
 
 	/**

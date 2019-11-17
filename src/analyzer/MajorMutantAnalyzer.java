@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,10 +19,10 @@ import mutator.Mutator;
 import util.TestFinder;
 
 /**
- * Given a Mutator and test classes, a MajorMutantAnalyzer performs
- * mutation testing by running each test method given by the test classes
- * against each mutant given by the Mutator. This MutantAnalyzer provides
- * coverage information on mutants in addition to whether or not mutants are killed.
+ * Given a Mutator and test classes, a MajorMutantAnalyzer performs mutation
+ * testing by running each test method given by the test classes against each
+ * mutant given by the Mutator. This MutantAnalyzer provides coverage
+ * information on mutants in addition to whether or not mutants are killed.
  * 
  * @author Raymond Tang
  *
@@ -33,6 +34,8 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 	private Mutator mutator;
 	// Set of covered mutantIDs
 	private Set<Integer> coveredMutantIDs;
+	// Set of killed mutantIDs
+	private Set<Integer> killedMutantIDs;
 	// KillMap
 	private KillMap killMap;
 	// Tests to run against mutants
@@ -42,19 +45,21 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 		this.mutator = mutator;
 		this.tests = new ArrayList<TestMethod>(TestFinder.getTestMethods(testClasses));
 		this.coveredMutantIDs = new TreeSet<Integer>();
+		this.killedMutantIDs = new LinkedHashSet<Integer>();
 		killMap = executeMutationTests();
 	}
 
 	/**
-	 * Performs mutation testing by running each test against each mutant in isolation. 
-	 * Returns a KillMap containing the results of the mutation testing.
+	 * Performs mutation testing by running each test against each mutant in
+	 * isolation. Returns a KillMap containing the results of the mutation
+	 * testing.
 	 * 
 	 * @return a KillMap containing the results of the mutation testing
 	 */
 	private KillMap executeMutationTests() {
 		KillMap killMap = new KillMap();
 		int numMutants = mutator.getNumberOfMutants();
-		for(TestMethod test : tests) {
+		for (TestMethod test : tests) {
 			Config.__M_NO = 0;
 			JUnitCore core = new JUnitCore();
 			Result original = core.run(Request.method(test.getTestClass(), test.getName()));
@@ -62,66 +67,121 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 			List<Integer> coveredMutants = Config.getCoverageList();
 			this.coveredMutantIDs.addAll(coveredMutants);
 			Config.reset();
-			for(int mutantID = 1; mutantID <= numMutants; mutantID++) {
+			for (int mutantID = 1; mutantID <= numMutants; mutantID++) {
 				Mutant mutant = new Mutant(mutantID);
 				Outcome outcome;
-				if(coveredMutants.contains(mutantID)) {
+				if (coveredMutants.contains(mutantID)) {
 					Config.__M_NO = mutantID;
 					Result resultWithMutant = core.run(Request.method(test.getTestClass(), test.getName()));
 					boolean newResult = resultWithMutant.wasSuccessful();
-					if(newResult == originalResult) outcome = Outcome.ALIVE;
-					else outcome = Outcome.KILLED;
-				}
-				else outcome = Outcome.ALIVE;
+					if (newResult == originalResult)
+						outcome = Outcome.ALIVE;
+					else {
+						outcome = Outcome.KILLED;
+						this.killedMutantIDs.add(mutantID);
+					}
+				} else
+					outcome = Outcome.ALIVE;
 				killMap.put(mutant, test, outcome);
 			}
 		}
 		return killMap;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see analyzer.MutantAnalyzer#getMutator()
 	 */
 	@Override
 	public Mutator getMutator() {
 		return mutator;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see analyzer.MutantAnalyzer#getTests()
 	 */
 	@Override
 	public List<TestMethod> getTests() {
 		return tests;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see analyzer.MutantAnalyzer#getKillMap()
 	 */
 	@Override
 	public KillMap getKillMap() {
 		return killMap;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see analyzer.MutantAnalyzer#getMutationScore()
+	 */
+	@Override
+	public double getMutationScore() {
+		return (double) this.killedMutantIDs.size() / this.mutator.getNumberOfMutants() * 100;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see analyzer.MutantAnalyzer#getNumberOfCoveredMutants()
+	 */
+	@Override
+	public int getNumberOfCoveredMutants() {
+		return this.coveredMutantIDs.size();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see analyzer.MutantAnalyzer#getNumberOfKilledMutants()
+	 */
+	@Override
+	public int getNumberOfKilledMutants() {
+		return this.killedMutantIDs.size();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see analyzer.MutantAnalyzer#getNumberOfMutants()
+	 */
+	@Override
+	public int getNumberOfMutants() {
+		return this.mutator.getNumberOfMutants();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see analyzer.MutantAnalyzer#exportKillMatrixCSV()
 	 */
 	@Override
 	public boolean exportKillMatrixCSV() {
-		if(killMap.size() == 0) return false;
+		if (killMap.size() == 0)
+			return false;
 		String fileName = mutator.getProjectLocationOfJavaFile() + FILE_SEPARATOR + "killMatrix.csv";
 		char csvSeparator = ',';
 		int numMutants = mutator.getNumberOfMutants();
 		try {
 			PrintWriter writer = new PrintWriter(fileName);
 			writer.print("Mutant#");
-			for(TestMethod test : tests) writer.print(csvSeparator + test.getName());
+			for (TestMethod test : tests)
+				writer.print(csvSeparator + test.getName());
 			writer.println();
-			for(int i = 0; i < numMutants; i++) {
+			for (int i = 0; i < numMutants; i++) {
 				int mutantID = i + 1;
 				writer.print(mutantID);
 				Mutant mutant = new Mutant(mutantID);
-				for(TestMethod test: tests) writer.print("" + csvSeparator + killMap.get(mutant, test));
+				for (TestMethod test : tests)
+					writer.print("" + csvSeparator + killMap.get(mutant, test));
 				writer.println();
 			}
 			writer.close();
@@ -130,21 +190,27 @@ public class MajorMutantAnalyzer implements MutantAnalyzer {
 			return false;
 		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see analyzer.MutantAnalyzer#isMutantKilled(int)
 	 */
 	@Override
 	public boolean isMutantKilled(Mutant mutant) {
 		int mutantID = mutant.getID();
-		if(killMap.size() == 0 || mutantID < 1 || mutantID > killMap.getMutants().size()) return false;
-		for(TestMethod test : tests) {
-			if(killMap.get(mutant, test) == Outcome.KILLED) return true;
+		if (killMap.size() == 0 || mutantID < 1 || mutantID > killMap.getMutants().size())
+			return false;
+		for (TestMethod test : tests) {
+			if (killMap.get(mutant, test) == Outcome.KILLED)
+				return true;
 		}
 		return false;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see analyzer.MutantAnalyzer#isMutantCovered(int)
 	 */
 	@Override
